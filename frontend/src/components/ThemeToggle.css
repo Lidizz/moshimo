@@ -1,0 +1,25 @@
+.theme-toggle {
+  background: var(--accent-bg);
+  border: 2px solid var(--accent);
+  border-radius: 50%;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  padding: 0;
+}
+
+.theme-toggle:hover {
+  background: var(--accent);
+  color: var(--text-inverted);
+  transform: scale(1.08) rotate(15deg);
+  box-shadow: var(--shadow-md);
+}
+
+.theme-toggle:active {
+  transform: scale(0.95);
+}

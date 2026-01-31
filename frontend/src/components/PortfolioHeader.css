@@ -1,0 +1,67 @@
+.portfolio-header {
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  padding: 1.5rem 1.75rem;
+  margin-bottom: 1.5rem;
+  box-shadow: var(--shadow-sm);
+}
+
+.portfolio-header__main {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  font-size: 1.0625rem;
+}
+
+.portfolio-header__icon {
+  font-size: 1.75rem;
+}
+
+.portfolio-header__text {
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+.portfolio-header__duration {
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.portfolio-header__stocks {
+  font-size: 0.9375rem;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  flex-wrap: wrap;
+}
+
+.portfolio-header__stock {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+/* Mobile responsive */
+@media (max-width: 640px) {
+  .portfolio-header {
+    padding: 1.25rem;
+  }
+
+  .portfolio-header__main {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+    font-size: 1rem;
+  }
+  
+  .portfolio-header__stocks {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+}
+    gap: 0.25rem;
+  }
+}

@@ -1,0 +1,40 @@
+# Base Configuration (Shared across all profiles)
+spring:
+  application:
+    name: moshimo-backend
+  
+  # Active profile (override with environment variable SPRING_PROFILES_ACTIVE if needed)
+  profiles:
+    active: dev
+
+  # Jackson configuration for JSON serialization
+  # jackson:
+  #   serialization:
+  #     WRITE_DATES_AS_TIMESTAMPS: false
+  #   time-zone: UTC
+  #   default-property-inclusion: NON_NULL
+
+# Server configuration
+server:
+  port: 8080
+  error:
+    include-message: always
+    include-binding-errors: always
+    include-stacktrace: on_param
+    include-exception: false
+
+# Actuator endpoints
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: always
+
+# Logging
+logging:
+  level:
+    root: INFO
+    com.moshimo: DEBUG

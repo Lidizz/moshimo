@@ -1,0 +1,56 @@
+# ===================
+# Backend (Java/Spring Boot)
+# ===================
+backend/target/
+backend/*.log
+backend/.env
+backend/server.log
+
+# ===================
+# Frontend (React/Node)
+# ===================
+frontend/node_modules/
+frontend/dist/
+frontend/.env
+
+# ===================
+# IDE & Editors
+# ===================
+.idea/
+.vscode/
+*.iml
+*.swp
+*.swo
+
+# ===================
+# OS Files
+# ===================
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ===================
+# Docker Volumes
+# ===================
+postgres_data/
+pgadmin_data/
+
+# ===================
+# Logs
+# ===================
+*.log
+logs/
+
+# ===================
+# Archive - Large CSV data files
+# Excluded: TwelveData is primary provider, CSVs are unused fallback
+# To restore: download from original data source
+# ===================
+archive/
+
+# ===================
+# Environment & Secrets
+# ===================
+.env
+.env.local
+.env.*.local

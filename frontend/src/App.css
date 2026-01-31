@@ -1,0 +1,328 @@
+/* CSS Variables for theming - Koyfin Dark + Daktilo Cream inspired */
+:root {
+  /* Light Mode - Daktilo Cream Theme (Typewriter aesthetic) */
+  --bg-primary: #f5f1e8;           /* Warm cream/parchment background */
+  --bg-secondary: #e8e4d8;         /* Slightly darker cream for cards */
+  --bg-tertiary: #ddd9cd;          /* Even darker for hover states */
+  --bg-gradient-start: #f5f1e8;    /* Subtle gradient */
+  --bg-gradient-end: #e8e0d0;
+  --text-primary: #2a2520;         /* Deep brown, typewriter-like */
+  --text-secondary: #5a5046;       /* Medium brown for secondary text */
+  --text-tertiary: #8a7f72;        /* Light brown for muted text */
+  --text-inverted: #f5f1e8;        /* Cream for dark backgrounds */
+  --border-color: #d0cbc0;         /* Subtle borders */
+  --border-color-strong: #b8b3a8;  /* Stronger borders */
+  --card-bg: #e8e4d8;              /* Cream card background */
+  --card-bg-hover: #ddd9cd;        /* Hover state */
+  
+  /* Accent - Muted Teal (Unique to Moshimo) */
+  --accent: #5c9c9c;               /* Primary teal accent */
+  --accent-hover: #4a8585;         /* Darker teal for hover */
+  --accent-light: #7eb3a9;         /* Lighter teal for subtle touches */
+  --accent-bg: rgba(92, 156, 156, 0.1); /* Teal background tint */
+  
+  /* Status Colors (Desaturated for cream theme) */
+  --success: #6eb86e;              /* Muted green */
+  --success-bg: rgba(110, 184, 110, 0.1);
+  --error: #e76f6f;                /* Muted red */
+  --error-bg: rgba(231, 111, 111, 0.1);
+  --info: #6a93c8;                 /* Muted blue */
+  --warning: #d9a764;              /* Muted orange/amber */
+  
+  /* Shadows */
+  --shadow-sm: 0 1px 2px 0 rgba(42, 37, 32, 0.08);
+  --shadow-md: 0 4px 6px -1px rgba(42, 37, 32, 0.12);
+  --shadow-lg: 0 10px 15px -3px rgba(42, 37, 32, 0.15);
+  --shadow-xl: 0 20px 25px -5px rgba(42, 37, 32, 0.18);
+  
+  /* Typography */
+  --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  --font-mono: 'Courier New', 'Courier', monospace;
+  --letter-spacing-tight: -0.025em;
+  --letter-spacing-normal: 0;
+  --letter-spacing-wide: 0.025em;
+  --letter-spacing-wider: 0.05em;
+}
+
+[data-theme='dark'] {
+  /* Dark Mode - Koyfin Inspired (Deep slate/navy) */
+  --bg-primary: #0a0e27;           /* Deep navy, almost black */
+  --bg-secondary: #1a1f3a;         /* Slate blue for cards */
+  --bg-tertiary: #252b4a;          /* Lighter slate for hover */
+  --bg-gradient-start: #0a0e27;    /* Subtle gradient */
+  --bg-gradient-end: #15182e;
+  --text-primary: #e6e8f0;         /* Cool off-white */
+  --text-secondary: #a8acc0;       /* Medium gray-blue */
+  --text-tertiary: #6b7085;        /* Muted gray for tertiary text */
+  --text-inverted: #0a0e27;        /* Dark for light backgrounds */
+  --border-color: #2a3150;         /* Subtle borders */
+  --border-color-strong: #3a4165;  /* Stronger borders */
+  --card-bg: #1a1f3a;              /* Slate card background */
+  --card-bg-hover: #252b4a;        /* Hover state */
+  
+  /* Accent - Muted Teal (remains consistent but adjusted) */
+  --accent: #7eb3a9;               /* Lighter teal for dark mode */
+  --accent-hover: #92c5bb;         /* Even lighter for hover */
+  --accent-light: #5c9c9c;         /* Darker teal variant */
+  --accent-bg: rgba(126, 179, 169, 0.15); /* Teal background tint */
+  
+  /* Status Colors (Adjusted for dark mode) */
+  --success: #6eb86e;              /* Same muted green */
+  --success-bg: rgba(110, 184, 110, 0.15);
+  --error: #e76f6f;                /* Same muted red */
+  --error-bg: rgba(231, 111, 111, 0.15);
+  --info: #6a93c8;                 /* Same muted blue */
+  --warning: #d9a764;              /* Same muted orange */
+  
+  /* Shadows (Deeper for dark mode) */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.6);
+}
+
+.app {
+  min-height: 100vh;
+  background: var(--bg-primary);
+  font-family: var(--font-family);
+  color: var(--text-primary);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.app-header {
+  background: var(--card-bg);
+  border-bottom: 1px solid var(--border-color);
+  padding: 1.5rem 2rem;
+  margin-bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  backdrop-filter: blur(8px);
+  box-shadow: var(--shadow-sm);
+}
+
+.app-header__brand {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.app-logo {
+  height: 40px;
+  width: 40px;
+  flex-shrink: 0;
+}
+
+.app-header__text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.app-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0;
+  color: var(--text-primary);
+  letter-spacing: var(--letter-spacing-tight);
+  line-height: 1.2;
+}
+
+.app-subtitle {
+  font-size: 0.875rem;
+  margin: 0;
+  color: var(--text-secondary);
+  font-weight: 400;
+  letter-spacing: var(--letter-spacing-wide);
+}
+
+.app-header__theme-toggle {
+  flex-shrink: 0;
+}
+
+/* Data Freshness Disclaimer */
+.data-disclaimer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  background: var(--accent-bg);
+  border: 1px solid var(--accent);
+  border-radius: 8px;
+  padding: 1rem 1.5rem;
+  margin: 2rem auto;
+  max-width: 900px;
+  color: var(--text-primary);
+  font-size: 0.875rem;
+  box-shadow: var(--shadow-sm);
+}
+
+.disclaimer-icon {
+  font-size: 1.25rem;
+  flex-shrink: 0;
+  color: var(--accent);
+}
+
+.disclaimer-text {
+  margin: 0;
+  line-height: 1.6;
+  color: var(--text-secondary);
+}
+
+.disclaimer-text strong {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.app-main {
+  max-width: 1600px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+/* Loading state */
+.app-loading {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  color: var(--text-primary);
+  background: var(--bg-primary);
+}
+
+.spinner {
+  width: 50px;
+  height: 50px;
+  border: 4px solid var(--border-color);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 1rem;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Error state */
+.app-error {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  color: var(--text-primary);
+  background: var(--bg-primary);
+  padding: 2rem;
+}
+
+.app-error h1 {
+  color: var(--error);
+  margin-bottom: 1rem;
+}
+
+.app-error button {
+  margin-top: 1rem;
+  padding: 0.75rem 2rem;
+  background: var(--accent);
+  color: var(--text-inverted);
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.app-error button:hover {
+  background: var(--accent-hover);
+}
+
+/* Simulation error */
+.simulation-error {
+  background: var(--error-bg);
+  border: 2px solid var(--error);
+  border-radius: 12px;
+  padding: 1.25rem;
+  margin-bottom: 2rem;
+  color: var(--error);
+  font-weight: 500;
+}
+
+/* Debug section */
+.app-debug {
+  color: var(--text-secondary);
+  cursor: pointer;
+  margin-top: 2rem;
+}
+
+.app-debug summary {
+  font-size: 0.875rem;
+  padding: 0.5rem;
+  color: var(--text-tertiary);
+}
+
+.app-debug p {
+  margin: 0.25rem 0;
+  font-size: 0.875rem;
+  font-family: var(--font-mono);
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+  .app-header {
+    padding: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .app-header__brand {
+    gap: 0.75rem;
+  }
+
+  .app-logo {
+    height: 32px;
+    width: 32px;
+  }
+
+  .app-title {
+    font-size: 1.25rem;
+  }
+
+  .app-subtitle {
+    font-size: 0.75rem;
+  }
+
+  .app-main {
+    padding: 1rem;
+  }
+
+  .data-disclaimer {
+    flex-direction: column;
+    text-align: center;
+    padding: 1rem;
+    margin: 1rem;
+  }
+}
+
+/* Large desktop optimization (1440px+) */
+@media (min-width: 1440px) {
+  .app-main {
+    padding: 3rem;
+  }
+
+  .app-header {
+    padding: 2rem 3rem;
+  }
+
+  .app-title {
+    font-size: 1.75rem;
+  }
+}

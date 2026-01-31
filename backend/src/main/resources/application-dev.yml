@@ -1,0 +1,99 @@
+# Development Profile Configuration
+spring:
+  # Database Configuration
+  datasource:
+    url: jdbc:postgresql://localhost:5432/moshimo_dev
+    username: postgres
+    password: postgres
+    driver-class-name: org.postgresql.Driver
+    
+    # HikariCP connection pool settings (optimized for local dev)
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 5
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+      connection-test-query: SELECT 1
+
+  # JPA/Hibernate Configuration
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: validate  # Let Flyway manage schema, Hibernate only validates
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.CamelCaseToUnderscoresNamingStrategy
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        use_sql_comments: true
+        highlight_sql: true
+        jdbc:
+          batch_size: 20
+          fetch_size: 50
+        order_inserts: true
+        order_updates: true
+        query:
+          in_clause_parameter_padding: true
+
+  # Flyway Migration Configuration
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    baseline-version: 0
+    locations: classpath:db/migration
+    validate-on-migrate: true
+    out-of-order: false
+    placeholder-replacement: false
+
+  # Development tools
+  devtools:
+    restart:
+      enabled: true
+    livereload:
+      enabled: true
+
+# Stock Data Provider Configuration
+stock:
+  data:
+    # Primary provider for monthly updates (change to switch providers)
+    # Options: twelveData, alphaVantage, yahoo
+    primary-provider: twelveData
+    
+    # Backup providers (tried in order if primary fails)
+    backup-providers:
+      - alphaVantage
+      - yahoo
+    
+    # API Keys (loaded from .env file)
+    twelve-data:
+      api-key: ${TWELVE_DATA_API_KEY:}
+      base-url: ${TWELVE_DATA_BASE_URL:https://api.twelvedata.com}
+    alpha-vantage:
+      api-key: ${ALPHA_VANTAGE_API_KEY:}
+    
+    # Update strategy
+    update-frequency: monthly  # monthly, weekly, daily
+    update-day-of-month: 1     # 1st of every month
+    update-enabled: false      # DISABLED: Using CSV import for MVP, enable later for monthly updates
+    update-cron: "0 0 2 1 * *" # At 02:00 AM on day 1 of every month
+
+# Logging for Development
+logging:
+  level:
+    root: INFO
+    com.moshimo: DEBUG
+    org.springframework.web: DEBUG
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+    org.flywaydb: INFO
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
+
+# CORS Configuration (will be implemented in Java config)
+# Documented here for reference:
+# Allowed origins: http://localhost:5173, http://127.0.0.1:5173
+# Allowed methods: GET, POST, PUT, DELETE, OPTIONS
+# Allowed headers: *
+# Allow credentials: true
