@@ -1,0 +1,71 @@
+PROPRIETARY LICENSE
+
+Copyright (c) 2026 Lidor Shachar (Lidizz). All Rights Reserved.
+
+TERMS AND CONDITIONS
+
+1. DEFINITIONS
+   "Software" refers to the Moshimo application, including all source code,
+   documentation, assets, and associated files in this repository.
+   
+   "Author" refers to Lidor Shachar (Lidizz), the copyright holder.
+   
+   "You" refers to any person or entity accessing this Software.
+
+2. GRANT OF RIGHTS
+   The Author grants You a limited, non-exclusive, non-transferable,
+   revocable license to:
+   
+   a) VIEW the source code for personal educational purposes.
+   b) FORK the repository on GitHub for personal, non-commercial learning.
+   c) RUN the Software locally for personal, non-commercial evaluation.
+
+3. RESTRICTIONS
+   You may NOT, without prior written permission from the Author:
+   
+   a) Use the Software or any part thereof for commercial purposes.
+   b) Distribute, sublicense, sell, or transfer the Software.
+   c) Create derivative works based on the Software.
+   d) Remove or alter any proprietary notices or labels.
+   e) Use the Software to provide services to third parties.
+   f) Deploy the Software to any public server or hosting platform.
+   g) Use the Software's name, branding, or identity.
+
+4. CONTRIBUTIONS
+   By submitting contributions (pull requests, issues, suggestions) to this
+   repository, You agree that:
+   
+   a) Your contributions become the property of the Author.
+   b) Your contributions are licensed under the same terms as this License.
+   c) You have the right to submit such contributions.
+   d) You waive any claims to compensation for contributions.
+
+5. NO WARRANTY
+   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+   OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+   FITNESS FOR A PARTICULAR PURPOSE, AND NONINFRINGEMENT.
+
+6. LIMITATION OF LIABILITY
+   IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY CLAIM, DAMAGES, OR OTHER
+   LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT, OR OTHERWISE, ARISING
+   FROM, OUT OF, OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+   DEALINGS IN THE SOFTWARE.
+
+7. TERMINATION
+   This license is effective until terminated. Your rights under this license
+   will terminate automatically without notice if You fail to comply with any
+   of its terms. Upon termination, You must destroy all copies of the Software
+   in your possession.
+
+8. GOVERNING LAW
+   This license shall be governed by and construed in accordance with
+   applicable copyright laws.
+
+9. COMMERCIAL LICENSING
+   For commercial use, redistribution, or licensing inquiries, contact the
+   Author through GitHub: https://github.com/Lidizz
+
+---
+
+For the avoidance of doubt: This is NOT an open-source license.
+All rights not expressly granted herein are reserved by the Author.
