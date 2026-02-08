@@ -72,7 +72,11 @@ export function isPast(date: Date | string): boolean {
  */
 export function isFuture(date: Date | string): boolean {
   const d = typeof date === 'string' ? new Date(date) : date;
+  // Normalize input date to midnight
+  const inputDate = new Date(d);
+  inputDate.setHours(0, 0, 0, 0);
+  
   const today = new Date();
   today.setHours(0, 0, 0, 0);
-  return d > today;
+  return inputDate > today;
 }

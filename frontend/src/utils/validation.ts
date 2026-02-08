@@ -30,6 +30,9 @@ export function validateInvestmentAmount(amount: number): ValidationResult {
  */
 export function validatePurchaseDate(date: string, ipoDate?: string): ValidationResult {
   const purchaseDate = new Date(date);
+  // Normalize purchase date to midnight
+  purchaseDate.setHours(0, 0, 0, 0);
+  
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
@@ -39,6 +42,7 @@ export function validatePurchaseDate(date: string, ipoDate?: string): Validation
 
   if (ipoDate) {
     const ipo = new Date(ipoDate);
+    ipo.setHours(0, 0, 0, 0);
     if (purchaseDate < ipo) {
       return { valid: false, error: `Date must be after IPO (${ipoDate})` };
     }

@@ -108,6 +108,8 @@
 
     <build>
         <plugins>
+            <!-- JaCoCo disabled - incompatible with Java 25 (class file version 69) -->
+            <!--
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
@@ -127,6 +129,7 @@
                     </execution>
                 </executions>
             </plugin>
+            -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>

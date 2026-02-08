@@ -101,7 +101,8 @@ describe('Date Helpers', () => {
     });
 
     it('returns false for today', () => {
-      const today = new Date();
+      // Use date string to avoid time component issues
+      const today = new Date().toISOString().split('T')[0];
       expect(isFuture(today)).toBe(false);
     });
   });
