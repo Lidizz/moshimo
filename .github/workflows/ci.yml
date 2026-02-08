@@ -38,9 +38,6 @@ jobs:
       - name: Run tests
         run: ./mvnw test
       
-      - name: Generate coverage report
-        run: ./mvnw jacoco:report
-      
       - name: Verify build
         run: echo "✅ Backend build and tests successful"
 
