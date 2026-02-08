@@ -1,19 +1,30 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useMemo } from 'react';
 import { createChart, type IChartApi, type ISeriesApi, type LineData, AreaSeries, LineSeries } from 'lightweight-charts';
 import type { TimelinePoint, HoldingInfo } from '../types/api.types';
 import './PortfolioChart.css';
 
-// Color palette for individual holdings (teal-inspired, distinct)
-const HOLDING_COLORS = [
-  '#5c9c9c', // Primary teal
-  '#e07941', // Warm orange
-  '#7c6daf', // Soft purple  
-  '#4a9b8f', // Sage green
-  '#d4785c', // Coral
-  '#5d8aa8', // Steel blue
-  '#9b7653', // Warm brown
-  '#6b8e6b', // Forest green
-];
+/**
+ * Helper function to read CSS variable value
+ */
+const getCSSVariable = (varName: string): string => {
+  return getComputedStyle(document.documentElement).getPropertyValue(varName).trim();
+};
+
+/**
+ * Holding colors palette - uses theme colors for consistency
+ */
+const getHoldingColors = (): string[] => {
+  return [
+    getCSSVariable('--accent'),      // Emerald
+    getCSSVariable('--warning'),     // Amber
+    getCSSVariable('--info'),        // Slate
+    '#64b5a6',                       // Teal (complementary)
+    '#9d7cc7',                       // Purple (complementary)
+    '#f87171',                       // Rose (complementary)
+    '#a3a3a3',                       // Gray (complementary)
+    '#fb923c',                       // Orange (complementary)
+  ];
+};
 
 interface PortfolioChartProps {
   timeline: TimelinePoint[];
@@ -55,6 +66,23 @@ export function PortfolioChart({
     return (document.documentElement.getAttribute('data-theme') as 'light' | 'dark') || 'light';
   });
 
+  // Get theme colors from CSS variables
+  const themeColors = useMemo(() => {
+    return {
+      bgPrimary: getCSSVariable('--bg-primary'),
+      bgSecondary: getCSSVariable('--bg-secondary'),
+      textPrimary: getCSSVariable('--text-primary'),
+      textSecondary: getCSSVariable('--text-secondary'),
+      borderColor: getCSSVariable('--border-color'),
+      accent: getCSSVariable('--accent'),
+      success: getCSSVariable('--success'),
+      info: getCSSVariable('--info'),
+    };
+  }, [currentTheme]);
+
+  // Get holding colors based on current theme
+  const holdingColors = useMemo(() => getHoldingColors(), [currentTheme]);
+
   // Check if individual view is available
   const hasIndividualData = holdingsTimelines && Object.keys(holdingsTimelines).length > 0;
   
@@ -64,27 +92,25 @@ export function PortfolioChart({
   useEffect(() => {
     if (!chartContainerRef.current) return;
 
-    const isDark = currentTheme === 'dark';
-
-    // Create chart instance
+    // Create chart instance with theme colors
     const chart = createChart(chartContainerRef.current, {
       layout: {
-        background: { color: isDark ? '#1e293b' : '#ffffff' },
-        textColor: isDark ? '#f1f5f9' : '#333',
+        background: { color: themeColors.bgPrimary },
+        textColor: themeColors.textPrimary,
       },
       grid: {
-        vertLines: { color: isDark ? '#334155' : '#f0f0f0' },
-        horzLines: { color: isDark ? '#334155' : '#f0f0f0' },
+        vertLines: { color: themeColors.borderColor },
+        horzLines: { color: themeColors.borderColor },
       },
       width: chartContainerRef.current.clientWidth,
       height: 400,
       timeScale: {
         timeVisible: true,
         secondsVisible: false,
-        borderColor: isDark ? '#475569' : '#D1D5DB',
+        borderColor: themeColors.borderColor,
       },
       rightPriceScale: {
-        borderColor: isDark ? '#475569' : '#D1D5DB',
+        borderColor: themeColors.borderColor,
       },
     });
 
@@ -94,11 +120,13 @@ export function PortfolioChart({
     holdingSeriesRefs.current.clear();
 
     if (viewMode === 'combined') {
-      // Combined view: Single teal area chart
+      // Combined view: Emerald area chart (accent color)
+      const accentRgb = getCSSVariable('--accent-rgb');
+      
       const series = chart.addSeries(AreaSeries, {
-        topColor: 'rgba(92, 156, 156, 0.5)',      // Teal gradient top
-        bottomColor: 'rgba(92, 156, 156, 0.05)',  // Faded teal bottom
-        lineColor: '#5c9c9c',                      // Solid teal line
+        topColor: `rgba(${accentRgb}, 0.5)`,       // Accent gradient top
+        bottomColor: `rgba(${accentRgb}, 0.05)`,   // Faded accent bottom
+        lineColor: themeColors.accent,             // Solid accent line
         lineWidth: 2,
         priceLineVisible: false,
         lastValueVisible: true,
@@ -117,7 +145,7 @@ export function PortfolioChart({
       if (totalInvested > 0 && timeline.length > 0) {
         series.createPriceLine({
           price: totalInvested,
-          color: '#10b981',
+          color: themeColors.success,
           lineWidth: 2,
           lineStyle: 2,
           axisLabelVisible: true,
@@ -132,7 +160,7 @@ export function PortfolioChart({
         const timelineData = holdingsTimelines[symbol];
         if (!timelineData || timelineData.length === 0) return;
 
-        const color = HOLDING_COLORS[index % HOLDING_COLORS.length];
+        const color = holdingColors[index % holdingColors.length];
         
         const series = chart.addSeries(LineSeries, {
           color,
@@ -154,7 +182,7 @@ export function PortfolioChart({
     // Add benchmark line if enabled
     if (showBenchmark && benchmarkTimeline && benchmarkTimeline.length > 0) {
       const benchmarkSeries = chart.addSeries(LineSeries, {
-        color: '#9ca3af',
+        color: themeColors.info,
         lineWidth: 2,
         lineStyle: 2,
         priceLineVisible: false,
@@ -189,7 +217,7 @@ export function PortfolioChart({
       window.removeEventListener('resize', handleResize);
       chart.remove();
     };
-  }, [timeline, totalInvested, investments, showBenchmark, benchmarkTimeline, holdingsTimelines, viewMode, currentTheme]);
+  }, [timeline, totalInvested, investments, showBenchmark, benchmarkTimeline, holdingsTimelines, viewMode, currentTheme, themeColors, holdingColors]);
 
   // Listen for theme changes
   useEffect(() => {
@@ -255,7 +283,7 @@ export function PortfolioChart({
             <div key={symbol} className="portfolio-chart__legend-item">
               <span 
                 className="portfolio-chart__legend-color" 
-                style={{ backgroundColor: HOLDING_COLORS[index % HOLDING_COLORS.length] }}
+                style={{ backgroundColor: holdingColors[index % holdingColors.length] }}
               />
               <span>{symbol}</span>
             </div>

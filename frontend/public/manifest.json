@@ -4,8 +4,8 @@
   "description": "Investment portfolio simulator and tracker for analyzing historical performance",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#f5f1e8",
-  "theme_color": "#5c9c9c",
+  "background_color": "#f0f4f0",
+  "theme_color": "#10b981",
   "orientation": "portrait-primary",
   "scope": "/",
   "icons": [

@@ -1,4 +1,5 @@
 import { Outlet, Link, useLocation } from 'react-router-dom';
+import { Home, LineChart, Info } from 'lucide-react';
 import { ThemeToggle } from '../ThemeToggle';
 import Logo from '../Logo';
 import './Layout.css';
@@ -21,19 +22,22 @@ export default function Layout() {
               to="/" 
               className={`nav__link ${isActive('/') ? 'nav__link--active' : ''}`}
             >
-              Home
+              <Home size={20} strokeWidth={2} />
+              <span>Home</span>
             </Link>
             <Link 
               to="/simulator" 
               className={`nav__link ${isActive('/simulator') ? 'nav__link--active' : ''}`}
             >
-              Simulator
+              <LineChart size={20} strokeWidth={2} />
+              <span>Simulator</span>
             </Link>
             <Link 
               to="/about" 
               className={`nav__link ${isActive('/about') ? 'nav__link--active' : ''}`}
             >
-              About
+              <Info size={20} strokeWidth={2} />
+              <span>About</span>
             </Link>
           </nav>
           <div className="header__actions">

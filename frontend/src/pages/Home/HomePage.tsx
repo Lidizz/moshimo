@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { TrendingUp, Briefcase, BarChart3 } from 'lucide-react';
 import Logo from '../../components/Logo';
 import './HomePage.css';
 
@@ -24,21 +25,21 @@ export default function HomePage() {
       
       <section className="features">
         <div className="feature">
-          <div className="feature__icon">📈</div>
+          <div className="feature__icon"><TrendingUp size={48} strokeWidth={2} /></div>
           <h3 className="feature__title">Historical Simulation</h3>
           <p className="feature__description">
             See how investments would have performed over 20+ years of real market data
           </p>
         </div>
         <div className="feature">
-          <div className="feature__icon">💼</div>
+          <div className="feature__icon"><Briefcase size={48} strokeWidth={2} /></div>
           <h3 className="feature__title">Multi-Asset Portfolios</h3>
           <p className="feature__description">
             Combine stocks, ETFs, and indexes to build diverse investment portfolios
           </p>
         </div>
         <div className="feature">
-          <div className="feature__icon">📊</div>
+          <div className="feature__icon"><BarChart3 size={48} strokeWidth={2} /></div>
           <h3 className="feature__title">Interactive Charts</h3>
           <p className="feature__description">
             TradingView-powered visualization with multiple timeframe views

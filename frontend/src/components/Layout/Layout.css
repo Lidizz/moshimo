@@ -51,6 +51,10 @@
   border-radius: 8px;
   transition: all 0.2s;
   font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 44px; /* Mobile touch target */
 }
 
 .nav__link:hover {

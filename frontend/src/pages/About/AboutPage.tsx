@@ -1,3 +1,4 @@
+import { TrendingUp, Briefcase, BarChart3, Zap, Moon, Smartphone, AlertTriangle } from 'lucide-react';
 import './AboutPage.css';
 
 export default function AboutPage() {
@@ -45,12 +46,12 @@ export default function AboutPage() {
       <section className="about-section">
         <h2>Features</h2>
         <ul className="about-list features-list">
-          <li>📈 Historical data spanning 20+ years</li>
-          <li>💼 Multi-asset portfolio support</li>
-          <li>📊 TradingView-powered charts</li>
-          <li>⚡ Real-time S&P 500 benchmarking</li>
-          <li>🌓 Dark/Light theme support</li>
-          <li>📱 Progressive Web App (PWA) installable</li>
+          <li><TrendingUp size={20} strokeWidth={2} style={{display: 'inline', verticalAlign: 'middle', marginRight: '0.5rem'}} /> Historical data spanning 20+ years</li>
+          <li><Briefcase size={20} strokeWidth={2} style={{display: 'inline', verticalAlign: 'middle', marginRight: '0.5rem'}} /> Multi-asset portfolio support</li>
+          <li><BarChart3 size={20} strokeWidth={2} style={{display: 'inline', verticalAlign: 'middle', marginRight: '0.5rem'}} /> TradingView-powered charts</li>
+          <li><Zap size={20} strokeWidth={2} style={{display: 'inline', verticalAlign: 'middle', marginRight: '0.5rem'}} /> Real-time S&P 500 benchmarking</li>
+          <li><Moon size={20} strokeWidth={2} style={{display: 'inline', verticalAlign: 'middle', marginRight: '0.5rem'}} /> Dark/Light theme support</li>
+          <li><Smartphone size={20} strokeWidth={2} style={{display: 'inline', verticalAlign: 'middle', marginRight: '0.5rem'}} /> Progressive Web App (PWA) installable</li>
         </ul>
       </section>
       
@@ -104,7 +105,7 @@ export default function AboutPage() {
       </section>
       
       <section className="about-section disclaimer">
-        <h2>Disclaimer</h2>
+        <h2><AlertTriangle size={24} strokeWidth={2} style={{display: 'inline', verticalAlign: 'middle', marginRight: '0.5rem'}} /> Disclaimer</h2>
         <p>
           <strong>This is an educational tool only.</strong> Past performance 
           does not guarantee future results. All simulations are based on 

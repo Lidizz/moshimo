@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Moon, Sun } from 'lucide-react';
 import './ThemeToggle.css';
 
 interface ThemeToggleProps {
@@ -27,6 +28,9 @@ export function ThemeToggle({ onThemeChange }: ThemeToggleProps) {
     document.documentElement.setAttribute('data-theme', theme);
     localStorage.setItem('moshimo-theme', theme);
     
+    // Apply palette (finance-green is default)
+    document.documentElement.setAttribute('data-palette', 'finance-green');
+    
     if (onThemeChange) {
       onThemeChange(theme);
     }
@@ -43,7 +47,7 @@ export function ThemeToggle({ onThemeChange }: ThemeToggleProps) {
       aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
       title={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
     >
-      {theme === 'light' ? '🌙' : '☀️'}
+      {theme === 'light' ? <Moon size={20} /> : <Sun size={20} />}
     </button>
   );
 }

@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light" data-palette="finance-green">
+<head>
+  <meta charset="UTF-8">
+  <title>Theme Test</title>
+  <style>
+    /* Base */
+    :root {
+      --font-family: 'Inter', sans-serif;
+    }
+    
+    /* Light Mode */
+    [data-theme='light'][data-palette='finance-green'],
+    [data-theme='light']:not([data-palette]) {
+      --bg-primary: #f0f4f0;
+      --text-primary: #1a1f1a;
+      --accent: #10b981;
+    }
+    
+    /* Dark Mode */
+    [data-theme='dark'][data-palette='finance-green'],
+    [data-theme='dark']:not([data-palette]) {
+      --bg-primary: #0f1410;
+      --text-primary: #e8f0e8;
+      --accent: #34d399;
+    }
+    
+    body {
+      margin: 0;
+      padding: 2rem;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      font-family: var(--font-family);
+      transition: background 0.3s, color 0.3s;
+    }
+    
+    button {
+      padding: 1rem 2rem;
+      background: var(--accent);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Theme Test</h1>
+  <p>Current theme: <span id="theme-display">light</span></p>
+  <p>Attributes: <span id="attrs"></span></p>
+  <button onclick="toggleTheme()">Toggle Theme</button>
+  
+  <script>
+    function updateDisplay() {
+      const html = document.documentElement;
+      const theme = html.getAttribute('data-theme');
+      const palette = html.getAttribute('data-palette');
+      document.getElementById('theme-display').textContent = theme;
+      document.getElementById('attrs').textContent = 
+        `data-theme="${theme}" data-palette="${palette}"`;
+    }
+    
+    function toggleTheme() {
+      const html = document.documentElement;
+      const current = html.getAttribute('data-theme');
+      const newTheme = current === 'light' ? 'dark' : 'light';
+      html.setAttribute('data-theme', newTheme);
+      html.setAttribute('data-palette', 'finance-green');
+      updateDisplay();
+      console.log('Theme changed to:', newTheme);
+    }
+    
+    updateDisplay();
+  </script>
+</body>
+</html>

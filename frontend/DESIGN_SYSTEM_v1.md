@@ -1,5 +1,9 @@
 # Moshimo Frontend Redesign - Complete
 
+**⚠️ ARCHIVED**: This is the original design system documentation (v1) with cream/teal palette. See [DESIGN_SYSTEM_v2.md](DESIGN_SYSTEM_v2.md) for the current version with finance-green palette and flexible multi-palette architecture.
+
+---
+
 ## Overview
 
 The Moshimo frontend has been completely redesigned with a modern, Koyfin-inspired dark mode and Daktilo cream-themed light mode. The new design system emphasizes clarity, accessibility, and a seamless experience across all devices.

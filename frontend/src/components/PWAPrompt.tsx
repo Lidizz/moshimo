@@ -6,6 +6,7 @@
  */
 
 import { useState, useEffect } from 'react';
+import { Smartphone } from 'lucide-react';
 import './PWAPrompt.css';
 
 interface BeforeInstallPromptEvent extends Event {
@@ -78,7 +79,7 @@ export function PWAPrompt() {
   return (
     <div className="pwa-prompt">
       <div className="pwa-prompt__content">
-        <div className="pwa-prompt__icon">📱</div>
+        <div className="pwa-prompt__icon"><Smartphone size={32} strokeWidth={2} /></div>
         <div className="pwa-prompt__text">
           <h3 className="pwa-prompt__title">Install Moshimo</h3>
           <p className="pwa-prompt__description">
