@@ -65,6 +65,13 @@ export function PortfolioChart({
   const [currentTheme, setCurrentTheme] = useState<'light' | 'dark'>(() => {
     return (document.documentElement.getAttribute('data-theme') as 'light' | 'dark') || 'light';
   });
+  const [tooltipData, setTooltipData] = useState<{visible: boolean; value: string; date: string; x: number; y: number}>({
+    visible: false,
+    value: '',
+    date: '',
+    x: 0,
+    y: 0,
+  });
 
   // Get theme colors from CSS variables
   const themeColors = useMemo(() => {
@@ -104,13 +111,60 @@ export function PortfolioChart({
       },
       width: chartContainerRef.current.clientWidth,
       height: 400,
+      crosshair: {
+        mode: 1, // Normal crosshair mode
+        vertLine: {
+          width: 1,
+          color: themeColors.textSecondary,
+          style: 3, // Dashed line
+          labelBackgroundColor: themeColors.accent,
+        },
+        horzLine: {
+          width: 1,
+          color: themeColors.textSecondary,
+          style: 3, // Dashed line
+          labelBackgroundColor: themeColors.accent,
+        },
+      },
       timeScale: {
         timeVisible: true,
         secondsVisible: false,
         borderColor: themeColors.borderColor,
+        rightOffset: 5,
+        barSpacing: 10,
+        fixLeftEdge: true,
+        fixRightEdge: true,
       },
       rightPriceScale: {
         borderColor: themeColors.borderColor,
+        scaleMargins: {
+          top: 0.1,
+          bottom: 0.1,
+        },
+      },
+      localization: {
+        priceFormatter: (price: number) => {
+          return new Intl.NumberFormat('en-US', {
+            style: 'currency',
+            currency: 'USD',
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0,
+          }).format(price);
+        },
+      },
+      handleScale: {
+        axisPressedMouseMove: {
+          time: true,
+          price: true,
+        },
+        mouseWheel: true,
+        pinch: true,
+      },
+      handleScroll: {
+        mouseWheel: true,
+        pressedMouseMove: true,
+        horzTouchDrag: true,
+        vertTouchDrag: true,
       },
     });
 
@@ -201,6 +255,59 @@ export function PortfolioChart({
 
     chart.timeScale().fitContent();
 
+    // Subscribe to crosshair move for tooltip
+    chart.subscribeCrosshairMove((param) => {
+      if (
+        param.point === undefined ||
+        !param.time ||
+        param.point.x < 0 ||
+        param.point.y < 0
+      ) {
+        setTooltipData({ visible: false, value: '', date: '', x: 0, y: 0 });
+        return;
+      }
+
+      const activeSeries = viewMode === 'combined' ? seriesRef.current : null;
+      if (!activeSeries && viewMode === 'combined') {
+        setTooltipData({ visible: false, value: '', date: '', x: 0, y: 0 });
+        return;
+      }
+
+      let price = 0;
+      if (viewMode === 'combined' && activeSeries) {
+        const data = param.seriesData.get(activeSeries);
+        price = (data as any)?.value ?? 0;
+      } else if (viewMode === 'individual') {
+        // For individual view, show first series value as an example
+        const firstSeries = holdingSeriesRefs.current.values().next().value;
+        if (firstSeries) {
+          const data = param.seriesData.get(firstSeries);
+          price = (data as any)?.value ?? 0;
+        }
+      }
+
+      const formattedValue = new Intl.NumberFormat('en-US', {
+        style: 'currency',
+        currency: 'USD',
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      }).format(price);
+
+      const dateStr = new Date(param.time as string).toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+      });
+
+      setTooltipData({
+        visible: true,
+        value: formattedValue,
+        date: dateStr,
+        x: param.point.x,
+        y: param.point.y,
+      });
+    });
+
     // Handle window resize
     const handleResize = () => {
       if (chartContainerRef.current) {
@@ -274,7 +381,30 @@ export function PortfolioChart({
           </div>
         )}
       </div>
-      <div ref={chartContainerRef} className="portfolio-chart__container" />
+      <div className="portfolio-chart__chart-wrapper">
+        <div className="portfolio-chart__y-axis-label">
+          Portfolio Value (USD)
+        </div>
+        <div ref={chartContainerRef} className="portfolio-chart__container" />
+        
+        {/* Custom Tooltip */}
+        {tooltipData.visible && (
+          <div 
+            className="portfolio-chart__tooltip"
+            style={{
+              left: `${tooltipData.x}px`,
+              top: `${tooltipData.y}px`,
+            }}
+          >
+            <div className="portfolio-chart__tooltip-value">{tooltipData.value}</div>
+            <div className="portfolio-chart__tooltip-date">{tooltipData.date}</div>
+          </div>
+        )}
+        
+        <div className="portfolio-chart__x-axis-label">
+          Date / Time
+        </div>
+      </div>
       
       {/* Legend for individual view */}
       {viewMode === 'individual' && legendSymbols.length > 0 && (

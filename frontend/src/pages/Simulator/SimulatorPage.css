@@ -1,6 +1,15 @@
 .simulator-page {
-  max-width: 1200px;
+  max-width: 1400px;
   margin: 0 auto;
+  padding: 0 1rem;
+}
+
+/* Large screens get more breathing room */
+@media (min-width: 1440px) {
+  .simulator-page {
+    max-width: 1600px;
+    padding: 0 2rem;
+  }
 }
 
 .simulator-loading {

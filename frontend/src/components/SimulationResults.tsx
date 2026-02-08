@@ -27,16 +27,21 @@ export function SimulationResults({ results, investments }: SimulationResultsPro
     }).format(value);
   };
 
-  // Format percentage
+  // Format percentage with commas for large values
   const formatPercent = (value: number) => {
-    return `${value >= 0 ? '+' : ''}${value.toFixed(2)}%`;
+    const sign = value >= 0 ? '+' : '';
+    const formattedNumber = new Intl.NumberFormat('en-US', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(Math.abs(value));
+    return `${sign}${formattedNumber}%`;
   };
 
-  // Format number with commas
-  const formatNumber = (value: number) => {
+  // Format shares with 4 decimal places (industry standard for fractional shares)
+  const formatShares = (value: number) => {
     return new Intl.NumberFormat('en-US', {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 8,
+      minimumFractionDigits: 4,
+      maximumFractionDigits: 4,
     }).format(value);
   };
 
@@ -131,7 +136,7 @@ export function SimulationResults({ results, investments }: SimulationResultsPro
                       </div>
                     </td>
                     <td className="text-right">{formatCurrency(holding.invested)}</td>
-                    <td className="text-right">{formatNumber(holding.shares)}</td>
+                    <td className="text-right">{formatShares(holding.shares)}</td>
                     <td className="text-right">{formatCurrency(holding.purchasePrice)}</td>
                     <td className="text-right">{formatCurrency(holding.currentPrice)}</td>
                     <td className="text-right font-semibold">{formatCurrency(holding.currentValue)}</td>

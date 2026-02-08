@@ -1,7 +1,8 @@
 .simulation-results {
   margin-top: 2rem;
   animation: fadeIn 0.6s ease-out;
-  overflow: hidden;
+  overflow: visible;
+  max-width: 100%;
 }
 
 @keyframes fadeIn {
@@ -18,9 +19,45 @@
 /* Metrics Cards */
 .simulation-results__metrics {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  grid-template-columns: repeat(2, 1fr);
   gap: 1.25rem;
   margin-bottom: 2rem;
+  max-width: 100%;
+  width: 100%;
+  overflow: visible;
+  box-sizing: border-box;
+}
+
+/* Tablet: 3 columns */
+@media (min-width: 768px) {
+  .simulation-results__metrics {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.25rem;
+  }
+}
+
+/* Desktop: 4 columns */
+@media (min-width: 1024px) {
+  .simulation-results__metrics {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.5rem;
+  }
+}
+
+/* Large Desktop: Keep 4 columns */
+@media (min-width: 1440px) {
+  .simulation-results__metrics {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.5rem;
+  }
+}
+
+/* Ultra-wide: 5 columns (one row) */
+@media (min-width: 1600px) {
+  .simulation-results__metrics {
+    grid-template-columns: repeat(5, 1fr);
+    gap: 1.25rem;
+  }
 }
 
 /* Mobile: Stack metrics vertically */
@@ -38,6 +75,16 @@
   padding: 1.75rem 1.5rem;
   box-shadow: var(--shadow-sm);
   transition: all 0.3s ease;
+  box-sizing: border-box;
+  min-width: 0; /* Prevent grid overflow */
+  overflow: hidden; /* Contain content */
+}
+
+/* Tighter padding for wide screens */
+@media (min-width: 1440px) {
+  .metric-card {
+    padding: 1.5rem 1.25rem;
+  }
 }
 
 .metric-card:hover {
@@ -59,7 +106,22 @@
   font-size: 2rem;
   font-weight: 700;
   color: var(--text-primary);
-  line-height: 1.2;
+  line-height: 1.3;
+  white-space: nowrap;
+}
+
+/* Scale down for 4-column layout on wide screens */
+@media (min-width: 1024px) and (max-width: 1599px) {
+  .metric-card__value {
+    font-size: 1.5rem;
+  }
+}
+
+/* Smaller font for 5-column ultra-wide layout */
+@media (min-width: 1600px) {
+  .metric-card__value {
+    font-size: 1.4rem;
+  }
 }
 
 .metric-card__value--highlight {
@@ -190,11 +252,6 @@
 
 /* Desktop optimization (1440px+) */
 @media (min-width: 1440px) {
-  .simulation-results__metrics {
-    grid-template-columns: repeat(5, 1fr);
-    gap: 1.5rem;
-  }
-
   .metric-card {
     padding: 2rem 1.75rem;
   }
@@ -211,10 +268,6 @@
 
 /* Mobile responsive */
 @media (max-width: 1024px) {
-  .simulation-results__metrics {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
   .metric-card__value {
     font-size: 1.75rem;
   }

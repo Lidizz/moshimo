@@ -85,11 +85,69 @@
   color: var(--text-secondary);
 }
 
+/* Chart wrapper with axis labels */
+.portfolio-chart__chart-wrapper {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.portfolio-chart__y-axis-label {
+  position: absolute;
+  left: -2.5rem;
+  top: 50%;
+  transform: rotate(-90deg) translateX(-50%);
+  transform-origin: left center;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  letter-spacing: 0.025em;
+  z-index: 10;
+}
+
+.portfolio-chart__x-axis-label {
+  text-align: center;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-top: 0.5rem;
+  letter-spacing: 0.025em;
+}
+
 .portfolio-chart__container {
   width: 100%;
   min-height: 450px;
   border-radius: 6px;
   overflow: hidden;
+  position: relative;
+}
+
+/* Custom Tooltip */
+.portfolio-chart__tooltip {
+  position: absolute;
+  pointer-events: none;
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 0.75rem;
+  box-shadow: var(--shadow-lg);
+  transform: translate(-50%, -120%);
+  z-index: 100;
+  min-width: 140px;
+}
+
+.portfolio-chart__tooltip-value {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--accent);
+  margin-bottom: 0.25rem;
+}
+
+.portfolio-chart__tooltip-date {
+  font-size: 0.8125rem;
+  color: var(--text-secondary);
 }
 
 /* Legend for individual holdings view */
