@@ -6,6 +6,8 @@ export default defineConfig({
   plugins: [react()],
   server: {
     port: 5173,
+    // Vite dev server handles SPA routing automatically
+    // All non-file routes fall back to index.html
     proxy: {
       // Proxy API requests to Spring Boot backend
       '/api': {
@@ -14,5 +16,9 @@ export default defineConfig({
         secure: false,
       }
     }
+  },
+  preview: {
+    port: 5173,
+    // Preview server also handles SPA routing
   }
 })

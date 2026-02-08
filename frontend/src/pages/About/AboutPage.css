@@ -1,0 +1,154 @@
+.about-page {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+.about-header {
+  text-align: center;
+  margin-bottom: 3rem;
+  padding-bottom: 2rem;
+  border-bottom: 2px solid var(--border-color);
+}
+
+.about-header h1 {
+  font-size: 2.5rem;
+  margin: 0 0 0.5rem 0;
+  color: var(--text-primary);
+}
+
+.about-tagline {
+  font-size: 1.25rem;
+  color: var(--text-secondary);
+  font-style: italic;
+  margin: 0;
+}
+
+.about-section {
+  margin-bottom: 3rem;
+}
+
+.about-section h2 {
+  font-size: 1.75rem;
+  margin: 0 0 1rem 0;
+  color: var(--text-primary);
+  border-left: 4px solid var(--accent-color);
+  padding-left: 1rem;
+}
+
+.about-section p {
+  line-height: 1.8;
+  color: var(--text-secondary);
+  margin-bottom: 1rem;
+}
+
+.about-list {
+  line-height: 1.8;
+  color: var(--text-secondary);
+  padding-left: 1.5rem;
+}
+
+.about-list li {
+  margin-bottom: 0.75rem;
+}
+
+.about-list strong {
+  color: var(--text-primary);
+}
+
+.features-list {
+  list-style: none;
+  padding-left: 0;
+}
+
+.features-list li {
+  padding-left: 0.5rem;
+}
+
+/* Tech Grid */
+.tech-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 2rem;
+  margin-top: 1.5rem;
+}
+
+.tech-item {
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 1.5rem;
+}
+
+.tech-item h3 {
+  font-size: 1.25rem;
+  margin: 0 0 1rem 0;
+  color: var(--accent-color);
+}
+
+.tech-item ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.tech-item li {
+  color: var(--text-secondary);
+  padding: 0.25rem 0;
+}
+
+/* GitHub link */
+.github-link {
+  display: inline-block;
+  background: var(--accent-color);
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 600;
+  transition: all 0.3s;
+  margin-top: 1rem;
+}
+
+.github-link:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(var(--accent-rgb), 0.3);
+}
+
+/* Disclaimer */
+.disclaimer {
+  background: rgba(var(--warning-rgb, 255, 193, 7), 0.1);
+  border: 1px solid rgba(var(--warning-rgb, 255, 193, 7), 0.3);
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-top: 3rem;
+}
+
+.disclaimer h2 {
+  border-left-color: rgba(var(--warning-rgb, 255, 193, 7), 0.8);
+}
+
+.disclaimer p {
+  margin: 0;
+  font-size: 0.95rem;
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+  .about-page {
+    padding: 1rem 0.5rem;
+  }
+  
+  .about-header h1 {
+    font-size: 2rem;
+  }
+  
+  .about-section h2 {
+    font-size: 1.5rem;
+  }
+  
+  .tech-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+}
