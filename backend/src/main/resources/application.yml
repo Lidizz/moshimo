@@ -7,15 +7,6 @@ spring:
   profiles:
     active: dev
 
-  # Jackson configuration for JSON serialization
-  jackson:
-    serialization:
-      write-dates-as-timestamps: false
-    deserialization:
-      fail-on-unknown-properties: false
-    time-zone: UTC
-    default-property-inclusion: non_null
-
 # Server configuration
 server:
   port: 8080
