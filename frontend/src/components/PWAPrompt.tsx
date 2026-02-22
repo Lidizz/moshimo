@@ -52,9 +52,7 @@ export function PWAPrompt() {
     deferredPrompt.prompt();
 
     // Wait for the user to respond
-    const { outcome } = await deferredPrompt.userChoice;
-
-    console.log(`User ${outcome} the install prompt`);
+    const { outcome: _outcome } = await deferredPrompt.userChoice;
 
     // Clear the deferred prompt
     setDeferredPrompt(null);
