@@ -10,11 +10,6 @@ spring:
 # Server configuration
 server:
   port: 8080
-  error:
-    include-message: always
-    include-binding-errors: always
-    include-stacktrace: on_param
-    include-exception: false
 
 # Actuator endpoints
 management:
