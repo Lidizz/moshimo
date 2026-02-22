@@ -54,3 +54,15 @@ archive/
 .env
 .env.local
 .env.*.local
+
+# ===================
+# Internal Planning & Review Docs
+# ===================
+implementation_plan*.md
+project_review*.md
+task_v*.md
+PROJECT_BRIEF*.md
+FIXES_SUMMARY.md
+backend/IMPLEMENTATION_STATUS.md
+frontend/REDESIGN_SUMMARY.md
+frontend/DESIGN_SYSTEM_v1.md
