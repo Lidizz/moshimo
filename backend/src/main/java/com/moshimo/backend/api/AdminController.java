@@ -4,6 +4,7 @@ import com.moshimo.backend.infrastructure.importer.CsvStockDataImporter;
 import com.moshimo.backend.infrastructure.scheduler.StockPriceUpdateScheduler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Profile;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,6 +15,7 @@ import java.util.Map;
 @RequestMapping("/api/admin")
 @RequiredArgsConstructor
 @Slf4j
+@Profile("dev")
 public class AdminController {
     
     private final CsvStockDataImporter csvImporter;
