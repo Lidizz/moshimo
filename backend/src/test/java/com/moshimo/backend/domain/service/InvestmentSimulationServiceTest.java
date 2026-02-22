@@ -7,6 +7,8 @@ import com.moshimo.backend.domain.model.AssetType;
 import com.moshimo.backend.domain.model.Stock;
 import com.moshimo.backend.domain.model.StockPrice;
 import com.moshimo.backend.domain.repository.StockPriceRepository;
+import com.moshimo.backend.domain.service.BenchmarkService;
+import com.moshimo.backend.domain.service.TimelineAggregator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -42,6 +44,12 @@ class InvestmentSimulationServiceTest {
 
     @Mock
     private StockPriceRepository stockPriceRepository;
+
+    @Mock
+    private TimelineAggregator timelineAggregator;
+
+    @Mock
+    private BenchmarkService benchmarkService;
 
     @InjectMocks
     private InvestmentSimulationService service;
