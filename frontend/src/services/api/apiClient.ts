@@ -1,4 +1,4 @@
-import axios, { type AxiosInstance, type AxiosError } from 'axios';
+import axios, { type AxiosInstance } from 'axios';
 
 /**
  * Axios instance configured for backend API communication.
@@ -17,15 +17,13 @@ const apiClient: AxiosInstance = axios.create({
 });
 
 /**
- * Request interceptor - Logs outgoing requests in development.
+ * Request interceptor - logs nothing in production.
  */
 apiClient.interceptors.request.use(
   (config) => {
-    console.log(`[API Request] ${config.method?.toUpperCase()} ${config.url}`);
     return config;
   },
   (error) => {
-    console.error('[API Request Error]', error);
     return Promise.reject(error);
   }
 );
@@ -35,20 +33,10 @@ apiClient.interceptors.request.use(
  */
 apiClient.interceptors.response.use(
   (response) => {
-    console.log(`[API Response] ${response.status} ${response.config.url}`);
     return response;
   },
-  (error: AxiosError) => {
-    if (error.response) {
-      // Server responded with error status
-      console.error(`[API Error] ${error.response.status}:`, error.response.data);
-    } else if (error.request) {
-      // Request made but no response
-      console.error('[API Error] No response from server:', error.message);
-    } else {
-      // Error setting up request
-      console.error('[API Error]', error.message);
-    }
+  (error) => {
+    // Re-throw so individual API call sites can handle errors in context
     return Promise.reject(error);
   }
 );

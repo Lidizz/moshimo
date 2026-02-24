@@ -36,11 +36,11 @@ function SimulatorPage() {
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker
         .register('/service-worker.js')
-        .then((registration) => {
-          console.log('Service Worker registered:', registration);
+        .then(() => {
+          // SW registered successfully
         })
-        .catch((error) => {
-          console.error('Service Worker registration failed:', error);
+        .catch(() => {
+          // SW registration failed — not critical, app works without it
         });
     }
   }, []);
@@ -59,11 +59,7 @@ function SimulatorPage() {
 
         setHealth(healthData);
         setStocks(stocksData);
-
-        console.log('Health:', healthData);
-        console.log('Stocks:', stocksData);
       } catch (err: any) {
-        console.error('Error fetching data:', err);
         setError(err.message || 'Failed to fetch data');
       } finally {
         setLoading(false);
@@ -77,13 +73,11 @@ function SimulatorPage() {
     try {
       setIsSimulating(true);
       setSimulationError(null);
-      console.log('Starting simulation with request:', request);
 
       // Store request for timeframe changes
       setLastRequest(request);
 
       const results = await portfolioApi.simulate(request, timeframe);
-      console.log('Simulation results:', results);
 
       setSimulationResults(results);
       
@@ -102,7 +96,6 @@ function SimulatorPage() {
       }, 100);
 
     } catch (err: any) {
-      console.error('Simulation error:', err);
       setSimulationError(
         err.response?.data?.message || 
         err.message || 
@@ -127,12 +120,9 @@ function SimulatorPage() {
         setIsSimulating(true);
         setSimulationError(null);
         
-        console.log('Re-running simulation with timeframe:', newTimeframe);
-        
         const results = await portfolioApi.simulate(lastRequest, newTimeframe);
         setSimulationResults(results);
       } catch (err: any) {
-        console.error('Timeframe change error:', err);
         setSimulationError(
           err.response?.data?.message || 
           err.message || 

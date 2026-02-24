@@ -158,6 +158,11 @@ public class TwelveDataSeederService {
         
         log.info("  → Stock entity: {} (ID: {})", stock.getName(), stock.getId());
         
+        // Step 2b: Auto-enrich metadata if missing (name, sector, industry, exchange)
+        if (needsMetadataEnrichment(stock)) {
+            enrichStockMetadata(stock, symbol);
+        }
+        
         // Step 3: Fetch data from API
         log.info("  → Fetching historical data...");
         List<StockDataProvider.HistoricalPrice> priceData;
@@ -205,7 +210,7 @@ public class TwelveDataSeederService {
 
     /**
      * Create placeholder stock entry if it doesn't exist.
-     * Will be enriched with proper metadata later (sector, industry, etc.)
+     * Will be enriched with proper metadata via /profile API call.
      */
     private Stock createStockPlaceholder(String symbol) {
         log.info("  → Creating new stock entry for {}", symbol);
@@ -219,6 +224,64 @@ public class TwelveDataSeederService {
             .build();
         
         return stockRepository.save(stock);
+    }
+
+    /**
+     * Check if stock metadata needs enrichment.
+     * True if name contains "(Auto-imported)" or if sector/industry/exchange are missing.
+     */
+    private boolean needsMetadataEnrichment(Stock stock) {
+        return stock.getName().contains("(Auto-imported)")
+            || stock.getSector() == null
+            || stock.getIndustry() == null
+            || stock.getExchange() == null;
+    }
+
+    /**
+     * Fetch stock profile from API and update entity metadata.
+     * Uses Twelve Data /profile endpoint (1 API credit).
+     */
+    private void enrichStockMetadata(Stock stock, String symbol) {
+        log.info("  → Enriching metadata for {} via /profile API...", symbol);
+        
+        Optional<StockDataProvider.StockProfile> profile = stockDataProvider.getStockProfile(symbol);
+        
+        if (profile.isEmpty()) {
+            log.warn("  → Could not fetch profile for {}, metadata unchanged", symbol);
+            return;
+        }
+        
+        StockDataProvider.StockProfile p = profile.get();
+        
+        if (p.name() != null && !p.name().isBlank()) {
+            stock.setName(p.name());
+        }
+        if (p.exchange() != null && !p.exchange().isBlank()) {
+            stock.setExchange(p.exchange());
+        }
+        if (p.sector() != null && !p.sector().isBlank()) {
+            stock.setSector(p.sector());
+        }
+        if (p.industry() != null && !p.industry().isBlank()) {
+            stock.setIndustry(p.industry());
+        }
+        
+        // Infer asset type from profile type field
+        if (p.type() != null) {
+            String type = p.type().toLowerCase();
+            if (type.contains("etf")) {
+                stock.setAssetType(AssetType.ETF);
+            } else if (type.contains("index")) {
+                stock.setAssetType(AssetType.INDEX);
+            } else {
+                stock.setAssetType(AssetType.STOCK);
+            }
+        }
+        
+        stockRepository.save(stock);
+        log.info("  → Enriched: name={}, sector={}, industry={}, exchange={}, type={}",
+            stock.getName(), stock.getSector(), stock.getIndustry(), 
+            stock.getExchange(), stock.getAssetType());
     }
 
     /**

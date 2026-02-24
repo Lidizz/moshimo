@@ -33,7 +33,6 @@ export function SectorFilter({
         setSectors(data);
         setError(null);
       } catch (err) {
-        console.error('Failed to fetch sectors:', err);
         setError('Failed to load sectors');
       } finally {
         setLoading(false);

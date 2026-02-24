@@ -3,6 +3,7 @@ package com.moshimo.backend.infrastructure.api;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Stock Data Provider Interface - Adapter pattern for swappable data sources.
@@ -35,6 +36,17 @@ public interface StockDataProvider {
      * @return earliest available date, or fallback date (1980-01-01) if not available
      */
     LocalDate getEarliestAvailableDate(String symbol);
+
+    /**
+     * Fetch company profile metadata (name, sector, industry, exchange).
+     * Used to auto-enrich stock entities during import.
+     *
+     * @param symbol stock ticker (e.g., "AAPL")
+     * @return profile data if available, empty if endpoint not supported or fails
+     */
+    default Optional<StockProfile> getStockProfile(String symbol) {
+        return Optional.empty();
+    }
 
     /**
      * Check if the provider is currently available and responding.
@@ -73,6 +85,17 @@ public interface StockDataProvider {
             if (volume != null && volume < 0) throw new IllegalArgumentException("Volume cannot be negative");
         }
     }
+
+    /**
+     * Stock profile metadata DTO.
+     */
+    record StockProfile(
+        String name,
+        String exchange,
+        String sector,
+        String industry,
+        String type  // e.g., "Common Stock", "ETF"
+    ) {}
 
     /**
      * Custom exception for stock data provider failures.

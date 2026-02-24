@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -51,6 +52,7 @@ public class TwelveDataClient implements StockDataProvider {
     private long currentMinuteStart = 0;
     private int requestsInCurrentMinute = 0;
     private static final int MAX_REQUESTS_PER_MINUTE = 8;
+    private static final int MAX_RETRIES = 3;
     private static final LocalDate FALLBACK_START_DATE = LocalDate.of(1980, 1, 1);
 
     public TwelveDataClient(
@@ -72,6 +74,10 @@ public class TwelveDataClient implements StockDataProvider {
 
     @Override
     public LocalDate getEarliestAvailableDate(String symbol) {
+        return getEarliestAvailableDate(symbol, 0);
+    }
+
+    private LocalDate getEarliestAvailableDate(String symbol, int retryCount) {
         log.debug("Fetching earliest available date for {}", symbol);
         
         try {
@@ -95,9 +101,15 @@ public class TwelveDataClient implements StockDataProvider {
             
             // Handle HTTP errors
             if (response.statusCode() == 429) {
-                log.warn("Rate limit hit for earliest date lookup on {}, waiting 60s...", symbol);
+                if (retryCount >= MAX_RETRIES) {
+                    log.error("Rate limit retry limit ({}) exceeded for earliest date on {}, using fallback",
+                            MAX_RETRIES, symbol);
+                    return FALLBACK_START_DATE;
+                }
+                log.warn("Rate limit hit for earliest date lookup on {} (attempt {}/{}), waiting 60s...",
+                        symbol, retryCount + 1, MAX_RETRIES);
                 Thread.sleep(60000);
-                return getEarliestAvailableDate(symbol); // Retry
+                return getEarliestAvailableDate(symbol, retryCount + 1);
             }
             
             if (response.statusCode() != 200) {
@@ -211,7 +223,12 @@ public class TwelveDataClient implements StockDataProvider {
         return allData;
     }
 
-    private List<HistoricalPrice> fetchChunk(String symbol, LocalDate startDate, LocalDate endDate) 
+    private List<HistoricalPrice> fetchChunk(String symbol, LocalDate startDate, LocalDate endDate)
+            throws StockDataException {
+        return fetchChunk(symbol, startDate, endDate, 0);
+    }
+
+    private List<HistoricalPrice> fetchChunk(String symbol, LocalDate startDate, LocalDate endDate, int retryCount)
             throws StockDataException {
         try {
             // Rate limiting
@@ -238,9 +255,14 @@ public class TwelveDataClient implements StockDataProvider {
             
             // Handle HTTP errors
             if (response.statusCode() == 429) {
-                log.warn("Rate limit hit for {}, waiting 60 seconds...", symbol);
+                if (retryCount >= MAX_RETRIES) {
+                    throw new StockDataException(
+                            "Rate limit retry limit (" + MAX_RETRIES + ") exceeded for " + symbol);
+                }
+                log.warn("Rate limit hit for {} (attempt {}/{}), waiting 60 seconds...",
+                        symbol, retryCount + 1, MAX_RETRIES);
                 Thread.sleep(60000);
-                return fetchChunk(symbol, startDate, endDate); // Retry
+                return fetchChunk(symbol, startDate, endDate, retryCount + 1);
             }
             
             if (response.statusCode() == 404) {
@@ -378,6 +400,65 @@ public class TwelveDataClient implements StockDataProvider {
             throw e;
         } catch (Exception e) {
             throw new StockDataException("Failed to parse response for " + symbol, e);
+        }
+    }
+
+    /**
+     * Fetch company profile from Twelve Data /profile endpoint.
+     * Returns name, exchange, sector, industry, and type.
+     * Counts as 1 API credit.
+     */
+    @Override
+    public Optional<StockProfile> getStockProfile(String symbol) {
+        if (apiKey == null || apiKey.isBlank()) {
+            return Optional.empty();
+        }
+
+        try {
+            enforceRateLimit();
+
+            String url = String.format(
+                "%s/profile?symbol=%s&apikey=%s",
+                baseUrl, symbol, apiKey);
+
+            HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(url))
+                .GET()
+                .build();
+
+            HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+
+            if (response.statusCode() != 200) {
+                log.warn("HTTP {} fetching profile for {}", response.statusCode(), symbol);
+                return Optional.empty();
+            }
+
+            JsonNode root = objectMapper.readTree(response.body());
+
+            if (root.has("status") && "error".equals(root.get("status").asText())) {
+                log.warn("Profile API error for {}: {}", symbol,
+                    root.has("message") ? root.get("message").asText() : "unknown");
+                return Optional.empty();
+            }
+
+            String name = root.has("name") ? root.get("name").asText() : null;
+            String exchange = root.has("exchange") ? root.get("exchange").asText() : null;
+            String sector = root.has("sector") ? root.get("sector").asText() : null;
+            String industry = root.has("industry") ? root.get("industry").asText() : null;
+            String type = root.has("type") ? root.get("type").asText() : null;
+
+            log.info("Profile for {}: name={}, exchange={}, sector={}, industry={}, type={}",
+                symbol, name, exchange, sector, industry, type);
+
+            return Optional.of(new StockProfile(name, exchange, sector, industry, type));
+
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            log.error("Interrupted fetching profile for {}", symbol);
+            return Optional.empty();
+        } catch (Exception e) {
+            log.error("Error fetching profile for {}: {}", symbol, e.getMessage());
+            return Optional.empty();
         }
     }
 
