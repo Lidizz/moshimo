@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -399,6 +400,65 @@ public class TwelveDataClient implements StockDataProvider {
             throw e;
         } catch (Exception e) {
             throw new StockDataException("Failed to parse response for " + symbol, e);
+        }
+    }
+
+    /**
+     * Fetch company profile from Twelve Data /profile endpoint.
+     * Returns name, exchange, sector, industry, and type.
+     * Counts as 1 API credit.
+     */
+    @Override
+    public Optional<StockProfile> getStockProfile(String symbol) {
+        if (apiKey == null || apiKey.isBlank()) {
+            return Optional.empty();
+        }
+
+        try {
+            enforceRateLimit();
+
+            String url = String.format(
+                "%s/profile?symbol=%s&apikey=%s",
+                baseUrl, symbol, apiKey);
+
+            HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(url))
+                .GET()
+                .build();
+
+            HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+
+            if (response.statusCode() != 200) {
+                log.warn("HTTP {} fetching profile for {}", response.statusCode(), symbol);
+                return Optional.empty();
+            }
+
+            JsonNode root = objectMapper.readTree(response.body());
+
+            if (root.has("status") && "error".equals(root.get("status").asText())) {
+                log.warn("Profile API error for {}: {}", symbol,
+                    root.has("message") ? root.get("message").asText() : "unknown");
+                return Optional.empty();
+            }
+
+            String name = root.has("name") ? root.get("name").asText() : null;
+            String exchange = root.has("exchange") ? root.get("exchange").asText() : null;
+            String sector = root.has("sector") ? root.get("sector").asText() : null;
+            String industry = root.has("industry") ? root.get("industry").asText() : null;
+            String type = root.has("type") ? root.get("type").asText() : null;
+
+            log.info("Profile for {}: name={}, exchange={}, sector={}, industry={}, type={}",
+                symbol, name, exchange, sector, industry, type);
+
+            return Optional.of(new StockProfile(name, exchange, sector, industry, type));
+
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            log.error("Interrupted fetching profile for {}", symbol);
+            return Optional.empty();
+        } catch (Exception e) {
+            log.error("Error fetching profile for {}: {}", symbol, e.getMessage());
+            return Optional.empty();
         }
     }
 
