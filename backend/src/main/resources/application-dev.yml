@@ -57,15 +57,6 @@ spring:
 # Stock Data Provider Configuration
 stock:
   data:
-    # Primary provider for monthly updates (change to switch providers)
-    # Options: twelveData, alphaVantage, yahoo
-    primary-provider: twelveData
-    
-    # Backup providers (tried in order if primary fails)
-    backup-providers:
-      - alphaVantage
-      - yahoo
-    
     # API Keys (loaded from .env file)
     twelve-data:
       api-key: ${TWELVE_DATA_API_KEY:}
