@@ -1,27 +1,32 @@
-package com.moshimo.backend.web.controller;
+package com.moshimo.backend.api;
 
 import com.moshimo.backend.infrastructure.seeder.TwelveDataSeederService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Profile;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 /**
- * Data Import Controller - Admin endpoints for importing stock data from external APIs.
+ * API Import Controller - Admin endpoints for importing data from external APIs.
+ * 
+ * Handles imports from external data providers (Twelve Data, future Alpha Vantage, crypto).
+ * Separated from AdminController which handles local operations (CSV import, price updates).
  * 
  * Endpoints:
  *   POST /api/admin/import/twelve-data - Import from Twelve Data API
+ *   GET  /api/admin/import/status/{jobId} - Check import job status (future)
  * 
- * Security Note: In production, these endpoints should be protected with authentication.
- * For MVP/development, they are public for easy testing.
+ * Security Note: Protected by @Profile("dev") — not available in production.
  */
 @RestController
 @RequestMapping("/api/admin/import")
 @RequiredArgsConstructor
 @Slf4j
-public class DataImportController {
+@Profile("dev")
+public class ApiImportController {
 
     private final TwelveDataSeederService twelveDataSeederService;
 
