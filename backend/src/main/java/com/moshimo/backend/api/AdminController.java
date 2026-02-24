@@ -74,17 +74,6 @@ public class AdminController {
     }
     
     /**
-     * Health check endpoint to verify admin API is accessible.
-     */
-    @GetMapping("/health")
-    public ResponseEntity<Map<String, String>> health() {
-        return ResponseEntity.ok(Map.of(
-            "status", "UP",
-            "service", "Admin API"
-        ));
-    }
-    
-    /**
      * Manually trigger the monthly stock price update process.
      * Useful for testing or running updates outside the scheduled time.
      * 
