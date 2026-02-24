@@ -97,12 +97,9 @@
             <artifactId>YahooFinanceAPI</artifactId>
             <version>3.17.0</version>
         </dependency>
-        <!-- For .env file support in Spring Boot -->
-        <dependency>
-            <groupId>me.paulschwarz</groupId>
-            <artifactId>spring-dotenv</artifactId>
-            <version>4.0.0</version>
-        </dependency>
+        <!-- .env loading: DotenvPropertyLoader.load() in BackendApplication.main()
+             spring-dotenv 4.0.0 was removed — it used spring.factories which
+             Spring Boot 4.x no longer processes. -->
 
     </dependencies>
 
