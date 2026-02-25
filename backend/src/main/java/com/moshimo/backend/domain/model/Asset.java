@@ -7,18 +7,10 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 /**
  * Asset Entity - Represents a tradeable asset (stock, ETF, index, or crypto).
- * 
- * Learning Notes:
- * - @Entity: Marks this class as a JPA entity (maps to 'asset' table)
- * - @Table: Explicitly specifies table name and indexes
- * - @Data: Lombok generates getters, setters, toString, equals, hashCode
- * - @Builder: Lombok provides builder pattern for clean object construction
- * - @NoArgsConstructor/@AllArgsConstructor: Required by JPA (no-arg) and Builder pattern
- * - LocalDate: Java 8+ date type, maps to SQL DATE
- * - @CreationTimestamp/@UpdateTimestamp: Hibernate automatically sets timestamps
  */
 @Entity
 @Table(name = "asset", indexes = {
@@ -27,7 +19,9 @@ import java.time.LocalDateTime;
     @Index(name = "idx_asset_is_active", columnList = "is_active"),
     @Index(name = "idx_asset_asset_type", columnList = "asset_type")
 })
-@Data
+@Getter
+@Setter
+@ToString
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -119,4 +113,16 @@ public class Asset {
     @UpdateTimestamp
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Asset other)) return false;
+        return Objects.equals(symbol, other.symbol);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(symbol);
+    }
 }
