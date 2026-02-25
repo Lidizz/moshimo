@@ -120,12 +120,13 @@ class InvestmentSimulationServiceTest {
                 .build();
 
         when(assetService.getAssetEntityBySymbol("AAPL")).thenReturn(mockStock);
+        when(assetService.getAssetEntityBySymbol("AAPL")).thenReturn(mockStock);
         when(assetPriceRepository.findByAssetIdAndDate(eq(1L), eq(startDate)))
             .thenReturn(Optional.of(startPrice));
         when(assetPriceRepository.findByAssetIdAndDate(eq(1L), eq(endDate)))
             .thenReturn(Optional.of(endPrice));
-        when(assetPriceRepository.findByAssetIdAndDateBetween(
-            eq(1L), any(LocalDate.class), any(LocalDate.class)))
+        when(assetPriceRepository.findByAssetIdsAndDateBetween(
+            anyList(), any(LocalDate.class), any(LocalDate.class)))
             .thenReturn(List.of(startPrice, endPrice));
 
         // Act
@@ -177,8 +178,8 @@ class InvestmentSimulationServiceTest {
             .thenReturn(Optional.of(startPrice));
         when(assetPriceRepository.findByAssetIdAndDate(eq(1L), eq(endDate)))
             .thenReturn(Optional.of(endPrice));
-        when(assetPriceRepository.findByAssetIdAndDateBetween(
-            eq(1L), any(LocalDate.class), any(LocalDate.class)))
+        when(assetPriceRepository.findByAssetIdsAndDateBetween(
+            anyList(), any(LocalDate.class), any(LocalDate.class)))
             .thenReturn(List.of(startPrice, endPrice));
 
         // Act
@@ -248,12 +249,9 @@ class InvestmentSimulationServiceTest {
         lenient().when(assetPriceRepository.findByAssetIdAndDate(eq(2L), any(LocalDate.class)))
             .thenReturn(Optional.of(msftCurrent));
         
-        lenient().when(assetPriceRepository.findByAssetIdAndDateBetween(
-            eq(1L), any(LocalDate.class), any(LocalDate.class)))
-            .thenReturn(List.of(purchasePrice, currentPrice));
-        lenient().when(assetPriceRepository.findByAssetIdAndDateBetween(
-            eq(2L), any(LocalDate.class), any(LocalDate.class)))
-            .thenReturn(List.of(msftPurchase, msftCurrent));
+        lenient().when(assetPriceRepository.findByAssetIdsAndDateBetween(
+            anyList(), any(LocalDate.class), any(LocalDate.class)))
+            .thenReturn(List.of(purchasePrice, currentPrice, msftPurchase, msftCurrent));
 
         // Act
         SimulationResponse result = service.simulate(request);
@@ -301,8 +299,8 @@ class InvestmentSimulationServiceTest {
                     .filter(p -> p.getDate().equals(date))
                     .findFirst();
             });
-        when(assetPriceRepository.findByAssetIdAndDateBetween(
-            eq(1L), any(LocalDate.class), any(LocalDate.class)))
+        when(assetPriceRepository.findByAssetIdsAndDateBetween(
+            anyList(), any(LocalDate.class), any(LocalDate.class)))
             .thenReturn(priceData);
 
         // Act
@@ -311,8 +309,6 @@ class InvestmentSimulationServiceTest {
         // Assert
         assertNotNull(result);
         assertNotNull(result.timeline());
-        // Timeline may be empty if price data isn't properly linked, but result should exist
-        assertTrue(result.timeline() != null);
     }
 
     @Test
@@ -335,8 +331,8 @@ class InvestmentSimulationServiceTest {
         when(assetService.getAssetEntityBySymbol("AAPL")).thenReturn(mockStock);
         when(assetPriceRepository.findByAssetIdAndDate(eq(1L), any(LocalDate.class)))
             .thenReturn(Optional.of(purchasePrice));
-        when(assetPriceRepository.findByAssetIdAndDateBetween(
-            eq(1L), any(LocalDate.class), any(LocalDate.class)))
+        when(assetPriceRepository.findByAssetIdsAndDateBetween(
+            anyList(), any(LocalDate.class), any(LocalDate.class)))
             .thenReturn(List.of(purchasePrice));
 
         // Act
