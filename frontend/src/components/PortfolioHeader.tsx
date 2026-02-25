@@ -8,7 +8,7 @@ interface PortfolioHeaderProps {
 }
 
 /**
- * Portfolio Header Component - Shows date range and stock coverage.
+ * Portfolio Header Component - Shows date range and asset coverage.
  * 
  * Educational: Helps students understand the full time horizon of their investment.
  */
@@ -31,7 +31,7 @@ export function PortfolioHeader({ holdings, investments, endDate }: PortfolioHea
   };
 
   // Group holdings with their IPO info
-  const stockInfo = holdings.map(h => {
+  const assetInfo = holdings.map(h => {
     const investment = investments.find(inv => inv.symbol === h.symbol);
     return {
       symbol: h.symbol,
@@ -52,12 +52,12 @@ export function PortfolioHeader({ holdings, investments, endDate }: PortfolioHea
         </span>
       </div>
       
-      <div className="portfolio-header__stocks">
+      <div className="portfolio-header__assets">
         <strong>Data Coverage:</strong>
-        {stockInfo.map((stock, idx) => (
-          <span key={stock.symbol} className="portfolio-header__stock">
+        {assetInfo.map((asset, idx) => (
+          <span key={asset.symbol} className="portfolio-header__asset">
             {idx > 0 && ' • '}
-            {stock.symbol} ({stock.name})
+            {asset.symbol} ({asset.name})
           </span>
         ))}
       </div>

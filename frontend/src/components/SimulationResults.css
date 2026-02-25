@@ -216,7 +216,7 @@
   border-bottom: none;
 }
 
-.holdings-table__stock {
+.holdings-table__asset {
   display: flex;
   flex-direction: column;
   gap: 0.25rem;

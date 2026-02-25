@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { healthApi } from '../../services/api/healthApi';
-import { stockApi } from '../../services/api/stockApi';
+import { assetApi } from '../../services/api/assetApi';
 import { portfolioApi } from '../../services/api/portfolioApi';
 import { InvestmentBuilder } from '../../components/InvestmentBuilder';
 import { SimulationResults } from '../../components/SimulationResults';
@@ -8,12 +8,12 @@ import { TimeframeSelector } from '../../components/TimeframeSelector';
 import { LoadingSpinner } from '../../components/LoadingSpinner';
 import { Toast } from '../../components/Toast';
 import { PWAPrompt } from '../../components/PWAPrompt';
-import type { HealthResponse, Stock, SimulationRequest, SimulationResponse } from '../../types/api.types';
+import type { HealthResponse, Asset, SimulationRequest, SimulationResponse } from '../../types/api.types';
 import './SimulatorPage.css';
 
 function SimulatorPage() {
   const [health, setHealth] = useState<HealthResponse | null>(null);
-  const [stocks, setStocks] = useState<Stock[]>([]);
+  const [assets, setAssets] = useState<Asset[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   
@@ -51,14 +51,14 @@ function SimulatorPage() {
         setLoading(true);
         setError(null);
 
-        // Fetch health status and stocks in parallel
-        const [healthData, stocksData] = await Promise.all([
+        // Fetch health status and assets in parallel
+        const [healthData, assetsData] = await Promise.all([
           healthApi.checkHealth(),
-          stockApi.getAllStocks(),
+          assetApi.getAllAssets(),
         ]);
 
         setHealth(healthData);
-        setStocks(stocksData);
+        setAssets(assetsData);
       } catch (err: any) {
         setError(err.message || 'Failed to fetch data');
       } finally {
@@ -139,7 +139,7 @@ function SimulatorPage() {
       <div className="simulator-loading">
         <div className="spinner"></div>
         <h1>Loading Simulator...</h1>
-        <p>Connecting to backend and fetching stock data</p>
+        <p>Connecting to backend and fetching asset data</p>
       </div>
     );
   }
@@ -170,7 +170,7 @@ function SimulatorPage() {
 
       {/* Investment Builder */}
       <InvestmentBuilder 
-        stocks={stocks}
+        assets={assets}
         onSimulate={handleSimulate}
         isSimulating={isSimulating}
       />
@@ -214,7 +214,7 @@ function SimulatorPage() {
             <p><strong>Status:</strong> {health.status}</p>
             <p><strong>Database:</strong> {health.database.connected ? '✅ Connected' : '❌ Disconnected'}</p>
             <p><strong>Version:</strong> {health.database.version}</p>
-            <p><strong>Total Stocks:</strong> {health.database.totalStocks}</p>
+            <p><strong>Total Assets:</strong> {health.database.totalAssets}</p>
             <p><strong>Total Prices:</strong> {health.database.totalPriceRecords}</p>
             <p><strong>Environment:</strong> {health.application.environment}</p>
           </div>

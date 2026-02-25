@@ -1,30 +1,30 @@
 import apiClient from './apiClient';
-import type { Stock, PriceData, AssetType } from '../../types/api.types';
+import type { Asset, PriceData, AssetType } from '../../types/api.types';
 
 /**
- * Stock data API service.
+ * Asset data API service.
  */
-export const stockApi = {
+export const assetApi = {
   /**
-   * Get all active stocks with optional filtering.
+   * Get all active assets with optional filtering.
    * 
-   * @param type - Optional asset type filter (STOCK, ETF, INDEX)
+   * @param type - Optional asset type filter (STOCK, ETF, INDEX, CRYPTO)
    * @param sector - Optional sector filter
    */
-  getAllStocks: async (type?: AssetType, sector?: string): Promise<Stock[]> => {
+  getAllAssets: async (type?: AssetType, sector?: string): Promise<Asset[]> => {
     const params: Record<string, string> = {};
     if (type) params.type = type;
     if (sector) params.sector = sector;
     
-    const response = await apiClient.get<Stock[]>('/stocks', { params });
+    const response = await apiClient.get<Asset[]>('/assets', { params });
     return response.data;
   },
 
   /**
-   * Get stock by symbol.
+   * Get asset by symbol.
    */
-  getStockBySymbol: async (symbol: string): Promise<Stock> => {
-    const response = await apiClient.get<Stock>(`/stocks/${symbol}`);
+  getAssetBySymbol: async (symbol: string): Promise<Asset> => {
+    const response = await apiClient.get<Asset>(`/assets/${symbol}`);
     return response.data;
   },
 
@@ -32,12 +32,12 @@ export const stockApi = {
    * Get available sectors.
    */
   getSectors: async (): Promise<string[]> => {
-    const response = await apiClient.get<string[]>('/stocks/sectors');
+    const response = await apiClient.get<string[]>('/assets/sectors');
     return response.data;
   },
 
   /**
-   * Get historical prices for a stock.
+   * Get historical prices for an asset.
    */
   getPriceHistory: async (
     symbol: string,
@@ -45,7 +45,7 @@ export const stockApi = {
     toDate: string
   ): Promise<PriceData[]> => {
     const response = await apiClient.get<PriceData[]>(
-      `/stocks/${symbol}/prices`,
+      `/assets/${symbol}/prices`,
       {
         params: { from: fromDate, to: toDate },
       }

@@ -374,7 +374,7 @@ export function PortfolioChart({
               className={`portfolio-chart__view-btn ${viewMode === 'individual' ? 'portfolio-chart__view-btn--active' : ''}`}
               onClick={() => hasIndividualData && setViewMode('individual')}
               disabled={!hasIndividualData}
-              title={!hasIndividualData ? 'Individual view loading...' : 'View each stock separately'}
+              title={!hasIndividualData ? 'Individual view loading...' : 'View each asset separately'}
             >
               Individual
             </button>

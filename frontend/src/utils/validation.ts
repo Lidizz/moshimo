@@ -25,7 +25,7 @@ export function validateInvestmentAmount(amount: number): ValidationResult {
 /**
  * Validate purchase date.
  * @param date Purchase date
- * @param ipoDate Optional IPO date for stock
+ * @param ipoDate Optional IPO date for asset
  * @returns Validation result
  */
 export function validatePurchaseDate(date: string, ipoDate?: string): ValidationResult {
@@ -52,13 +52,13 @@ export function validatePurchaseDate(date: string, ipoDate?: string): Validation
 }
 
 /**
- * Validate stock symbol.
- * @param symbol Stock symbol
+ * Validate asset symbol.
+ * @param symbol Asset symbol
  * @returns Validation result
  */
 export function validateSymbol(symbol: string): ValidationResult {
   if (!symbol || symbol.trim() === '') {
-    return { valid: false, error: 'Stock symbol is required' };
+    return { valid: false, error: 'Asset symbol is required' };
   }
   if (symbol.length > 10) {
     return { valid: false, error: 'Symbol too long' };

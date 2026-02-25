@@ -114,7 +114,7 @@ export function SimulationResults({ results, investments }: SimulationResultsPro
           <table className="holdings-table__table">
             <thead>
               <tr>
-                <th>Stock</th>
+                <th>Asset</th>
                 <th className="text-right">Invested</th>
                 <th className="text-right">Shares</th>
                 <th className="text-right">Purchase Price</th>
@@ -130,7 +130,7 @@ export function SimulationResults({ results, investments }: SimulationResultsPro
                 return (
                   <tr key={holding.symbol}>
                     <td>
-                      <div className="holdings-table__stock">
+                      <div className="holdings-table__asset">
                         <span className="holdings-table__symbol">{holding.symbol}</span>
                         <span className="holdings-table__name">{holding.name}</span>
                       </div>

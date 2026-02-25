@@ -1,11 +1,11 @@
 import { useState, useEffect, useMemo } from 'react';
-import type { Stock, AssetType } from '../types/api.types';
+import type { Asset, AssetType } from '../types/api.types';
 import { AssetTypeFilter } from './AssetTypeFilter';
 import { SectorFilter } from './SectorFilter';
-import './StockSelector.css';
+import './AssetSelector.css';
 
-interface StockSelectorProps {
-  stocks: Stock[];
+interface AssetSelectorProps {
+  assets: Asset[];
   selectedSymbol: string;
   onSelect: (symbol: string) => void;
   disabled?: boolean;
@@ -21,61 +21,61 @@ interface StockSelectorProps {
  */
 function getAssetTypeBadgeClass(assetType: AssetType): string {
   switch (assetType) {
-    case 'ETF': return 'stock-selector__badge--etf';
-    case 'INDEX': return 'stock-selector__badge--index';
-    default: return 'stock-selector__badge--stock';
+    case 'ETF': return 'asset-selector__badge--etf';
+    case 'INDEX': return 'asset-selector__badge--index';
+    default: return 'asset-selector__badge--stock';
   }
 }
 
 /**
- * Stock Selector Component - Searchable dropdown for stock selection.
+ * Asset Selector Component - Searchable dropdown for asset selection.
  * 
  * Learning Notes:
  * - useMemo: Optimizes filtering performance (only recalculates when search changes)
  * - Controlled component pattern: parent manages state
  * - Mobile-first: Touch-friendly, responsive design
- * - Asset type filters: Users can filter by STOCK, ETF, or INDEX
+ * - Asset type filters: Users can filter by STOCK, ETF, INDEX, or CRYPTO
  * - Sector filters: Users can filter by business sector (Technology, Healthcare, etc.)
  */
-export function StockSelector({ stocks, selectedSymbol, onSelect, disabled = false }: StockSelectorProps) {
+export function AssetSelector({ assets, selectedSymbol, onSelect, disabled = false }: AssetSelectorProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const [isOpen, setIsOpen] = useState(false);
   const [selectedAssetType, setSelectedAssetType] = useState<AssetType | null>(null);
   const [selectedSector, setSelectedSector] = useState<string | null>(null);
 
-  // Filter stocks based on search term, asset type, and sector
-  const filteredStocks = useMemo(() => {
-    let result = stocks;
+  // Filter assets based on search term, asset type, and sector
+  const filteredAssets = useMemo(() => {
+    let result = assets;
     
     // Filter by asset type
     if (selectedAssetType) {
-      result = result.filter((stock) => stock.assetType === selectedAssetType);
+      result = result.filter((asset) => asset.assetType === selectedAssetType);
     }
     
     // Filter by sector
     if (selectedSector) {
-      result = result.filter((stock) => stock.sector === selectedSector);
+      result = result.filter((asset) => asset.sector === selectedSector);
     }
     
     // Filter by search term
     if (searchTerm) {
       const term = searchTerm.toLowerCase();
       result = result.filter(
-        (stock) =>
-          stock.symbol.toLowerCase().includes(term) ||
-          stock.name.toLowerCase().includes(term) ||
-          (stock.sector && stock.sector.toLowerCase().includes(term))
+        (asset) =>
+          asset.symbol.toLowerCase().includes(term) ||
+          asset.name.toLowerCase().includes(term) ||
+          (asset.sector && asset.sector.toLowerCase().includes(term))
       );
     }
     
     return result;
-  }, [stocks, searchTerm, selectedAssetType, selectedSector]);
+  }, [assets, searchTerm, selectedAssetType, selectedSector]);
 
   // Calculate active filter count for the filter badge
   const activeFilterCount = (selectedAssetType ? 1 : 0) + (selectedSector ? 1 : 0);
 
-  // Get selected stock details
-  const selectedStock = stocks.find((s) => s.symbol === selectedSymbol);
+  // Get selected asset details
+  const selectedAsset = assets.find((s) => s.symbol === selectedSymbol);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -93,31 +93,31 @@ export function StockSelector({ stocks, selectedSymbol, onSelect, disabled = fal
   };
 
   return (
-    <div className="stock-selector" onClick={(e) => e.stopPropagation()}>
-      <label className="stock-selector__label">Select Stock</label>
+    <div className="asset-selector" onClick={(e) => e.stopPropagation()}>
+      <label className="asset-selector__label">Select Asset</label>
       
-      <div className="stock-selector__input-wrapper">
+      <div className="asset-selector__input-wrapper">
         <button
           type="button"
-          className="stock-selector__trigger"
+          className="asset-selector__trigger"
           onClick={() => !disabled && setIsOpen(!isOpen)}
           disabled={disabled}
         >
-          {selectedStock ? (
-            <div className="stock-selector__selected">
-              <span className="stock-selector__symbol">{selectedStock.symbol}</span>
-              <span className="stock-selector__name">{selectedStock.name}</span>
+          {selectedAsset ? (
+            <div className="asset-selector__selected">
+              <span className="asset-selector__symbol">{selectedAsset.symbol}</span>
+              <span className="asset-selector__name">{selectedAsset.name}</span>
             </div>
           ) : (
-            <span className="stock-selector__placeholder">Choose a stock...</span>
+            <span className="asset-selector__placeholder">Choose an asset...</span>
           )}
-          <span className="stock-selector__arrow">{isOpen ? '▲' : '▼'}</span>
+          <span className="asset-selector__arrow">{isOpen ? '▲' : '▼'}</span>
         </button>
 
         {isOpen && (
-          <div className="stock-selector__dropdown">
+          <div className="asset-selector__dropdown">
             {/* Filter Controls */}
-            <div className="stock-selector__filters">
+            <div className="asset-selector__filters">
               <AssetTypeFilter
                 selectedType={selectedAssetType}
                 onTypeChange={setSelectedAssetType}
@@ -129,7 +129,7 @@ export function StockSelector({ stocks, selectedSymbol, onSelect, disabled = fal
               {activeFilterCount > 0 && (
                 <button
                   type="button"
-                  className="stock-selector__clear-filters"
+                  className="asset-selector__clear-filters"
                   onClick={() => {
                     setSelectedAssetType(null);
                     setSelectedSector(null);
@@ -142,42 +142,42 @@ export function StockSelector({ stocks, selectedSymbol, onSelect, disabled = fal
             
             <input
               type="text"
-              className="stock-selector__search"
+              className="asset-selector__search"
               placeholder="Search by symbol, name, or sector..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               autoFocus
             />
             
-            <div className="stock-selector__list">
-              {filteredStocks.length > 0 ? (
-                filteredStocks.map((stock) => (
+            <div className="asset-selector__list">
+              {filteredAssets.length > 0 ? (
+                filteredAssets.map((asset) => (
                   <button
-                    key={stock.id}
+                    key={asset.id}
                     type="button"
-                    className={`stock-selector__option ${
-                      stock.symbol === selectedSymbol ? 'stock-selector__option--selected' : ''
+                    className={`asset-selector__option ${
+                      asset.symbol === selectedSymbol ? 'asset-selector__option--selected' : ''
                     }`}
-                    onClick={() => handleSelect(stock.symbol)}
+                    onClick={() => handleSelect(asset.symbol)}
                   >
-                    <div className="stock-selector__option-header">
-                      <span className="stock-selector__option-symbol">{stock.symbol}</span>
-                      <span className={`stock-selector__badge ${getAssetTypeBadgeClass(stock.assetType)}`}>
-                        {stock.assetType}
+                    <div className="asset-selector__option-header">
+                      <span className="asset-selector__option-symbol">{asset.symbol}</span>
+                      <span className={`asset-selector__badge ${getAssetTypeBadgeClass(asset.assetType)}`}>
+                        {asset.assetType}
                       </span>
-                      <span className="stock-selector__option-exchange">{stock.exchange}</span>
+                      <span className="asset-selector__option-exchange">{asset.exchange}</span>
                     </div>
-                    <div className="stock-selector__option-name">{stock.name}</div>
-                    {stock.sector && (
-                      <div className="stock-selector__option-sector">{stock.sector}</div>
+                    <div className="asset-selector__option-name">{asset.name}</div>
+                    {asset.sector && (
+                      <div className="asset-selector__option-sector">{asset.sector}</div>
                     )}
                   </button>
                 ))
               ) : (
-                <div className="stock-selector__empty">
+                <div className="asset-selector__empty">
                   {activeFilterCount > 0 
-                    ? 'No stocks match your filters' 
-                    : 'No stocks found'}
+                    ? 'No assets match your filters' 
+                    : 'No assets found'}
                 </div>
               )}
             </div>

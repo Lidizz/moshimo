@@ -16,7 +16,7 @@ export const portfolioApi = {
    * - '1Y': Yearly points (first trading day of January)
    * - 'ALL': Smart sampling (~500 points, default)
    * 
-   * @param request Investment details (stocks, amounts, dates)
+   * @param request Investment details (assets, amounts, dates)
    * @param timeframe Timeline sampling granularity (default: 'ALL')
    * @returns Simulation results with timeline, metrics, and holdings
    */

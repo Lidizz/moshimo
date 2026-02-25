@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
-import { StockSelector } from './StockSelector';
-import type { Stock, Investment } from '../types/api.types';
+import { AssetSelector } from './AssetSelector';
+import type { Asset, Investment } from '../types/api.types';
 import './InvestmentForm.css';
 
 interface InvestmentFormProps {
   investment: Investment;
-  stocks: Stock[];
+  assets: Asset[];
   onUpdate: (investment: Investment) => void;
   onRemove: () => void;
   canRemove: boolean;
@@ -22,7 +22,7 @@ interface InvestmentFormProps {
  */
 export function InvestmentForm({ 
   investment, 
-  stocks, 
+  assets, 
   onUpdate, 
   onRemove, 
   canRemove,
@@ -46,7 +46,7 @@ export function InvestmentForm({
     const newErrors: Record<string, string> = {};
 
     if (!investment.symbol) {
-      newErrors.symbol = 'Stock is required';
+      newErrors.symbol = 'Asset is required';
     }
 
     if (investment.amountUsd <= 0) {
@@ -68,18 +68,18 @@ export function InvestmentForm({
         newErrors.purchaseDate = 'Date cannot be in the future';
       }
 
-      // Check if date is after stock IPO
-      const stock = stocks.find(s => s.symbol === investment.symbol);
-      if (stock && stock.ipoDate) {
-        const ipoDate = new Date(stock.ipoDate);
+      // Check if date is after asset IPO
+      const asset = assets.find(s => s.symbol === investment.symbol);
+      if (asset && asset.ipoDate) {
+        const ipoDate = new Date(asset.ipoDate);
         if (purchaseDate < ipoDate) {
-          newErrors.purchaseDate = `Date must be after IPO (${stock.ipoDate})`;
+          newErrors.purchaseDate = `Date must be after IPO (${asset.ipoDate})`;
         }
       }
     }
 
     setErrors(newErrors);
-  }, [investment, stocks]);
+  }, [investment, assets]);
 
   const handleSymbolChange = (symbol: string) => {
     onUpdate({ ...investment, symbol });
@@ -102,10 +102,10 @@ export function InvestmentForm({
   return (
     <div className={`investment-form ${!isValid ? 'investment-form--invalid' : ''}`}>
       <div className="investment-form__grid">
-        {/* Stock Selector */}
+        {/* Asset Selector */}
         <div className="investment-form__field">
-          <StockSelector
-            stocks={stocks}
+          <AssetSelector
+            assets={assets}
             selectedSymbol={investment.symbol}
             onSelect={(symbol) => {
               handleSymbolChange(symbol);
