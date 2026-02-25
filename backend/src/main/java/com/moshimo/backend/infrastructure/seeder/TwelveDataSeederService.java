@@ -5,7 +5,7 @@ import com.moshimo.backend.domain.model.Asset;
 import com.moshimo.backend.domain.model.AssetPrice;
 import com.moshimo.backend.domain.repository.AssetPriceRepository;
 import com.moshimo.backend.domain.repository.AssetRepository;
-import com.moshimo.backend.infrastructure.api.StockDataProvider;
+import com.moshimo.backend.infrastructure.api.MarketDataProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -36,7 +36,7 @@ import java.util.Optional;
 @Slf4j
 public class TwelveDataSeederService {
 
-    private final StockDataProvider stockDataProvider;  // TwelveDataClient injected
+    private final MarketDataProvider marketDataProvider;  // TwelveDataClient injected
     private final AssetRepository assetRepository;
     private final AssetPriceRepository assetPriceRepository;
 
@@ -52,7 +52,7 @@ public class TwelveDataSeederService {
         log.info("========================================");
         log.info("Starting Twelve Data import for {} symbols", symbols.size());
         log.info("Clear existing data: {}", clearExisting);
-        log.info("Provider: {}", stockDataProvider.getProviderName());
+        log.info("Provider: {}", marketDataProvider.getProviderName());
         log.info("========================================");
         
         ImportSummary summary = new ImportSummary();
@@ -140,12 +140,12 @@ public class TwelveDataSeederService {
                 }
             } else {
                 // Asset exists but has no price data, get earliest from API
-                startDate = stockDataProvider.getEarliestAvailableDate(symbol);
+                startDate = marketDataProvider.getEarliestAvailableDate(symbol);
                 log.info("  → No existing data, fetching from earliest: {}", startDate);
             }
         } else {
             // clearExisting=true or asset doesn't exist, get earliest from API
-            startDate = stockDataProvider.getEarliestAvailableDate(symbol);
+            startDate = marketDataProvider.getEarliestAvailableDate(symbol);
             log.info("  → Fetching from earliest available date: {}", startDate);
         }
         
@@ -165,11 +165,11 @@ public class TwelveDataSeederService {
         
         // Step 3: Fetch data from API
         log.info("  → Fetching historical data...");
-        List<StockDataProvider.HistoricalPrice> priceData;
+        List<MarketDataProvider.HistoricalPrice> priceData;
         
         try {
-            priceData = stockDataProvider.getHistoricalPrices(symbol, startDate, endDate);
-        } catch (StockDataProvider.StockDataException e) {
+            priceData = marketDataProvider.getHistoricalPrices(symbol, startDate, endDate);
+        } catch (MarketDataProvider.MarketDataException e) {
             throw new RuntimeException("API error: " + e.getMessage(), e);
         }
         
@@ -244,14 +244,14 @@ public class TwelveDataSeederService {
     private void enrichAssetMetadata(Asset asset, String symbol) {
         log.info("  → Enriching metadata for {} via /profile API...", symbol);
         
-        Optional<StockDataProvider.StockProfile> profile = stockDataProvider.getStockProfile(symbol);
+        Optional<MarketDataProvider.AssetProfile> profile = marketDataProvider.getAssetProfile(symbol);
         
         if (profile.isEmpty()) {
             log.warn("  → Could not fetch profile for {}, metadata unchanged", symbol);
             return;
         }
         
-        StockDataProvider.StockProfile p = profile.get();
+        MarketDataProvider.AssetProfile p = profile.get();
         
         if (p.name() != null && !p.name().isBlank()) {
             asset.setName(p.name());
@@ -287,7 +287,7 @@ public class TwelveDataSeederService {
     /**
      * Map provider HistoricalPrice to AssetPrice JPA entity.
      */
-    private AssetPrice mapToEntity(Asset asset, StockDataProvider.HistoricalPrice data) {
+    private AssetPrice mapToEntity(Asset asset, MarketDataProvider.HistoricalPrice data) {
         return AssetPrice.builder()
             .asset(asset)
             .date(data.date())

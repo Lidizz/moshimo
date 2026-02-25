@@ -4,8 +4,8 @@ import com.moshimo.backend.domain.model.Asset;
 import com.moshimo.backend.domain.model.AssetPrice;
 import com.moshimo.backend.domain.repository.AssetPriceRepository;
 import com.moshimo.backend.domain.repository.AssetRepository;
-import com.moshimo.backend.infrastructure.api.StockDataProvider;
-import com.moshimo.backend.infrastructure.api.StockDataProvider.HistoricalPrice;
+import com.moshimo.backend.infrastructure.api.MarketDataProvider;
+import com.moshimo.backend.infrastructure.api.MarketDataProvider.HistoricalPrice;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -27,7 +27,7 @@ public class AssetPriceUpdateScheduler {
     
     private final AssetRepository assetRepository;
     private final AssetPriceRepository assetPriceRepository;
-    private final StockDataProvider dataProvider;
+    private final MarketDataProvider dataProvider;
     
     @Value("${stock.data.update-enabled:true}")
     private boolean updateEnabled;

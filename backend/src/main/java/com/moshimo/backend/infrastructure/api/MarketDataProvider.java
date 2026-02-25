@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Stock Data Provider Interface - Adapter pattern for swappable data sources.
+ * Market Data Provider Interface - Adapter pattern for swappable data sources.
  * 
  * Learning Notes:
  * - Adapter Pattern: Abstracts external API details
@@ -14,37 +14,37 @@ import java.util.Optional;
  * - Single Responsibility: Each implementation handles one API
  * - Testability: Easy to mock for unit tests
  */
-public interface StockDataProvider {
+public interface MarketDataProvider {
 
     /**
-     * Fetch historical price data for a stock symbol.
+     * Fetch historical price data for an asset symbol.
      * 
-     * @param symbol stock ticker (e.g., "AAPL", "MSFT")
+     * @param symbol asset ticker (e.g., "AAPL", "MSFT")
      * @param from start date (inclusive)
      * @param to end date (inclusive)
      * @return list of historical prices ordered by date ascending
-     * @throws StockDataException if API call fails or data unavailable
+     * @throws MarketDataException if API call fails or data unavailable
      */
     List<HistoricalPrice> getHistoricalPrices(String symbol, LocalDate from, LocalDate to) 
-        throws StockDataException;
+        throws MarketDataException;
 
     /**
-     * Get the earliest available date for a stock symbol.
+     * Get the earliest available date for an asset symbol.
      * Useful for fetching maximum historical depth.
      * 
-     * @param symbol stock ticker (e.g., "AAPL", "MSFT")
+     * @param symbol asset ticker (e.g., "AAPL", "MSFT")
      * @return earliest available date, or fallback date (1980-01-01) if not available
      */
     LocalDate getEarliestAvailableDate(String symbol);
 
     /**
-     * Fetch company profile metadata (name, sector, industry, exchange).
-     * Used to auto-enrich stock entities during import.
+     * Fetch asset profile metadata (name, sector, industry, exchange).
+     * Used to auto-enrich asset entities during import.
      *
-     * @param symbol stock ticker (e.g., "AAPL")
+     * @param symbol asset ticker (e.g., "AAPL")
      * @return profile data if available, empty if endpoint not supported or fails
      */
-    default Optional<StockProfile> getStockProfile(String symbol) {
+    default Optional<AssetProfile> getAssetProfile(String symbol) {
         return Optional.empty();
     }
 
@@ -87,9 +87,9 @@ public interface StockDataProvider {
     }
 
     /**
-     * Stock profile metadata DTO.
+     * Asset profile metadata DTO.
      */
-    record StockProfile(
+    record AssetProfile(
         String name,
         String exchange,
         String sector,
@@ -98,14 +98,14 @@ public interface StockDataProvider {
     ) {}
 
     /**
-     * Custom exception for stock data provider failures.
+     * Custom exception for market data provider failures.
      */
-    class StockDataException extends Exception {
-        public StockDataException(String message) {
+    class MarketDataException extends Exception {
+        public MarketDataException(String message) {
             super(message);
         }
 
-        public StockDataException(String message, Throwable cause) {
+        public MarketDataException(String message, Throwable cause) {
             super(message, cause);
         }
     }
