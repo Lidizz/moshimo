@@ -2,8 +2,9 @@
 spring:
   application:
     name: moshimo-backend
-  
-  # Active profile (override with environment variable SPRING_PROFILES_ACTIVE if needed)
+
+  # Default to dev profile for local development.
+  # Override in production: SPRING_PROFILES_ACTIVE=prod
   profiles:
     active: dev
 
@@ -19,10 +20,10 @@ management:
         include: health,info
   endpoint:
     health:
-      show-details: always
+      show-details: when-authorized
 
-# Logging
+# Logging (profiles override with more/less verbosity)
 logging:
   level:
     root: INFO
-    com.moshimo: DEBUG
+    com.moshimo: INFO
