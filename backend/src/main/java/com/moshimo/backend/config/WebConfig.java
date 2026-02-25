@@ -1,5 +1,6 @@
 package com.moshimo.backend.config;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
@@ -7,16 +8,22 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 /**
  * Global Web MVC Configuration.
  * 
- * Configures CORS (Cross-Origin Resource Sharing) to allow the React frontend
- * running on localhost:5173 to communicate with the Spring Boot backend on localhost:8080.
+ * Configures CORS (Cross-Origin Resource Sharing) to allow the frontend
+ * to communicate with the Spring Boot backend across origins.
+ * 
+ * Allowed origins are configured per profile:
+ * - dev: localhost:5173 (Vite dev server) — see application-dev.yml
+ * - prod: real domain from CORS_ALLOWED_ORIGINS env var — see application-prod.yml
  * 
  * Learning Notes:
  * - WebMvcConfigurer provides callback methods to customize Spring MVC configuration
  * - CORS is required because browser's Same-Origin Policy blocks cross-origin requests
- * - In production, restrict allowedOrigins to your actual domain
  */
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
+
+    @Value("${app.cors.allowed-origins}")
+    private String[] allowedOrigins;
 
     /**
      * Configure CORS mappings for all endpoints.
@@ -25,11 +32,8 @@ public class WebConfig implements WebMvcConfigurer {
      */
     @Override
     public void addCorsMappings(CorsRegistry registry) {
-        registry.addMapping("/**")  // Apply to all API endpoints
-                .allowedOrigins(
-                        "http://localhost:5173",      // Vite dev server
-                        "http://127.0.0.1:5173"       // Alternative localhost
-                )
+        registry.addMapping("/**")
+                .allowedOrigins(allowedOrigins)
                 .allowedMethods(
                         "GET",
                         "POST",
@@ -37,8 +41,8 @@ public class WebConfig implements WebMvcConfigurer {
                         "DELETE",
                         "OPTIONS"
                 )
-                .allowedHeaders("*")                   // Allow all headers
-                .allowCredentials(true)                // Allow cookies/auth headers
-                .maxAge(3600);                         // Cache preflight response for 1 hour
+                .allowedHeaders("*")
+                .allowCredentials(true)
+                .maxAge(3600);
     }
 }
