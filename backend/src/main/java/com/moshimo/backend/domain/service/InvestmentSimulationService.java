@@ -61,8 +61,12 @@ public class InvestmentSimulationService {
             totalInvested = totalInvested.add(item.getAmountUsd());
         }
 
+        // Batch-fetch all prices for all assets in one query (shared by both timeline builders)
+        LocalDate earliestDate = getEarliestDate(request.getInvestments());
+        Map<LocalDate, Map<Long, AssetPrice>> pricesByDate = batchFetchPrices(holdings, earliestDate, endDate);
+
         // Build full daily timeline
-        List<SimulationResponse.TimelinePoint> dailyTimeline = buildTimeline(holdings, endDate);
+        List<SimulationResponse.TimelinePoint> dailyTimeline = buildTimeline(holdings, earliestDate, endDate, pricesByDate);
         
         // Apply timeframe aggregation
         List<SimulationResponse.TimelinePoint> timeline =
@@ -79,7 +83,6 @@ public class InvestmentSimulationService {
         // Calculate metrics
         BigDecimal absoluteGain = currentValue.subtract(totalInvested);
         BigDecimal percentReturn = calculatePercentReturn(totalInvested, currentValue);
-        LocalDate earliestDate = getEarliestDate(request.getInvestments());
         BigDecimal cagr = calculateCAGR(totalInvested, currentValue, earliestDate, endDate);
 
         // Build holdings response
@@ -91,9 +94,9 @@ public class InvestmentSimulationService {
         List<SimulationResponse.TimelinePoint> benchmarkTimeline =
                 benchmarkService.calculateBenchmarkTimeline(earliestDate, endDate, totalInvested, timeframe);
 
-        // Build individual holding timelines for per-stock visualization
+        // Build individual holding timelines (reuses batch-fetched prices — no extra queries)
         Map<String, List<SimulationResponse.TimelinePoint>> holdingsTimelines = 
-            buildHoldingsTimelines(holdings, endDate, timeframe);
+            buildHoldingsTimelines(holdings, endDate, timeframe, pricesByDate);
 
         log.info("Simulation complete - Invested: {}, Current: {}, Return: {}%", 
                  totalInvested, currentValue, percentReturn);
@@ -153,25 +156,16 @@ public class InvestmentSimulationService {
     }
 
     /**
-     * Build complete portfolio value timeline with daily granularity.
-     * Batch-fetches all prices in one query, then aggregates in memory.
-     * O(D × H) where D = trading days, H = holdings. Returns unsampled data
-     * for the caller (TimelineAggregator) to downsample.
+     * Batch-fetch all prices for the given holdings in one DB query, grouped for O(1) lookup.
+     * Returns Map&lt;Date, Map&lt;AssetId, AssetPrice&gt;&gt;.
      */
-    private List<SimulationResponse.TimelinePoint> buildTimeline(
-            List<InvestmentHolding> holdings, LocalDate endDate) {
+    private Map<LocalDate, Map<Long, AssetPrice>> batchFetchPrices(
+            List<InvestmentHolding> holdings, LocalDate startDate, LocalDate endDate) {
         
         if (holdings.isEmpty()) {
-            return List.of();
+            return Map.of();
         }
         
-        // Find overall date range
-        LocalDate startDate = holdings.stream()
-            .map(h -> h.purchaseDate)
-            .min(LocalDate::compareTo)
-            .orElse(endDate);
-        
-        // Batch-fetch all prices for all assets in one query
         List<Long> assetIds = holdings.stream()
             .map(h -> h.asset.getId())
             .distinct()
@@ -180,8 +174,7 @@ public class InvestmentSimulationService {
         List<AssetPrice> allPrices = assetPriceRepository
             .findByAssetIdsAndDateBetween(assetIds, startDate, endDate);
         
-        // Group prices by date for O(1) lookup: Map<Date, Map<AssetId, Price>>
-        Map<LocalDate, Map<Long, AssetPrice>> pricesByDate = allPrices.stream()
+        return allPrices.stream()
             .collect(Collectors.groupingBy(
                 AssetPrice::getDate,
                 Collectors.toMap(
@@ -189,8 +182,20 @@ public class InvestmentSimulationService {
                     Function.identity()
                 )
             ));
+    }
+
+    /**
+     * Build complete portfolio value timeline with daily granularity.
+     * Uses pre-fetched price map — no additional DB queries.
+     */
+    private List<SimulationResponse.TimelinePoint> buildTimeline(
+            List<InvestmentHolding> holdings, LocalDate startDate, LocalDate endDate,
+            Map<LocalDate, Map<Long, AssetPrice>> pricesByDate) {
         
-        // Build timeline day-by-day
+        if (holdings.isEmpty()) {
+            return List.of();
+        }
+        
         List<SimulationResponse.TimelinePoint> timeline = new ArrayList<>();
         LocalDate currentDate = startDate;
         
@@ -226,28 +231,30 @@ public class InvestmentSimulationService {
 
     /**
      * Build individual timelines for each holding (symbol → aggregated timeline).
-     * Enables per-asset performance comparison on the frontend.
+     * Reuses the batch-fetched price map — no additional DB queries.
      */
     private Map<String, List<SimulationResponse.TimelinePoint>> buildHoldingsTimelines(
-            List<InvestmentHolding> holdings, LocalDate endDate, Timeframe timeframe) {
+            List<InvestmentHolding> holdings, LocalDate endDate, Timeframe timeframe,
+            Map<LocalDate, Map<Long, AssetPrice>> pricesByDate) {
         
         Map<String, List<SimulationResponse.TimelinePoint>> result = new LinkedHashMap<>();
         
         for (InvestmentHolding holding : holdings) {
-            List<AssetPrice> prices = assetPriceRepository
-                .findByAssetIdAndDateBetween(holding.asset.getId(), holding.purchaseDate, endDate)
-                .stream()
-                .sorted((a, b) -> a.getDate().compareTo(b.getDate()))
-                .collect(Collectors.toList());
+            Long assetId = holding.asset.getId();
             
-            List<SimulationResponse.TimelinePoint> dailyTimeline = prices.stream()
-                .map(price -> {
+            // Extract this holding's prices from the shared map, sorted by date
+            List<SimulationResponse.TimelinePoint> dailyTimeline = pricesByDate.entrySet().stream()
+                .filter(e -> !e.getKey().isBefore(holding.purchaseDate) && !e.getKey().isAfter(endDate))
+                .filter(e -> e.getValue().containsKey(assetId))
+                .sorted(Map.Entry.comparingByKey())
+                .map(e -> {
+                    AssetPrice price = e.getValue().get(assetId);
                     BigDecimal priceValue = price.getAdjustedClose() != null 
                         ? price.getAdjustedClose() 
                         : price.getClose();
                     BigDecimal value = holding.shares.multiply(priceValue)
                         .setScale(2, RoundingMode.HALF_UP);
-                    return new SimulationResponse.TimelinePoint(price.getDate(), value);
+                    return new SimulationResponse.TimelinePoint(e.getKey(), value);
                 })
                 .collect(Collectors.toList());
             
