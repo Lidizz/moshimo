@@ -1,7 +1,7 @@
 package com.moshimo.backend.api;
 
-import com.moshimo.backend.infrastructure.importer.CsvStockDataImporter;
-import com.moshimo.backend.infrastructure.scheduler.StockPriceUpdateScheduler;
+import com.moshimo.backend.infrastructure.importer.CsvAssetDataImporter;
+import com.moshimo.backend.infrastructure.scheduler.AssetPriceUpdateScheduler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Profile;
@@ -18,11 +18,11 @@ import java.util.Map;
 @Profile("dev")
 public class AdminController {
     
-    private final CsvStockDataImporter csvImporter;
-    private final StockPriceUpdateScheduler updateScheduler;
+    private final CsvAssetDataImporter csvImporter;
+    private final AssetPriceUpdateScheduler updateScheduler;
     
     /**
-     * Import stock data from a CSV file.
+     * Import asset data from a CSV file.
      * 
      * Expected CSV format:
      * Date,Open,High,Low,Close,Volume,Adj Close,Symbol,Name
@@ -51,7 +51,7 @@ public class AdminController {
         log.info("Starting CSV import from: {}", filePath);
         
         try {
-            CsvStockDataImporter.ImportSummary summary = csvImporter.importFromCsv(filePath);
+            CsvAssetDataImporter.ImportSummary summary = csvImporter.importFromCsv(filePath);
             
             log.info("Import completed: {}", summary);
             
@@ -74,7 +74,7 @@ public class AdminController {
     }
     
     /**
-     * Manually trigger the monthly stock price update process.
+     * Manually trigger the monthly asset price update process.
      * Useful for testing or running updates outside the scheduled time.
      * 
      * Example request:
@@ -84,18 +84,18 @@ public class AdminController {
      */
     @PostMapping("/update-prices")
     public ResponseEntity<Map<String, Object>> updatePrices() {
-        log.info("Manual stock price update triggered via API");
+        log.info("Manual asset price update triggered via API");
         
         try {
             updateScheduler.triggerUpdateNow();
             
             return ResponseEntity.ok(Map.of(
                 "success", true,
-                "message", "Stock price update completed. Check logs for details."
+                "message", "Asset price update completed. Check logs for details."
             ));
             
         } catch (Exception e) {
-            log.error("Failed to update stock prices", e);
+            log.error("Failed to update asset prices", e);
             return ResponseEntity.status(500)
                 .body(Map.of(
                     "success", false,

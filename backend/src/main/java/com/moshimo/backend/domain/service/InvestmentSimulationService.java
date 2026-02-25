@@ -4,9 +4,9 @@ import com.moshimo.backend.application.dto.request.InvestmentItemRequest;
 import com.moshimo.backend.application.dto.request.SimulationRequest;
 import com.moshimo.backend.application.dto.request.Timeframe;
 import com.moshimo.backend.application.dto.response.SimulationResponse;
-import com.moshimo.backend.domain.model.Stock;
-import com.moshimo.backend.domain.model.StockPrice;
-import com.moshimo.backend.domain.repository.StockPriceRepository;
+import com.moshimo.backend.domain.model.Asset;
+import com.moshimo.backend.domain.model.AssetPrice;
+import com.moshimo.backend.domain.repository.AssetPriceRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -41,8 +41,8 @@ import java.util.stream.Collectors;
 @Slf4j
 public class InvestmentSimulationService {
 
-    private final StockService stockService;
-    private final StockPriceRepository stockPriceRepository;
+    private final AssetService assetService;
+    private final AssetPriceRepository assetPriceRepository;
     private final TimelineAggregator timelineAggregator;
     private final BenchmarkService benchmarkService;
 
@@ -130,15 +130,15 @@ public class InvestmentSimulationService {
      * Process a single investment and calculate current value.
      */
     private InvestmentHolding processInvestment(InvestmentItemRequest item, LocalDate endDate) {
-        Stock stock = stockService.getStockEntityBySymbol(item.getSymbol());
+        Asset asset = assetService.getAssetEntityBySymbol(item.getSymbol());
         
         // Get purchase price (handle holidays by finding next available trading day)
-        StockPrice purchasePrice = stockPriceRepository
-            .findByStockIdAndDate(stock.getId(), item.getPurchaseDate())
+        AssetPrice purchasePrice = assetPriceRepository
+            .findByAssetIdAndDate(asset.getId(), item.getPurchaseDate())
             .or(() -> {
                 log.info("Exact date {} not available for {}, finding next trading day", 
                          item.getPurchaseDate(), item.getSymbol());
-                return stockPriceRepository.findNextAvailableDate(stock.getId(), item.getPurchaseDate());
+                return assetPriceRepository.findNextAvailableDate(asset.getId(), item.getPurchaseDate());
             })
             .orElseThrow(() -> new IllegalArgumentException(
                 "No price data available for " + item.getSymbol() + " on or after " + item.getPurchaseDate()
@@ -151,12 +151,12 @@ public class InvestmentSimulationService {
         BigDecimal shares = item.getAmountUsd().divide(priceOnPurchase, 8, RoundingMode.HALF_UP);
 
         // Get current price (on end date)
-        StockPrice currentPrice = stockPriceRepository
-            .findByStockIdAndDate(stock.getId(), endDate)
+        AssetPrice currentPrice = assetPriceRepository
+            .findByAssetIdAndDate(asset.getId(), endDate)
             .orElseGet(() -> {
                 log.warn("No price data for {} on {}, using latest available", 
                          item.getSymbol(), endDate);
-                return stockPriceRepository.findLatestByStockId(stock.getId())
+                return assetPriceRepository.findLatestByAssetId(asset.getId())
                     .orElseThrow(() -> new IllegalArgumentException(
                         "No price data available for " + item.getSymbol()
                     ));
@@ -170,7 +170,7 @@ public class InvestmentSimulationService {
         BigDecimal currentValue = shares.multiply(priceOnEnd).setScale(2, RoundingMode.HALF_UP);
 
         return new InvestmentHolding(
-            stock,
+            asset,
             item.getPurchaseDate(),
             endDate,
             item.getAmountUsd(),
@@ -227,22 +227,22 @@ public class InvestmentSimulationService {
                  startDate, endDate, totalDays);
         
         // Batch-fetch all prices for all stocks in one query
-        List<Long> stockIds = holdings.stream()
-            .map(h -> h.stock.getId())
+        List<Long> assetIds = holdings.stream()
+            .map(h -> h.asset.getId())
             .distinct()
             .toList();
         
-        List<StockPrice> allPrices = stockPriceRepository
-            .findByStockIdsAndDateBetween(stockIds, startDate, endDate);
+        List<AssetPrice> allPrices = assetPriceRepository
+            .findByAssetIdsAndDateBetween(assetIds, startDate, endDate);
         
-        log.info("Fetched {} price records for {} stocks", allPrices.size(), stockIds.size());
+        log.info("Fetched {} price records for {} assets", allPrices.size(), assetIds.size());
         
-        // Group prices by date for O(1) lookup: Map<Date, Map<StockId, Price>>
-        Map<LocalDate, Map<Long, StockPrice>> pricesByDate = allPrices.stream()
+        // Group prices by date for O(1) lookup: Map<Date, Map<AssetId, Price>>
+        Map<LocalDate, Map<Long, AssetPrice>> pricesByDate = allPrices.stream()
             .collect(Collectors.groupingBy(
-                StockPrice::getDate,
+                AssetPrice::getDate,
                 Collectors.toMap(
-                    sp -> sp.getStock().getId(),
+                    ap -> ap.getAsset().getId(),
                     Function.identity()
                 )
             ));
@@ -252,7 +252,7 @@ public class InvestmentSimulationService {
         LocalDate currentDate = startDate;
         
         while (!currentDate.isAfter(endDate)) {
-            Map<Long, StockPrice> pricesOnDate = pricesByDate.get(currentDate);
+            Map<Long, AssetPrice> pricesOnDate = pricesByDate.get(currentDate);
             
             if (pricesOnDate != null && !pricesOnDate.isEmpty()) {
                 // Trading day - calculate portfolio value
@@ -261,7 +261,7 @@ public class InvestmentSimulationService {
                 for (InvestmentHolding holding : holdings) {
                     // Only count holdings purchased on or before this date
                     if (!holding.purchaseDate.isAfter(currentDate)) {
-                        StockPrice price = pricesOnDate.get(holding.stock.getId());
+                        AssetPrice price = pricesOnDate.get(holding.asset.getId());
                         
                         if (price != null) {
                             BigDecimal priceValue = price.getAdjustedClose() != null 
@@ -306,9 +306,9 @@ public class InvestmentSimulationService {
         Map<String, List<SimulationResponse.TimelinePoint>> result = new LinkedHashMap<>();
         
         for (InvestmentHolding holding : holdings) {
-            // Get all prices for this stock from purchase date to end date
-            List<StockPrice> prices = stockPriceRepository
-                .findByStockIdAndDateBetween(holding.stock.getId(), holding.purchaseDate, endDate)
+            // Get all prices for this asset from purchase date to end date
+            List<AssetPrice> prices = assetPriceRepository
+                .findByAssetIdAndDateBetween(holding.asset.getId(), holding.purchaseDate, endDate)
                 .stream()
                 .sorted((a, b) -> a.getDate().compareTo(b.getDate()))
                 .collect(Collectors.toList());
@@ -329,10 +329,10 @@ public class InvestmentSimulationService {
             List<SimulationResponse.TimelinePoint> aggregated =
                     timelineAggregator.aggregateTimeline(dailyTimeline, timeframe);
 
-            result.put(holding.stock.getSymbol(), aggregated);
+            result.put(holding.asset.getSymbol(), aggregated);
             
             log.debug("Built timeline for {}: {} daily points → {} aggregated points", 
-                     holding.stock.getSymbol(), dailyTimeline.size(), aggregated.size());
+                     holding.asset.getSymbol(), dailyTimeline.size(), aggregated.size());
         }
         
         log.info("Built individual timelines for {} holdings", result.size());
@@ -400,8 +400,8 @@ public class InvestmentSimulationService {
         BigDecimal percentReturn = calculatePercentReturn(holding.invested, holding.currentValue);
 
         return new SimulationResponse.HoldingInfo(
-                holding.stock.getSymbol(),
-                holding.stock.getName(),
+                holding.asset.getSymbol(),
+                holding.asset.getName(),
                 holding.invested,
                 holding.currentValue,
                 holding.shares,
@@ -416,7 +416,7 @@ public class InvestmentSimulationService {
      * Internal holding data structure.
      */
     private record InvestmentHolding(
-            Stock stock,
+            Asset asset,
             LocalDate purchaseDate,
             LocalDate endDate,
             BigDecimal invested,

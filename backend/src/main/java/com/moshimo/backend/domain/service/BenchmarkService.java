@@ -2,9 +2,9 @@ package com.moshimo.backend.domain.service;
 
 import com.moshimo.backend.application.dto.request.Timeframe;
 import com.moshimo.backend.application.dto.response.SimulationResponse;
-import com.moshimo.backend.domain.model.Stock;
-import com.moshimo.backend.domain.model.StockPrice;
-import com.moshimo.backend.domain.repository.StockPriceRepository;
+import com.moshimo.backend.domain.model.Asset;
+import com.moshimo.backend.domain.model.AssetPrice;
+import com.moshimo.backend.domain.repository.AssetPriceRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.Cacheable;
@@ -27,8 +27,8 @@ import java.util.stream.Collectors;
  * be public on a separate Spring-managed bean.
  *
  * Dependency graph (no cycles):
- *   BenchmarkService → StockPriceRepository
- *   BenchmarkService → StockService
+ *   BenchmarkService → AssetPriceRepository
+ *   BenchmarkService → AssetService
  *   BenchmarkService → TimelineAggregator
  */
 @Service
@@ -37,8 +37,8 @@ import java.util.stream.Collectors;
 @Slf4j
 public class BenchmarkService {
 
-    private final StockService stockService;
-    private final StockPriceRepository stockPriceRepository;
+    private final AssetService assetService;
+    private final AssetPriceRepository assetPriceRepository;
     private final TimelineAggregator timelineAggregator;
 
     /**
@@ -65,10 +65,10 @@ public class BenchmarkService {
                 startDate, endDate, totalInvested, timeframe.getCode());
 
         try {
-            Stock spy = stockService.getStockEntityBySymbol("SPY");
+            Asset spy = assetService.getAssetEntityBySymbol("SPY");
 
-            List<StockPrice> spyPrices = stockPriceRepository
-                    .findByStockIdAndDateBetween(spy.getId(), startDate, endDate)
+            List<AssetPrice> spyPrices = assetPriceRepository
+                    .findByAssetIdAndDateBetween(spy.getId(), startDate, endDate)
                     .stream()
                     .sorted((a, b) -> a.getDate().compareTo(b.getDate()))
                     .collect(Collectors.toList());
@@ -78,7 +78,7 @@ public class BenchmarkService {
                 return calculateBenchmarkWithCAGR(startDate, endDate, totalInvested, timeframe);
             }
 
-            StockPrice startPrice = spyPrices.get(0);
+            AssetPrice startPrice = spyPrices.get(0);
             BigDecimal startSPYPrice = startPrice.getAdjustedClose() != null
                     ? startPrice.getAdjustedClose()
                     : startPrice.getClose();

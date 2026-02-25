@@ -1,8 +1,8 @@
 package com.moshimo.backend.web.controller;
 
 import com.moshimo.backend.application.dto.response.HealthResponse;
-import com.moshimo.backend.domain.repository.StockPriceRepository;
-import com.moshimo.backend.domain.repository.StockRepository;
+import com.moshimo.backend.domain.repository.AssetPriceRepository;
+import com.moshimo.backend.domain.repository.AssetRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
@@ -32,8 +32,8 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 public class HealthController {
 
-    private final StockRepository stockRepository;
-    private final StockPriceRepository stockPriceRepository;
+    private final AssetRepository assetRepository;
+    private final AssetPriceRepository assetPriceRepository;
     
     @PersistenceContext
     private EntityManager entityManager;
@@ -57,7 +57,7 @@ public class HealthController {
      *   "database": {
      *     "connected": true,
      *     "version": "PostgreSQL 15.5",
-     *     "totalStocks": 20,
+     *     "totalAssets": 20,
      *     "totalPriceRecords": 0
      *   },
      *   "application": {
@@ -78,16 +78,16 @@ public class HealthController {
             String dbVersion = getDatabaseVersion();
             
             // Count entities (demonstrates repository usage)
-            long stockCount = stockRepository.count();
-            long priceCount = stockPriceRepository.count();
+            long assetCount = assetRepository.count();
+            long priceCount = assetPriceRepository.count();
             
-            log.info("Health check successful - DB: {}, Stocks: {}, Prices: {}", 
-                     dbVersion, stockCount, priceCount);
+            log.info("Health check successful - DB: {}, Assets: {}, Prices: {}", 
+                     dbVersion, assetCount, priceCount);
             
             // Build healthy response using factory method
             HealthResponse response = HealthResponse.healthy(
                 dbVersion,
-                stockCount,
+                assetCount,
                 priceCount,
                 applicationName,
                 "1.0.0", // TODO: Read from build metadata or manifest

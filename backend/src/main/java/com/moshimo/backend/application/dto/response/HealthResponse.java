@@ -45,8 +45,8 @@ public record HealthResponse(
         @JsonProperty("version")
         String version,
         
-        @JsonProperty("totalStocks")
-        long totalStocks,
+        @JsonProperty("totalAssets")
+        long totalAssets,
         
         @JsonProperty("totalPriceRecords")
         long totalPriceRecords

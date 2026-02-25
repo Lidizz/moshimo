@@ -27,13 +27,13 @@ import java.util.Map;
 public class GlobalExceptionHandler {
 
     /**
-     * Handle stock not found exceptions.
+     * Handle asset not found exceptions.
      */
-    @ExceptionHandler(StockNotFoundException.class)
-    public ResponseEntity<ErrorResponse> handleStockNotFound(StockNotFoundException ex) {
-        log.warn("Stock not found: {}", ex.getMessage());
+    @ExceptionHandler(AssetNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleAssetNotFound(AssetNotFoundException ex) {
+        log.warn("Asset not found: {}", ex.getMessage());
         ErrorResponse error = new ErrorResponse(
-            "STOCK_NOT_FOUND",
+            "ASSET_NOT_FOUND",
             ex.getMessage(),
             LocalDateTime.now()
         );

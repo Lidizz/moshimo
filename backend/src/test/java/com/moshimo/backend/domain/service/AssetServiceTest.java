@@ -1,11 +1,11 @@
 package com.moshimo.backend.domain.service;
 
-import com.moshimo.backend.application.dto.response.StockDTO;
+import com.moshimo.backend.application.dto.response.AssetDTO;
 import com.moshimo.backend.domain.model.AssetType;
-import com.moshimo.backend.domain.model.Stock;
-import com.moshimo.backend.domain.repository.StockPriceRepository;
-import com.moshimo.backend.domain.repository.StockRepository;
-import com.moshimo.backend.web.exception.StockNotFoundException;
+import com.moshimo.backend.domain.model.Asset;
+import com.moshimo.backend.domain.repository.AssetPriceRepository;
+import com.moshimo.backend.domain.repository.AssetRepository;
+import com.moshimo.backend.web.exception.AssetNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -22,36 +22,36 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 /**
- * Unit tests for StockService.
+ * Unit tests for AssetService.
  * 
  * Tests cover:
  * - Asset type filtering (STOCK, ETF, INDEX)
  * - Sector filtering
  * - Combined filters
- * - Stock lookup by symbol
+ * - Asset lookup by symbol
  * - Available sectors retrieval
  */
 @ExtendWith(MockitoExtension.class)
-@DisplayName("Stock Service Tests")
-class StockServiceTest {
+@DisplayName("Asset Service Tests")
+class AssetServiceTest {
 
     @Mock
-    private StockRepository stockRepository;
+    private AssetRepository assetRepository;
 
     @Mock
-    private StockPriceRepository stockPriceRepository;
+    private AssetPriceRepository assetPriceRepository;
 
     @InjectMocks
-    private StockService stockService;
+    private AssetService assetService;
 
-    private Stock aaplStock;
-    private Stock spyETF;
-    private Stock spxIndex;
+    private Asset aaplStock;
+    private Asset spyETF;
+    private Asset spxIndex;
 
     @BeforeEach
     void setUp() {
         // Create AAPL stock
-        aaplStock = Stock.builder()
+        aaplStock = Asset.builder()
                 .id(1L)
                 .symbol("AAPL")
                 .name("Apple Inc.")
@@ -61,7 +61,7 @@ class StockServiceTest {
                 .build();
 
         // Create SPY ETF
-        spyETF = Stock.builder()
+        spyETF = Asset.builder()
                 .id(2L)
                 .symbol("SPY")
                 .name("SPDR S&P 500 ETF Trust")
@@ -71,7 +71,7 @@ class StockServiceTest {
                 .build();
 
         // Create SPX Index
-        spxIndex = Stock.builder()
+        spxIndex = Asset.builder()
                 .id(3L)
                 .symbol("^SPX")
                 .name("S&P 500 Index")
@@ -85,83 +85,83 @@ class StockServiceTest {
     @DisplayName("Filter by asset type - STOCK returns only stocks")
     void testFilterByAssetType_stock_returnsOnlyStocks() {
         // Arrange
-        when(stockRepository.findByAssetTypeAndIsActiveTrue(AssetType.STOCK))
+        when(assetRepository.findByAssetTypeAndIsActiveTrue(AssetType.STOCK))
             .thenReturn(List.of(aaplStock));
 
         // Act
-        List<StockDTO> result = stockService.getStocks(AssetType.STOCK, null);
+        List<AssetDTO> result = assetService.getAssets(AssetType.STOCK, null);
 
         // Assert
         assertNotNull(result);
         assertEquals(1, result.size());
         assertEquals("AAPL", result.get(0).symbol());
         assertEquals(AssetType.STOCK, result.get(0).assetType());
-        verify(stockRepository).findByAssetTypeAndIsActiveTrue(AssetType.STOCK);
+        verify(assetRepository).findByAssetTypeAndIsActiveTrue(AssetType.STOCK);
     }
 
     @Test
     @DisplayName("Filter by asset type - ETF returns only ETFs")
     void testFilterByAssetType_etf_returnsOnlyETFs() {
         // Arrange
-        when(stockRepository.findByAssetTypeAndIsActiveTrue(AssetType.ETF))
+        when(assetRepository.findByAssetTypeAndIsActiveTrue(AssetType.ETF))
             .thenReturn(List.of(spyETF));
 
         // Act
-        List<StockDTO> result = stockService.getStocks(AssetType.ETF, null);
+        List<AssetDTO> result = assetService.getAssets(AssetType.ETF, null);
 
         // Assert
         assertNotNull(result);
         assertEquals(1, result.size());
         assertEquals("SPY", result.get(0).symbol());
         assertEquals(AssetType.ETF, result.get(0).assetType());
-        verify(stockRepository).findByAssetTypeAndIsActiveTrue(AssetType.ETF);
+        verify(assetRepository).findByAssetTypeAndIsActiveTrue(AssetType.ETF);
     }
 
     @Test
     @DisplayName("Filter by asset type - INDEX returns only indexes")
     void testFilterByAssetType_index_returnsOnlyIndexes() {
         // Arrange
-        when(stockRepository.findByAssetTypeAndIsActiveTrue(AssetType.INDEX))
+        when(assetRepository.findByAssetTypeAndIsActiveTrue(AssetType.INDEX))
             .thenReturn(List.of(spxIndex));
 
         // Act
-        List<StockDTO> result = stockService.getStocks(AssetType.INDEX, null);
+        List<AssetDTO> result = assetService.getAssets(AssetType.INDEX, null);
 
         // Assert
         assertNotNull(result);
         assertEquals(1, result.size());
         assertEquals("^SPX", result.get(0).symbol());
         assertEquals(AssetType.INDEX, result.get(0).assetType());
-        verify(stockRepository).findByAssetTypeAndIsActiveTrue(AssetType.INDEX);
+        verify(assetRepository).findByAssetTypeAndIsActiveTrue(AssetType.INDEX);
     }
 
     @Test
     @DisplayName("Filter by sector - Technology returns tech stocks")
     void testFilterBySector_technology_returnsTechStocks() {
         // Arrange
-        when(stockRepository.findBySectorAndIsActiveTrue("Technology"))
+        when(assetRepository.findBySectorAndIsActiveTrue("Technology"))
             .thenReturn(List.of(aaplStock));
 
         // Act
-        List<StockDTO> result = stockService.getStocks(null, "Technology");
+        List<AssetDTO> result = assetService.getAssets(null, "Technology");
 
         // Assert
         assertNotNull(result);
         assertEquals(1, result.size());
         assertEquals("AAPL", result.get(0).symbol());
         assertEquals("Technology", result.get(0).sector());
-        verify(stockRepository).findBySectorAndIsActiveTrue("Technology");
+        verify(assetRepository).findBySectorAndIsActiveTrue("Technology");
     }
 
     @Test
     @DisplayName("Filter by type and sector - Combined filters work correctly")
     void testCombinedFilters_stockAndSector_returnsMatchingStocks() {
         // Arrange
-        when(stockRepository.findByAssetTypeAndSectorAndIsActiveTrue(AssetType.STOCK, "Technology"))
+        when(assetRepository.findByAssetTypeAndSectorAndIsActiveTrue(AssetType.STOCK, "Technology"))
             .thenReturn(List.of(aaplStock));
 
         // Act
-        List<StockDTO> result = stockService.getStocks(AssetType.STOCK, "Technology");
+        List<AssetDTO> result = assetService.getAssets(AssetType.STOCK, "Technology");
 
         // Assert
         assertNotNull(result);
@@ -169,65 +169,65 @@ class StockServiceTest {
         assertEquals("AAPL", result.get(0).symbol());
         assertEquals(AssetType.STOCK, result.get(0).assetType());
         assertEquals("Technology", result.get(0).sector());
-        verify(stockRepository).findByAssetTypeAndSectorAndIsActiveTrue(AssetType.STOCK, "Technology");
+        verify(assetRepository).findByAssetTypeAndSectorAndIsActiveTrue(AssetType.STOCK, "Technology");
     }
 
     @Test
-    @DisplayName("No filters - Returns all active stocks")
+    @DisplayName("No filters - Returns all active assets")
     void testNoFilters_returnsAllActiveStocks() {
         // Arrange
-        when(stockRepository.findByIsActiveTrue())
+        when(assetRepository.findByIsActiveTrue())
             .thenReturn(List.of(aaplStock, spyETF, spxIndex));
 
         // Act
-        List<StockDTO> result = stockService.getStocks(null, null);
+        List<AssetDTO> result = assetService.getAssets(null, null);
 
         // Assert
         assertNotNull(result);
         assertEquals(3, result.size());
-        verify(stockRepository).findByIsActiveTrue();
+        verify(assetRepository).findByIsActiveTrue();
     }
 
     @Test
-    @DisplayName("Get stock by symbol - Returns correct stock")
+    @DisplayName("Get asset by symbol - Returns correct asset")
     void testGetStockBySymbol_validSymbol_returnsStock() {
         // Arrange
-        when(stockRepository.findBySymbol("AAPL"))
+        when(assetRepository.findBySymbol("AAPL"))
             .thenReturn(Optional.of(aaplStock));
 
         // Act
-        StockDTO result = stockService.getStockBySymbol("aapl"); // Test case insensitivity
+        AssetDTO result = assetService.getAssetBySymbol("aapl"); // Test case insensitivity
 
         // Assert
         assertNotNull(result);
         assertEquals("AAPL", result.symbol());
         assertEquals("Apple Inc.", result.name());
-        verify(stockRepository).findBySymbol("AAPL");
+        verify(assetRepository).findBySymbol("AAPL");
     }
 
     @Test
-    @DisplayName("Get stock by symbol - Throws exception for invalid symbol")
+    @DisplayName("Get asset by symbol - Throws exception for invalid symbol")
     void testGetStockBySymbol_invalidSymbol_throwsException() {
         // Arrange
-        when(stockRepository.findBySymbol("INVALID"))
+        when(assetRepository.findBySymbol("INVALID"))
             .thenReturn(Optional.empty());
 
         // Act & Assert
-        assertThrows(StockNotFoundException.class, () -> {
-            stockService.getStockBySymbol("invalid");
+        assertThrows(AssetNotFoundException.class, () -> {
+            assetService.getAssetBySymbol("invalid");
         });
-        verify(stockRepository).findBySymbol("INVALID");
+        verify(assetRepository).findBySymbol("INVALID");
     }
 
     @Test
     @DisplayName("Get available sectors - Returns unique sector list")
     void testGetAvailableSectors_returnsUniqueSectors() {
         // Arrange
-        when(stockRepository.findDistinctSectors())
+        when(assetRepository.findDistinctSectors())
             .thenReturn(List.of("Technology", "Healthcare", "Financial Services"));
 
         // Act
-        List<String> result = stockService.getAvailableSectors();
+        List<String> result = assetService.getAvailableSectors();
 
         // Assert
         assertNotNull(result);
@@ -235,40 +235,40 @@ class StockServiceTest {
         assertTrue(result.contains("Technology"));
         assertTrue(result.contains("Healthcare"));
         assertTrue(result.contains("Financial Services"));
-        verify(stockRepository).findDistinctSectors();
+        verify(assetRepository).findDistinctSectors();
     }
 
     @Test
     @DisplayName("Empty sector filter - Treats as no filter")
     void testEmptySectorFilter_treatsAsNoFilter() {
         // Arrange
-        when(stockRepository.findByAssetTypeAndIsActiveTrue(AssetType.STOCK))
+        when(assetRepository.findByAssetTypeAndIsActiveTrue(AssetType.STOCK))
             .thenReturn(List.of(aaplStock));
 
         // Act
-        List<StockDTO> result = stockService.getStocks(AssetType.STOCK, "");
+        List<AssetDTO> result = assetService.getAssets(AssetType.STOCK, "");
 
         // Assert
         assertNotNull(result);
         assertEquals(1, result.size());
         // Should use type-only filter, not combined filter
-        verify(stockRepository).findByAssetTypeAndIsActiveTrue(AssetType.STOCK);
-        verify(stockRepository, never()).findByAssetTypeAndSectorAndIsActiveTrue(any(), anyString());
+        verify(assetRepository).findByAssetTypeAndIsActiveTrue(AssetType.STOCK);
+        verify(assetRepository, never()).findByAssetTypeAndSectorAndIsActiveTrue(any(), anyString());
     }
 
     @Test
     @DisplayName("Blank sector filter - Treats as no filter")
     void testBlankSectorFilter_treatsAsNoFilter() {
         // Arrange
-        when(stockRepository.findByAssetTypeAndIsActiveTrue(AssetType.STOCK))
+        when(assetRepository.findByAssetTypeAndIsActiveTrue(AssetType.STOCK))
             .thenReturn(List.of(aaplStock));
 
         // Act
-        List<StockDTO> result = stockService.getStocks(AssetType.STOCK, "   ");
+        List<AssetDTO> result = assetService.getAssets(AssetType.STOCK, "   ");
 
         // Assert
         assertNotNull(result);
-        verify(stockRepository).findByAssetTypeAndIsActiveTrue(AssetType.STOCK);
-        verify(stockRepository, never()).findByAssetTypeAndSectorAndIsActiveTrue(any(), anyString());
+        verify(assetRepository).findByAssetTypeAndIsActiveTrue(AssetType.STOCK);
+        verify(assetRepository, never()).findByAssetTypeAndSectorAndIsActiveTrue(any(), anyString());
     }
 }

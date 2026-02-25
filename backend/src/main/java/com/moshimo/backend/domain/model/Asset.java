@@ -9,10 +9,10 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 /**
- * Stock Entity - Represents a tradeable stock or ETF.
+ * Asset Entity - Represents a tradeable asset (stock, ETF, index, or crypto).
  * 
  * Learning Notes:
- * - @Entity: Marks this class as a JPA entity (maps to 'stocks' table)
+ * - @Entity: Marks this class as a JPA entity (maps to 'asset' table)
  * - @Table: Explicitly specifies table name and indexes
  * - @Data: Lombok generates getters, setters, toString, equals, hashCode
  * - @Builder: Lombok provides builder pattern for clean object construction
@@ -21,20 +21,20 @@ import java.time.LocalDateTime;
  * - @CreationTimestamp/@UpdateTimestamp: Hibernate automatically sets timestamps
  */
 @Entity
-@Table(name = "stocks", indexes = {
-    @Index(name = "idx_stocks_symbol", columnList = "symbol"),
-    @Index(name = "idx_stocks_sector", columnList = "sector"),
-    @Index(name = "idx_stocks_is_active", columnList = "is_active"),
-    @Index(name = "idx_stocks_asset_type", columnList = "asset_type")
+@Table(name = "asset", indexes = {
+    @Index(name = "idx_asset_symbol", columnList = "symbol"),
+    @Index(name = "idx_asset_sector", columnList = "sector"),
+    @Index(name = "idx_asset_is_active", columnList = "is_active"),
+    @Index(name = "idx_asset_asset_type", columnList = "asset_type")
 })
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Stock {
+public class Asset {
 
     /**
-     * Primary key - auto-generated using database sequence.
+     * Primary key - auto-generated.
      * Maps to BIGSERIAL in PostgreSQL.
      */
     @Id
@@ -42,20 +42,20 @@ public class Stock {
     private Long id;
 
     /**
-     * Stock ticker symbol (e.g., AAPL, GOOGL).
-     * Must be unique across all stocks.
+     * Ticker symbol (e.g., AAPL, SPY, BTC-USD).
+     * Must be unique across all assets.
      */
     @Column(unique = true, nullable = false, length = 10)
     private String symbol;
 
     /**
-     * Full company name (e.g., "Apple Inc.").
+     * Full name (e.g., "Apple Inc.", "SPDR S&P 500 ETF Trust").
      */
     @Column(nullable = false)
     private String name;
 
     /**
-     * Type of asset: STOCK, ETF, or INDEX.
+     * Type of asset: STOCK, ETF, INDEX, or CRYPTO.
      * Used for filtering and categorization in UI.
      */
     @Enumerated(EnumType.STRING)
@@ -77,13 +77,13 @@ public class Stock {
     private String industry;
 
     /**
-     * Stock exchange where traded (e.g., "NASDAQ", "NYSE").
+     * Exchange where traded (e.g., "NASDAQ", "NYSE").
      */
     @Column(length = 50)
     private String exchange;
 
     /**
-     * Initial Public Offering date.
+     * Listing / inception date.
      * Prevents simulation attempts before this date.
      */
     @Column(name = "ipo_date")
@@ -97,8 +97,8 @@ public class Stock {
     private LocalDate lastPriceUpdate;
 
     /**
-     * Whether this stock is currently active and tradeable.
-     * Inactive stocks don't appear in UI but historical data remains.
+     * Whether this asset is currently active and tradeable.
+     * Inactive assets don't appear in UI but historical data remains.
      */
     @Column(name = "is_active", nullable = false)
     @Builder.Default

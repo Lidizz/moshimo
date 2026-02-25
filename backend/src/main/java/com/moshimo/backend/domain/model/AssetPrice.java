@@ -9,32 +9,32 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 /**
- * StockPrice Entity - Historical daily price data for stocks.
+ * AssetPrice Entity - Historical daily price data for assets.
  * 
  * Learning Notes:
  * - BigDecimal: Essential for financial calculations (avoids floating-point precision errors)
- * - @ManyToOne: Each price record belongs to one stock (foreign key relationship)
+ * - @ManyToOne: Each price record belongs to one asset (foreign key relationship)
  * - @JoinColumn: Specifies the foreign key column name
- * - Composite unique constraint: (stock_id, date) prevents duplicate data
- * - FetchType.LAZY: Stock is loaded only when accessed (performance optimization)
+ * - Composite unique constraint: (asset_id, date) prevents duplicate data
+ * - FetchType.LAZY: Asset is loaded only when accessed (performance optimization)
  * 
  * Design Pattern: Value Object (immutable price data)
  */
 @Entity
-@Table(name = "stock_prices",
+@Table(name = "asset_price",
     uniqueConstraints = {
-        @UniqueConstraint(name = "uq_stock_price_date", columnNames = {"stock_id", "date"})
+        @UniqueConstraint(name = "uq_asset_price_date", columnNames = {"asset_id", "date"})
     },
     indexes = {
-        @Index(name = "idx_stock_prices_stock_date", columnList = "stock_id, date DESC"),
-        @Index(name = "idx_stock_prices_date", columnList = "date")
+        @Index(name = "idx_asset_price_asset_date", columnList = "asset_id, date DESC"),
+        @Index(name = "idx_asset_price_date", columnList = "date")
     }
 )
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class StockPrice {
+public class AssetPrice {
 
     /**
      * Primary key - auto-generated.
@@ -44,18 +44,18 @@ public class StockPrice {
     private Long id;
 
     /**
-     * Reference to the parent Stock entity.
-     * ManyToOne: Many prices belong to one stock.
-     * FetchType.LAZY: Stock data loaded only when explicitly accessed.
+     * Reference to the parent Asset entity.
+     * ManyToOne: Many prices belong to one asset.
+     * FetchType.LAZY: Asset data loaded only when explicitly accessed.
      */
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "stock_id", nullable = false, foreignKey = @ForeignKey(name = "fk_stock_price_stock"))
+    @JoinColumn(name = "asset_id", nullable = false, foreignKey = @ForeignKey(name = "fk_asset_price_asset"))
     @ToString.Exclude  // Prevent circular toString calls
-    private Stock stock;
+    private Asset asset;
 
     /**
      * Trading date for this price data.
-     * Combined with stock_id, must be unique (one price per stock per day).
+     * Combined with asset_id, must be unique (one price per asset per day).
      */
     @Column(nullable = false)
     private LocalDate date;
