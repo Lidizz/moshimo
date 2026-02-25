@@ -4,9 +4,9 @@ import com.moshimo.backend.application.dto.request.InvestmentItemRequest;
 import com.moshimo.backend.application.dto.request.SimulationRequest;
 import com.moshimo.backend.application.dto.response.SimulationResponse;
 import com.moshimo.backend.domain.model.AssetType;
-import com.moshimo.backend.domain.model.Stock;
-import com.moshimo.backend.domain.model.StockPrice;
-import com.moshimo.backend.domain.repository.StockPriceRepository;
+import com.moshimo.backend.domain.model.Asset;
+import com.moshimo.backend.domain.model.AssetPrice;
+import com.moshimo.backend.domain.repository.AssetPriceRepository;
 import com.moshimo.backend.domain.service.BenchmarkService;
 import com.moshimo.backend.domain.service.TimelineAggregator;
 import org.junit.jupiter.api.BeforeEach;
@@ -40,10 +40,10 @@ import static org.mockito.Mockito.*;
 class InvestmentSimulationServiceTest {
 
     @Mock
-    private StockService stockService;
+    private AssetService assetService;
 
     @Mock
-    private StockPriceRepository stockPriceRepository;
+    private AssetPriceRepository assetPriceRepository;
 
     @Mock
     private TimelineAggregator timelineAggregator;
@@ -54,14 +54,14 @@ class InvestmentSimulationServiceTest {
     @InjectMocks
     private InvestmentSimulationService service;
 
-    private Stock mockStock;
-    private StockPrice purchasePrice;
-    private StockPrice currentPrice;
+    private Asset mockStock;
+    private AssetPrice purchasePrice;
+    private AssetPrice currentPrice;
 
     @BeforeEach
     void setUp() {
-        // Create mock stock using builder
-        mockStock = Stock.builder()
+        // Create mock asset using builder
+        mockStock = Asset.builder()
                 .id(1L)
                 .symbol("AAPL")
                 .name("Apple Inc.")
@@ -69,18 +69,18 @@ class InvestmentSimulationServiceTest {
                 .build();
         
         // Mock purchase price ($100)
-        purchasePrice = StockPrice.builder()
+        purchasePrice = AssetPrice.builder()
                 .id(1L)
-                .stock(mockStock)
+                .asset(mockStock)
                 .date(LocalDate.of(2020, 1, 1))
                 .close(new BigDecimal("100.00"))
                 .adjustedClose(new BigDecimal("100.00"))
                 .build();
         
         // Mock current price ($200)
-        currentPrice = StockPrice.builder()
+        currentPrice = AssetPrice.builder()
                 .id(2L)
-                .stock(mockStock)
+                .asset(mockStock)
                 .date(LocalDate.now())
                 .close(new BigDecimal("200.00"))
                 .adjustedClose(new BigDecimal("200.00"))
@@ -105,26 +105,26 @@ class InvestmentSimulationServiceTest {
         request.setEndDate(endDate);
         request.setTimeframe("ALL");
 
-        StockPrice startPrice = StockPrice.builder()
-                .stock(mockStock)
+        AssetPrice startPrice = AssetPrice.builder()
+                .asset(mockStock)
                 .date(startDate)
                 .close(new BigDecimal("100.00"))
                 .adjustedClose(new BigDecimal("100.00"))
                 .build();
                 
-        StockPrice endPrice = StockPrice.builder()
-                .stock(mockStock)
+        AssetPrice endPrice = AssetPrice.builder()
+                .asset(mockStock)
                 .date(endDate)
                 .close(new BigDecimal("200.00"))
                 .adjustedClose(new BigDecimal("200.00"))
                 .build();
 
-        when(stockService.getStockEntityBySymbol("AAPL")).thenReturn(mockStock);
-        when(stockPriceRepository.findByStockIdAndDate(eq(1L), eq(startDate)))
+        when(assetService.getAssetEntityBySymbol("AAPL")).thenReturn(mockStock);
+        when(assetPriceRepository.findByAssetIdAndDate(eq(1L), eq(startDate)))
             .thenReturn(Optional.of(startPrice));
-        when(stockPriceRepository.findByStockIdAndDate(eq(1L), eq(endDate)))
+        when(assetPriceRepository.findByAssetIdAndDate(eq(1L), eq(endDate)))
             .thenReturn(Optional.of(endPrice));
-        when(stockPriceRepository.findByStockIdAndDateBetween(
+        when(assetPriceRepository.findByAssetIdAndDateBetween(
             eq(1L), any(LocalDate.class), any(LocalDate.class)))
             .thenReturn(List.of(startPrice, endPrice));
 
@@ -158,26 +158,26 @@ class InvestmentSimulationServiceTest {
         request.setEndDate(endDate);
         request.setTimeframe("ALL");
 
-        StockPrice startPrice = StockPrice.builder()
-                .stock(mockStock)
+        AssetPrice startPrice = AssetPrice.builder()
+                .asset(mockStock)
                 .date(startDate)
                 .close(new BigDecimal("100.00"))
                 .adjustedClose(new BigDecimal("100.00"))
                 .build();
                 
-        StockPrice endPrice = StockPrice.builder()
-                .stock(mockStock)
+        AssetPrice endPrice = AssetPrice.builder()
+                .asset(mockStock)
                 .date(endDate)
                 .close(new BigDecimal("200.00"))
                 .adjustedClose(new BigDecimal("200.00"))
                 .build();
 
-        when(stockService.getStockEntityBySymbol("AAPL")).thenReturn(mockStock);
-        when(stockPriceRepository.findByStockIdAndDate(eq(1L), eq(startDate)))
+        when(assetService.getAssetEntityBySymbol("AAPL")).thenReturn(mockStock);
+        when(assetPriceRepository.findByAssetIdAndDate(eq(1L), eq(startDate)))
             .thenReturn(Optional.of(startPrice));
-        when(stockPriceRepository.findByStockIdAndDate(eq(1L), eq(endDate)))
+        when(assetPriceRepository.findByAssetIdAndDate(eq(1L), eq(endDate)))
             .thenReturn(Optional.of(endPrice));
-        when(stockPriceRepository.findByStockIdAndDateBetween(
+        when(assetPriceRepository.findByAssetIdAndDateBetween(
             eq(1L), any(LocalDate.class), any(LocalDate.class)))
             .thenReturn(List.of(startPrice, endPrice));
 
@@ -196,22 +196,22 @@ class InvestmentSimulationServiceTest {
     @DisplayName("Multi-stock portfolio - Combined values should sum correctly")
     void testMultiStockPortfolio_twoStocks_combinesCorrectly() {
         // Arrange
-        Stock mockStock2 = Stock.builder()
+        Asset mockStock2 = Asset.builder()
                 .id(2L)
                 .symbol("MSFT")
                 .name("Microsoft Corporation")
                 .assetType(AssetType.STOCK)
                 .build();
 
-        StockPrice msftPurchase = StockPrice.builder()
-                .stock(mockStock2)
+        AssetPrice msftPurchase = AssetPrice.builder()
+                .asset(mockStock2)
                 .date(LocalDate.of(2023, 1, 1))
                 .close(new BigDecimal("50.00"))
                 .adjustedClose(new BigDecimal("50.00"))
                 .build();
 
-        StockPrice msftCurrent = StockPrice.builder()
-                .stock(mockStock2)
+        AssetPrice msftCurrent = AssetPrice.builder()
+                .asset(mockStock2)
                 .date(LocalDate.now())
                 .close(new BigDecimal("75.00"))
                 .adjustedClose(new BigDecimal("75.00"))
@@ -235,23 +235,23 @@ class InvestmentSimulationServiceTest {
         request.setEndDate(endDate);
         request.setTimeframe("ALL");
 
-        lenient().when(stockService.getStockEntityBySymbol("AAPL")).thenReturn(mockStock);
-        lenient().when(stockService.getStockEntityBySymbol("MSFT")).thenReturn(mockStock2);
+        lenient().when(assetService.getAssetEntityBySymbol("AAPL")).thenReturn(mockStock);
+        lenient().when(assetService.getAssetEntityBySymbol("MSFT")).thenReturn(mockStock2);
         
-        lenient().when(stockPriceRepository.findByStockIdAndDate(eq(1L), eq(startDate)))
+        lenient().when(assetPriceRepository.findByAssetIdAndDate(eq(1L), eq(startDate)))
             .thenReturn(Optional.of(purchasePrice));
-        lenient().when(stockPriceRepository.findByStockIdAndDate(eq(1L), any(LocalDate.class)))
+        lenient().when(assetPriceRepository.findByAssetIdAndDate(eq(1L), any(LocalDate.class)))
             .thenReturn(Optional.of(currentPrice));
         
-        lenient().when(stockPriceRepository.findByStockIdAndDate(eq(2L), eq(startDate)))
+        lenient().when(assetPriceRepository.findByAssetIdAndDate(eq(2L), eq(startDate)))
             .thenReturn(Optional.of(msftPurchase));
-        lenient().when(stockPriceRepository.findByStockIdAndDate(eq(2L), any(LocalDate.class)))
+        lenient().when(assetPriceRepository.findByAssetIdAndDate(eq(2L), any(LocalDate.class)))
             .thenReturn(Optional.of(msftCurrent));
         
-        lenient().when(stockPriceRepository.findByStockIdAndDateBetween(
+        lenient().when(assetPriceRepository.findByAssetIdAndDateBetween(
             eq(1L), any(LocalDate.class), any(LocalDate.class)))
             .thenReturn(List.of(purchasePrice, currentPrice));
-        lenient().when(stockPriceRepository.findByStockIdAndDateBetween(
+        lenient().when(assetPriceRepository.findByAssetIdAndDateBetween(
             eq(2L), any(LocalDate.class), any(LocalDate.class)))
             .thenReturn(List.of(msftPurchase, msftCurrent));
 
@@ -275,12 +275,12 @@ class InvestmentSimulationServiceTest {
         LocalDate endDate = LocalDate.of(2024, 1, 5);
 
         // Create 5 days of price data
-        List<StockPrice> priceData = List.of(
-            createStockPrice(1L, LocalDate.of(2024, 1, 1), "100.00"),
-            createStockPrice(1L, LocalDate.of(2024, 1, 2), "105.00"),
-            createStockPrice(1L, LocalDate.of(2024, 1, 3), "110.00"),
-            createStockPrice(1L, LocalDate.of(2024, 1, 4), "108.00"),
-            createStockPrice(1L, LocalDate.of(2024, 1, 5), "112.00")
+        List<AssetPrice> priceData = List.of(
+            createAssetPrice(1L, LocalDate.of(2024, 1, 1), "100.00"),
+            createAssetPrice(1L, LocalDate.of(2024, 1, 2), "105.00"),
+            createAssetPrice(1L, LocalDate.of(2024, 1, 3), "110.00"),
+            createAssetPrice(1L, LocalDate.of(2024, 1, 4), "108.00"),
+            createAssetPrice(1L, LocalDate.of(2024, 1, 5), "112.00")
         );
 
         InvestmentItemRequest investment = new InvestmentItemRequest();
@@ -293,15 +293,15 @@ class InvestmentSimulationServiceTest {
         request.setEndDate(endDate);
         request.setTimeframe("1D");
 
-        when(stockService.getStockEntityBySymbol("AAPL")).thenReturn(mockStock);
-        when(stockPriceRepository.findByStockIdAndDate(eq(1L), any(LocalDate.class)))
+        when(assetService.getAssetEntityBySymbol("AAPL")).thenReturn(mockStock);
+        when(assetPriceRepository.findByAssetIdAndDate(eq(1L), any(LocalDate.class)))
             .thenAnswer(invocation -> {
                 LocalDate date = invocation.getArgument(1);
                 return priceData.stream()
                     .filter(p -> p.getDate().equals(date))
                     .findFirst();
             });
-        when(stockPriceRepository.findByStockIdAndDateBetween(
+        when(assetPriceRepository.findByAssetIdAndDateBetween(
             eq(1L), any(LocalDate.class), any(LocalDate.class)))
             .thenReturn(priceData);
 
@@ -332,10 +332,10 @@ class InvestmentSimulationServiceTest {
         request.setEndDate(endDate);
         request.setTimeframe("ALL");
 
-        when(stockService.getStockEntityBySymbol("AAPL")).thenReturn(mockStock);
-        when(stockPriceRepository.findByStockIdAndDate(eq(1L), any(LocalDate.class)))
+        when(assetService.getAssetEntityBySymbol("AAPL")).thenReturn(mockStock);
+        when(assetPriceRepository.findByAssetIdAndDate(eq(1L), any(LocalDate.class)))
             .thenReturn(Optional.of(purchasePrice));
-        when(stockPriceRepository.findByStockIdAndDateBetween(
+        when(assetPriceRepository.findByAssetIdAndDateBetween(
             eq(1L), any(LocalDate.class), any(LocalDate.class)))
             .thenReturn(List.of(purchasePrice));
 
@@ -348,9 +348,9 @@ class InvestmentSimulationServiceTest {
         assertEquals(0, BigDecimal.ZERO.compareTo(result.currentValue()));
     }
 
-    private StockPrice createStockPrice(Long stockId, LocalDate date, String price) {
-        return StockPrice.builder()
-                .stock(mockStock)
+    private AssetPrice createAssetPrice(Long assetId, LocalDate date, String price) {
+        return AssetPrice.builder()
+                .asset(mockStock)
                 .date(date)
                 .close(new BigDecimal(price))
                 .adjustedClose(new BigDecimal(price))

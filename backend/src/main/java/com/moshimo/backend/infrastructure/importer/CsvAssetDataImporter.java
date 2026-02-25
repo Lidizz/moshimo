@@ -1,10 +1,10 @@
 package com.moshimo.backend.infrastructure.importer;
 
 import com.moshimo.backend.domain.model.AssetType;
-import com.moshimo.backend.domain.model.Stock;
-import com.moshimo.backend.domain.model.StockPrice;
-import com.moshimo.backend.domain.repository.StockPriceRepository;
-import com.moshimo.backend.domain.repository.StockRepository;
+import com.moshimo.backend.domain.model.Asset;
+import com.moshimo.backend.domain.model.AssetPrice;
+import com.moshimo.backend.domain.repository.AssetPriceRepository;
+import com.moshimo.backend.domain.repository.AssetRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -20,14 +20,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * CSV Stock Data Importer - Bulk import from Kaggle datasets.
+ * CSV Asset Data Importer - Bulk import from Kaggle datasets.
  * 
  * Learning Notes:
  * - File I/O with BufferedReader for memory efficiency
  * - CSV parsing with proper error handling
  * - Batch processing for performance
  * - Transaction management for data integrity
- * - Idempotency: Skip existing stocks/prices
+ * - Idempotency: Skip existing assets/prices
  * 
  * Expected CSV Format (Kaggle):
  * Date,Open,High,Low,Close,Volume,Adj Close,Symbol,Name
@@ -36,10 +36,10 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class CsvStockDataImporter {
+public class CsvAssetDataImporter {
 
-    private final StockRepository stockRepository;
-    private final StockPriceRepository stockPriceRepository;
+    private final AssetRepository assetRepository;
+    private final AssetPriceRepository assetPriceRepository;
     
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
     private static final int BATCH_SIZE = 1000;
@@ -66,7 +66,7 @@ public class CsvStockDataImporter {
             String line;
             String[] headers = null;
             int lineNumber = 0;
-            List<StockPrice> batch = new ArrayList<>();
+            List<AssetPrice> batch = new ArrayList<>();
 
             while ((line = reader.readLine()) != null) {
                 lineNumber++;
@@ -85,18 +85,18 @@ public class CsvStockDataImporter {
                         row.symbol = symbolFromFilename;
                     }
                     
-                    // Get or create stock
-                    Stock stock = getOrCreateStock(row);
+                    // Get or create asset
+                    Asset asset = getOrCreateAsset(row);
                     
                     // Check if price already exists
-                    if (stockPriceRepository.existsByStockIdAndDate(stock.getId(), row.date)) {
+                    if (assetPriceRepository.existsByAssetIdAndDate(asset.getId(), row.date)) {
                         summary.skippedPrices++;
                         continue;
                     }
 
                     // Create price record
-                    StockPrice price = StockPrice.builder()
-                        .stock(stock)
+                    AssetPrice price = AssetPrice.builder()
+                        .asset(asset)
                         .date(row.date)
                         .open(row.open)
                         .high(row.high)
@@ -111,7 +111,7 @@ public class CsvStockDataImporter {
 
                     // Batch insert for performance
                     if (batch.size() >= BATCH_SIZE) {
-                        stockPriceRepository.saveAll(batch);
+                        assetPriceRepository.saveAll(batch);
                         batch.clear();
                         log.info("Imported {} price records so far...", summary.importedPrices);
                     }
@@ -124,7 +124,7 @@ public class CsvStockDataImporter {
 
             // Save remaining batch
             if (!batch.isEmpty()) {
-                stockPriceRepository.saveAll(batch);
+                assetPriceRepository.saveAll(batch);
             }
 
             log.info("CSV import complete: {}", summary);
@@ -137,21 +137,21 @@ public class CsvStockDataImporter {
     }
 
     /**
-     * Get existing stock or create new one from CSV data.
+     * Get existing asset or create new one from CSV data.
      */
-    private Stock getOrCreateStock(CsvRow row) {
-        return stockRepository.findBySymbol(row.symbol)
+    private Asset getOrCreateAsset(CsvRow row) {
+        return assetRepository.findBySymbol(row.symbol)
             .orElseGet(() -> {
-                String stockName = row.name != null ? row.name : row.symbol;
-                Stock newStock = Stock.builder()
+                String assetName = row.name != null ? row.name : row.symbol;
+                Asset newAsset = Asset.builder()
                     .symbol(row.symbol)
-                    .name(stockName)
-                    .assetType(AssetType.inferFromSymbol(row.symbol, stockName))
+                    .name(assetName)
+                    .assetType(AssetType.inferFromSymbol(row.symbol, assetName))
                     .isActive(true)
                     .build();
                 
-                Stock saved = stockRepository.save(newStock);
-                log.info("Created new stock: {} ({}) [{}]", saved.getSymbol(), saved.getName(), saved.getAssetType());
+                Asset saved = assetRepository.save(newAsset);
+                log.info("Created new asset: {} ({}) [{}]", saved.getSymbol(), saved.getName(), saved.getAssetType());
                 return saved;
             });
     }

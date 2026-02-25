@@ -6,11 +6,11 @@ import com.moshimo.backend.domain.model.AssetType;
 import java.time.LocalDate;
 
 /**
- * Stock Data Transfer Object - Represents stock information for API responses.
+ * Asset Data Transfer Object - Represents asset information for API responses.
  * 
  * Learning: Using record for immutable response DTOs (Java 25 feature).
  */
-public record StockDTO(
+public record AssetDTO(
     @JsonProperty("id")
     Long id,
     

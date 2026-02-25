@@ -1,9 +1,9 @@
 package com.moshimo.backend.web.controller;
 
 import com.moshimo.backend.application.dto.response.PriceDataDTO;
-import com.moshimo.backend.application.dto.response.StockDTO;
+import com.moshimo.backend.application.dto.response.AssetDTO;
 import com.moshimo.backend.domain.model.AssetType;
-import com.moshimo.backend.domain.service.StockService;
+import com.moshimo.backend.domain.service.AssetService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -14,7 +14,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 /**
- * Stock Controller - REST API endpoints for stock data.
+ * Asset Controller - REST API endpoints for asset data.
  * 
  * Learning Notes:
  * - @RestController: Automatically serializes return values to JSON
@@ -26,73 +26,73 @@ import java.util.List;
  * Design Pattern: Controller Pattern (MVC architecture)
  */
 @RestController
-@RequestMapping("/api/stocks")
+@RequestMapping("/api/assets")
 @RequiredArgsConstructor
 @Slf4j
-public class StockController {
+public class AssetController {
 
-    private final StockService stockService;
+    private final AssetService assetService;
 
     /**
-     * Get all active stocks with optional filtering.
+     * Get all active assets with optional filtering.
      * 
-     * GET /api/stocks
-     * GET /api/stocks?type=ETF
-     * GET /api/stocks?sector=Technology
-     * GET /api/stocks?type=STOCK&sector=Technology
+     * GET /api/assets
+     * GET /api/assets?type=ETF
+     * GET /api/assets?sector=Technology
+     * GET /api/assets?type=STOCK&sector=Technology
      * 
-     * @param type optional asset type filter (STOCK, ETF, INDEX)
+     * @param type optional asset type filter (STOCK, ETF, INDEX, CRYPTO)
      * @param sector optional sector filter
-     * @return filtered list of stocks
+     * @return filtered list of assets
      */
     @GetMapping
-    public ResponseEntity<List<StockDTO>> getStocks(
+    public ResponseEntity<List<AssetDTO>> getAssets(
             @RequestParam(required = false) AssetType type,
             @RequestParam(required = false) String sector) {
         
-        log.info("GET /api/stocks - type: {}, sector: {}", type, sector);
-        List<StockDTO> stocks = stockService.getStocks(type, sector);
-        log.info("Returning {} stocks", stocks.size());
-        return ResponseEntity.ok(stocks);
+        log.info("GET /api/assets - type: {}, sector: {}", type, sector);
+        List<AssetDTO> assets = assetService.getAssets(type, sector);
+        log.info("Returning {} assets", assets.size());
+        return ResponseEntity.ok(assets);
     }
 
     /**
      * Get available sectors.
      * 
-     * GET /api/stocks/sectors
+     * GET /api/assets/sectors
      * 
      * @return list of distinct sector names
      */
     @GetMapping("/sectors")
     public ResponseEntity<List<String>> getSectors() {
-        log.info("GET /api/stocks/sectors");
-        List<String> sectors = stockService.getAvailableSectors();
+        log.info("GET /api/assets/sectors");
+        List<String> sectors = assetService.getAvailableSectors();
         return ResponseEntity.ok(sectors);
     }
 
     /**
-     * Get stock by symbol.
+     * Get asset by symbol.
      * 
-     * GET /api/stocks/{symbol}
+     * GET /api/assets/{symbol}
      * 
-     * Example: GET /api/stocks/AAPL
+     * Example: GET /api/assets/AAPL
      * 
-     * @param symbol stock ticker symbol
-     * @return stock details
+     * @param symbol ticker symbol
+     * @return asset details
      */
     @GetMapping("/{symbol}")
-    public ResponseEntity<StockDTO> getStockBySymbol(@PathVariable String symbol) {
-        log.info("GET /api/stocks/{} - Fetching stock details", symbol);
-        StockDTO stock = stockService.getStockBySymbol(symbol);
-        return ResponseEntity.ok(stock);
+    public ResponseEntity<AssetDTO> getAssetBySymbol(@PathVariable String symbol) {
+        log.info("GET /api/assets/{} - Fetching asset details", symbol);
+        AssetDTO asset = assetService.getAssetBySymbol(symbol);
+        return ResponseEntity.ok(asset);
     }
 
     /**
-     * Get historical prices for a stock.
+     * Get historical prices for an asset.
      * 
-     * GET /api/stocks/{symbol}/prices?from=2020-01-01&to=2024-12-31
+     * GET /api/assets/{symbol}/prices?from=2020-01-01&to=2024-12-31
      * 
-     * @param symbol stock ticker
+     * @param symbol ticker
      * @param from start date (inclusive)
      * @param to end date (inclusive)
      * @return list of price data points
@@ -103,8 +103,8 @@ public class StockController {
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to) {
         
-        log.info("GET /api/stocks/{}/prices?from={}&to={}", symbol, from, to);
-        List<PriceDataDTO> prices = stockService.getPriceHistory(symbol, from, to);
+        log.info("GET /api/assets/{}/prices?from={}&to={}", symbol, from, to);
+        List<PriceDataDTO> prices = assetService.getPriceHistory(symbol, from, to);
         log.info("Returning {} price records", prices.size());
         return ResponseEntity.ok(prices);
     }

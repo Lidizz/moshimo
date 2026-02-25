@@ -1,10 +1,10 @@
 import { useState, useMemo } from 'react';
 import { InvestmentForm } from './InvestmentForm';
-import type { Stock, Investment, SimulationRequest } from '../types/api.types';
+import type { Asset, Investment, SimulationRequest } from '../types/api.types';
 import './InvestmentBuilder.css';
 
 interface InvestmentBuilderProps {
-  stocks: Stock[];
+  assets: Asset[];
   onSimulate: (request: SimulationRequest) => void;
   isSimulating: boolean;
 }
@@ -17,7 +17,7 @@ interface InvestmentBuilderProps {
  * - Form validation: Only enable submit when all investments valid
  * - UUID generation: crypto.randomUUID() for unique keys
  */
-export function InvestmentBuilder({ stocks, onSimulate, isSimulating }: InvestmentBuilderProps) {
+export function InvestmentBuilder({ assets, onSimulate, isSimulating }: InvestmentBuilderProps) {
   const [investments, setInvestments] = useState<Investment[]>([
     createEmptyInvestment(),
   ]);
@@ -100,7 +100,7 @@ export function InvestmentBuilder({ stocks, onSimulate, isSimulating }: Investme
           <InvestmentForm
             key={investment.id}
             investment={investment}
-            stocks={stocks}
+            assets={assets}
             onUpdate={(updated) => handleUpdateInvestment(index, updated)}
             onRemove={() => handleRemoveInvestment(index)}
             canRemove={investments.length > 1}

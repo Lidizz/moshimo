@@ -8,7 +8,6 @@ package com.moshimo.backend.domain.model;
  * - @Enumerated(EnumType.STRING) in JPA stores the name, not ordinal
  * - Adding new values is safe when using STRING storage (no ordinal shift)
  * 
- * Future: CRYPTO type planned for Phase 2
  */
 public enum AssetType {
     
@@ -27,7 +26,12 @@ public enum AssetType {
      * Market indexes (e.g., ^GSPC for S&P 500, ^DJI for Dow Jones)
      * Note: Some indexes are not directly tradeable
      */
-    INDEX;
+    INDEX,
+    
+    /**
+     * Cryptocurrencies (e.g., BTC-USD, ETH-USD)
+     */
+    CRYPTO;
     
     /**
      * Infer asset type from symbol pattern or name.
@@ -51,6 +55,11 @@ public enum AssetType {
         // Index detection: symbols starting with ^
         if (upperSymbol.startsWith("^")) {
             return INDEX;
+        }
+        
+        // Crypto detection: symbols containing -USD or -USDT suffix
+        if (upperSymbol.endsWith("-USD") || upperSymbol.endsWith("-USDT")) {
+            return CRYPTO;
         }
         
         // ETF detection by common patterns

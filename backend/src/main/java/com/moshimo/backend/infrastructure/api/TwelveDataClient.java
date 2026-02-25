@@ -39,7 +39,7 @@ import java.util.List;
 @Service
 @Primary  // Use this as default provider
 @Slf4j
-public class TwelveDataClient implements StockDataProvider {
+public class TwelveDataClient implements MarketDataProvider {
 
     private final String apiKey;
     private final String baseUrl;
@@ -150,10 +150,10 @@ public class TwelveDataClient implements StockDataProvider {
 
     @Override
     public List<HistoricalPrice> getHistoricalPrices(String symbol, LocalDate from, LocalDate to) 
-            throws StockDataException {
+            throws MarketDataException {
         
         if (apiKey == null || apiKey.isBlank()) {
-            throw new StockDataException("Twelve Data API key not configured");
+            throw new MarketDataException("Twelve Data API key not configured");
         }
         
         log.info("Fetching historical data for {} from {} to {}", symbol, from, to);
@@ -224,12 +224,12 @@ public class TwelveDataClient implements StockDataProvider {
     }
 
     private List<HistoricalPrice> fetchChunk(String symbol, LocalDate startDate, LocalDate endDate)
-            throws StockDataException {
+            throws MarketDataException {
         return fetchChunk(symbol, startDate, endDate, 0);
     }
 
     private List<HistoricalPrice> fetchChunk(String symbol, LocalDate startDate, LocalDate endDate, int retryCount)
-            throws StockDataException {
+            throws MarketDataException {
         try {
             // Rate limiting
             enforceRateLimit();
@@ -256,7 +256,7 @@ public class TwelveDataClient implements StockDataProvider {
             // Handle HTTP errors
             if (response.statusCode() == 429) {
                 if (retryCount >= MAX_RETRIES) {
-                    throw new StockDataException(
+                    throw new MarketDataException(
                             "Rate limit retry limit (" + MAX_RETRIES + ") exceeded for " + symbol);
                 }
                 log.warn("Rate limit hit for {} (attempt {}/{}), waiting 60 seconds...",
@@ -272,7 +272,7 @@ public class TwelveDataClient implements StockDataProvider {
             
             if (response.statusCode() != 200) {
                 log.error("HTTP {} for {}: {}", response.statusCode(), symbol, response.body());
-                throw new StockDataException("HTTP " + response.statusCode() + " for " + symbol);
+                throw new MarketDataException("HTTP " + response.statusCode() + " for " + symbol);
             }
             
             // Parse JSON response
@@ -280,12 +280,12 @@ public class TwelveDataClient implements StockDataProvider {
             
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw new StockDataException("Interrupted while fetching data for " + symbol, e);
-        } catch (StockDataException e) {
+            throw new MarketDataException("Interrupted while fetching data for " + symbol, e);
+        } catch (MarketDataException e) {
             throw e;
         } catch (Exception e) {
             log.error("Error fetching data for {}: {}", symbol, e.getMessage(), e);
-            throw new StockDataException("Failed to fetch data for " + symbol, e);
+            throw new MarketDataException("Failed to fetch data for " + symbol, e);
         }
     }
 
@@ -352,14 +352,14 @@ public class TwelveDataClient implements StockDataProvider {
      * }
      */
     private List<HistoricalPrice> parseTimeSeriesResponse(String responseBody, String symbol) 
-            throws StockDataException {
+            throws MarketDataException {
         try {
             JsonNode root = objectMapper.readTree(responseBody);
             
             // Check for API errors
             if (root.has("status") && "error".equals(root.get("status").asText())) {
                 String message = root.has("message") ? root.get("message").asText() : "Unknown error";
-                throw new StockDataException("Twelve Data error for " + symbol + ": " + message);
+                throw new MarketDataException("Twelve Data error for " + symbol + ": " + message);
             }
             
             // Get values array
@@ -396,10 +396,10 @@ public class TwelveDataClient implements StockDataProvider {
             
             return prices;
             
-        } catch (StockDataException e) {
+        } catch (MarketDataException e) {
             throw e;
         } catch (Exception e) {
-            throw new StockDataException("Failed to parse response for " + symbol, e);
+            throw new MarketDataException("Failed to parse response for " + symbol, e);
         }
     }
 
@@ -409,7 +409,7 @@ public class TwelveDataClient implements StockDataProvider {
      * Counts as 1 API credit.
      */
     @Override
-    public Optional<StockProfile> getStockProfile(String symbol) {
+    public Optional<AssetProfile> getAssetProfile(String symbol) {
         if (apiKey == null || apiKey.isBlank()) {
             return Optional.empty();
         }
@@ -450,7 +450,7 @@ public class TwelveDataClient implements StockDataProvider {
             log.info("Profile for {}: name={}, exchange={}, sector={}, industry={}, type={}",
                 symbol, name, exchange, sector, industry, type);
 
-            return Optional.of(new StockProfile(name, exchange, sector, industry, type));
+            return Optional.of(new AssetProfile(name, exchange, sector, industry, type));
 
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();

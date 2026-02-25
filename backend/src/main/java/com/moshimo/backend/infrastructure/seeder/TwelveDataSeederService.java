@@ -1,11 +1,11 @@
 package com.moshimo.backend.infrastructure.seeder;
 
 import com.moshimo.backend.domain.model.AssetType;
-import com.moshimo.backend.domain.model.Stock;
-import com.moshimo.backend.domain.model.StockPrice;
-import com.moshimo.backend.domain.repository.StockPriceRepository;
-import com.moshimo.backend.domain.repository.StockRepository;
-import com.moshimo.backend.infrastructure.api.StockDataProvider;
+import com.moshimo.backend.domain.model.Asset;
+import com.moshimo.backend.domain.model.AssetPrice;
+import com.moshimo.backend.domain.repository.AssetPriceRepository;
+import com.moshimo.backend.domain.repository.AssetRepository;
+import com.moshimo.backend.infrastructure.api.MarketDataProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -18,12 +18,12 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Twelve Data Seeder Service - Bulk imports historical stock prices from Twelve Data API.
+ * Twelve Data Seeder Service - Bulk imports historical asset prices from Twelve Data API.
  * 
  * Features:
  * - Dynamic start date (fetches from earliest available via API)
  * - Batch saves for performance
- * - Stock metadata updates (ipoDate, lastPriceUpdate)
+ * - Asset metadata updates (ipoDate, lastPriceUpdate)
  * - Optional clear existing data
  * - Comprehensive logging and error handling
  * 
@@ -36,14 +36,14 @@ import java.util.Optional;
 @Slf4j
 public class TwelveDataSeederService {
 
-    private final StockDataProvider stockDataProvider;  // TwelveDataClient injected
-    private final StockRepository stockRepository;
-    private final StockPriceRepository stockPriceRepository;
+    private final MarketDataProvider marketDataProvider;  // TwelveDataClient injected
+    private final AssetRepository assetRepository;
+    private final AssetPriceRepository assetPriceRepository;
 
     /**
-     * Seed database with historical data for multiple stocks.
+     * Seed database with historical data for multiple assets.
      * 
-     * @param symbols List of stock tickers to import (e.g., ["MSFT", "AAPL"])
+     * @param symbols List of asset tickers to import (e.g., ["MSFT", "AAPL"])
      * @param clearExisting If true, deletes all existing price data first
      * @return Summary of import results (successes, failures, total records)
      */
@@ -52,7 +52,7 @@ public class TwelveDataSeederService {
         log.info("========================================");
         log.info("Starting Twelve Data import for {} symbols", symbols.size());
         log.info("Clear existing data: {}", clearExisting);
-        log.info("Provider: {}", stockDataProvider.getProviderName());
+        log.info("Provider: {}", marketDataProvider.getProviderName());
         log.info("========================================");
         
         ImportSummary summary = new ImportSummary();
@@ -61,10 +61,10 @@ public class TwelveDataSeederService {
         if (clearExisting) {
             log.warn("Clearing existing data for {} symbols...", symbols.size());
             for (String symbol : symbols) {
-                Optional<Stock> stock = stockRepository.findBySymbol(symbol);
-                if (stock.isPresent()) {
-                    long deletedCount = stockPriceRepository.countByStock(stock.get());
-                    stockPriceRepository.deleteByStock(stock.get());
+                Optional<Asset> asset = assetRepository.findBySymbol(symbol);
+                if (asset.isPresent()) {
+                    long deletedCount = assetPriceRepository.countByAsset(asset.get());
+                    assetPriceRepository.deleteByAsset(asset.get());
                     log.info("  ✓ Deleted {} records for {}", deletedCount, symbol);
                 }
             }
@@ -105,27 +105,27 @@ public class TwelveDataSeederService {
     }
 
     /**
-     * Import historical data for a single stock.
+     * Import historical data for a single asset.
      * 
      * Process:
      * 1. Get start date (earliest available OR last existing date + 1)
-     * 2. Ensure stock exists in database
+     * 2. Ensure asset exists in database
      * 3. Fetch historical prices from start → today
      * 4. Convert to JPA entities and batch save
-     * 5. Update stock metadata (ipoDate, lastPriceUpdate)
+     * 5. Update asset metadata (ipoDate, lastPriceUpdate)
      */
     private ImportResult importSingleStock(String symbol, LocalDate endDate, boolean clearExisting) {
         // Step 1: Determine start date
         LocalDate startDate;
         
         // Check if we already have data for this symbol
-        Optional<Stock> existingStock = stockRepository.findBySymbol(symbol);
+        Optional<Asset> existingAsset = assetRepository.findBySymbol(symbol);
         
-        if (!clearExisting && existingStock.isPresent()) {
-            // Find the last date we have data for this stock
-            Optional<LocalDate> lastDate = stockPriceRepository
-                .findTopByStockOrderByDateDesc(existingStock.get())
-                .map(StockPrice::getDate);
+        if (!clearExisting && existingAsset.isPresent()) {
+            // Find the last date we have data for this asset
+            Optional<LocalDate> lastDate = assetPriceRepository
+                .findTopByAssetOrderByDateDesc(existingAsset.get())
+                .map(AssetPrice::getDate);
             
             if (lastDate.isPresent()) {
                 // Start from the day after the last existing record
@@ -133,19 +133,19 @@ public class TwelveDataSeederService {
                 log.info("  → Resuming from last known date: {} (last record: {})", 
                     startDate, lastDate.get());
                 
-                // If we're already up to date, skip this stock
+                // If we're already up to date, skip this asset
                 if (!startDate.isBefore(endDate)) {
-                    log.info("  → Stock already up to date, skipping");
+                    log.info("  → Asset already up to date, skipping");
                     return new ImportResult(symbol, 0, lastDate.get(), lastDate.get());
                 }
             } else {
-                // Stock exists but has no price data, get earliest from API
-                startDate = stockDataProvider.getEarliestAvailableDate(symbol);
+                // Asset exists but has no price data, get earliest from API
+                startDate = marketDataProvider.getEarliestAvailableDate(symbol);
                 log.info("  → No existing data, fetching from earliest: {}", startDate);
             }
         } else {
-            // clearExisting=true or stock doesn't exist, get earliest from API
-            startDate = stockDataProvider.getEarliestAvailableDate(symbol);
+            // clearExisting=true or asset doesn't exist, get earliest from API
+            startDate = marketDataProvider.getEarliestAvailableDate(symbol);
             log.info("  → Fetching from earliest available date: {}", startDate);
         }
         
@@ -153,23 +153,23 @@ public class TwelveDataSeederService {
         
         log.info("  → Date range: {} to {} ({} days)", startDate, endDate, totalDays);
         
-        // Step 2: Ensure stock exists in database
-        Stock stock = existingStock.orElseGet(() -> createStockPlaceholder(symbol));
+        // Step 2: Ensure asset exists in database
+        Asset asset = existingAsset.orElseGet(() -> createAssetPlaceholder(symbol));
         
-        log.info("  → Stock entity: {} (ID: {})", stock.getName(), stock.getId());
+        log.info("  → Asset entity: {} (ID: {})", asset.getName(), asset.getId());
         
         // Step 2b: Auto-enrich metadata if missing (name, sector, industry, exchange)
-        if (needsMetadataEnrichment(stock)) {
-            enrichStockMetadata(stock, symbol);
+        if (needsMetadataEnrichment(asset)) {
+            enrichAssetMetadata(asset, symbol);
         }
         
         // Step 3: Fetch data from API
         log.info("  → Fetching historical data...");
-        List<StockDataProvider.HistoricalPrice> priceData;
+        List<MarketDataProvider.HistoricalPrice> priceData;
         
         try {
-            priceData = stockDataProvider.getHistoricalPrices(symbol, startDate, endDate);
-        } catch (StockDataProvider.StockDataException e) {
+            priceData = marketDataProvider.getHistoricalPrices(symbol, startDate, endDate);
+        } catch (MarketDataProvider.MarketDataException e) {
             throw new RuntimeException("API error: " + e.getMessage(), e);
         }
         
@@ -180,116 +180,116 @@ public class TwelveDataSeederService {
         log.info("  → Received {} records from API", priceData.size());
         
         // Step 4: Convert to JPA entities
-        List<StockPrice> entities = priceData.stream()
-            .map(data -> mapToEntity(stock, data))
+        List<AssetPrice> entities = priceData.stream()
+            .map(data -> mapToEntity(asset, data))
             .toList();
         
         // Step 5: Batch save (efficient bulk insert)
         log.info("  → Saving to database...");
-        stockPriceRepository.saveAll(entities);
+        assetPriceRepository.saveAll(entities);
         
-        // Step 6: Update stock metadata
+        // Step 6: Update asset metadata
         boolean metadataUpdated = false;
         
-        if (stock.getIpoDate() == null || startDate.isBefore(stock.getIpoDate())) {
-            stock.setIpoDate(startDate);
+        if (asset.getIpoDate() == null || startDate.isBefore(asset.getIpoDate())) {
+            asset.setIpoDate(startDate);
             metadataUpdated = true;
         }
         
-        stock.setLastPriceUpdate(LocalDate.now());
+        asset.setLastPriceUpdate(LocalDate.now());
         metadataUpdated = true;
         
         if (metadataUpdated) {
-            stockRepository.save(stock);
-            log.info("  → Updated stock metadata (ipoDate={}, lastPriceUpdate={})", 
-                stock.getIpoDate(), stock.getLastPriceUpdate());
+            assetRepository.save(asset);
+            log.info("  → Updated asset metadata (ipoDate={}, lastPriceUpdate={})", 
+                asset.getIpoDate(), asset.getLastPriceUpdate());
         }
         
         return new ImportResult(symbol, entities.size(), startDate, endDate);
     }
 
     /**
-     * Create placeholder stock entry if it doesn't exist.
+     * Create placeholder asset entry if it doesn't exist.
      * Will be enriched with proper metadata via /profile API call.
      */
-    private Stock createStockPlaceholder(String symbol) {
-        log.info("  → Creating new stock entry for {}", symbol);
+    private Asset createAssetPlaceholder(String symbol) {
+        log.info("  → Creating new asset entry for {}", symbol);
         
-        String stockName = symbol + " (Auto-imported)";
-        Stock stock = Stock.builder()
+        String assetName = symbol + " (Auto-imported)";
+        Asset asset = Asset.builder()
             .symbol(symbol)
-            .name(stockName)
-            .assetType(AssetType.inferFromSymbol(symbol, stockName))
+            .name(assetName)
+            .assetType(AssetType.inferFromSymbol(symbol, assetName))
             .isActive(true)
             .build();
         
-        return stockRepository.save(stock);
+        return assetRepository.save(asset);
     }
 
     /**
-     * Check if stock metadata needs enrichment.
+     * Check if asset metadata needs enrichment.
      * True if name contains "(Auto-imported)" or if sector/industry/exchange are missing.
      */
-    private boolean needsMetadataEnrichment(Stock stock) {
-        return stock.getName().contains("(Auto-imported)")
-            || stock.getSector() == null
-            || stock.getIndustry() == null
-            || stock.getExchange() == null;
+    private boolean needsMetadataEnrichment(Asset asset) {
+        return asset.getName().contains("(Auto-imported)")
+            || asset.getSector() == null
+            || asset.getIndustry() == null
+            || asset.getExchange() == null;
     }
 
     /**
-     * Fetch stock profile from API and update entity metadata.
+     * Fetch asset profile from API and update entity metadata.
      * Uses Twelve Data /profile endpoint (1 API credit).
      */
-    private void enrichStockMetadata(Stock stock, String symbol) {
+    private void enrichAssetMetadata(Asset asset, String symbol) {
         log.info("  → Enriching metadata for {} via /profile API...", symbol);
         
-        Optional<StockDataProvider.StockProfile> profile = stockDataProvider.getStockProfile(symbol);
+        Optional<MarketDataProvider.AssetProfile> profile = marketDataProvider.getAssetProfile(symbol);
         
         if (profile.isEmpty()) {
             log.warn("  → Could not fetch profile for {}, metadata unchanged", symbol);
             return;
         }
         
-        StockDataProvider.StockProfile p = profile.get();
+        MarketDataProvider.AssetProfile p = profile.get();
         
         if (p.name() != null && !p.name().isBlank()) {
-            stock.setName(p.name());
+            asset.setName(p.name());
         }
         if (p.exchange() != null && !p.exchange().isBlank()) {
-            stock.setExchange(p.exchange());
+            asset.setExchange(p.exchange());
         }
         if (p.sector() != null && !p.sector().isBlank()) {
-            stock.setSector(p.sector());
+            asset.setSector(p.sector());
         }
         if (p.industry() != null && !p.industry().isBlank()) {
-            stock.setIndustry(p.industry());
+            asset.setIndustry(p.industry());
         }
         
         // Infer asset type from profile type field
         if (p.type() != null) {
             String type = p.type().toLowerCase();
             if (type.contains("etf")) {
-                stock.setAssetType(AssetType.ETF);
+                asset.setAssetType(AssetType.ETF);
             } else if (type.contains("index")) {
-                stock.setAssetType(AssetType.INDEX);
+                asset.setAssetType(AssetType.INDEX);
             } else {
-                stock.setAssetType(AssetType.STOCK);
+                asset.setAssetType(AssetType.STOCK);
             }
         }
         
-        stockRepository.save(stock);
+        assetRepository.save(asset);
         log.info("  → Enriched: name={}, sector={}, industry={}, exchange={}, type={}",
-            stock.getName(), stock.getSector(), stock.getIndustry(), 
-            stock.getExchange(), stock.getAssetType());
+            asset.getName(), asset.getSector(), asset.getIndustry(), 
+            asset.getExchange(), asset.getAssetType());
     }
 
     /**
-     * Map provider HistoricalPrice to StockPrice JPA entity.
+     * Map provider HistoricalPrice to AssetPrice JPA entity.
      */
-    private StockPrice mapToEntity(Stock stock, StockDataProvider.HistoricalPrice data) {
-        return StockPrice.builder()
-            .stock(stock)
+    private AssetPrice mapToEntity(Asset asset, MarketDataProvider.HistoricalPrice data) {
+        return AssetPrice.builder()
+            .asset(asset)
             .date(data.date())
             .open(data.open())
             .high(data.high())

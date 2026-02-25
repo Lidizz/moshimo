@@ -30,7 +30,7 @@ import java.util.Map;
  */
 @Service
 @Slf4j
-public class AlphaVantageClient implements StockDataProvider {
+public class AlphaVantageClient implements MarketDataProvider {
 
     private final RestTemplate restTemplate;
     private final ObjectMapper objectMapper;
@@ -50,10 +50,10 @@ public class AlphaVantageClient implements StockDataProvider {
 
     @Override
     public List<HistoricalPrice> getHistoricalPrices(String symbol, LocalDate from, LocalDate to) 
-            throws StockDataException {
+            throws MarketDataException {
         
         if (apiKey == null || apiKey.isBlank()) {
-            throw new StockDataException("Alpha Vantage API key not configured");
+            throw new MarketDataException("Alpha Vantage API key not configured");
         }
 
         log.debug("Fetching data from Alpha Vantage for {} from {} to {}", symbol, from, to);
@@ -70,7 +70,7 @@ public class AlphaVantageClient implements StockDataProvider {
             String response = restTemplate.getForObject(url, String.class);
             
             if (response == null) {
-                throw new StockDataException("Empty response from Alpha Vantage");
+                throw new MarketDataException("Empty response from Alpha Vantage");
             }
 
             List<HistoricalPrice> prices = parseResponse(response, symbol, from, to);
@@ -80,7 +80,7 @@ public class AlphaVantageClient implements StockDataProvider {
 
         } catch (Exception e) {
             log.error("Failed to fetch from Alpha Vantage for {}: {}", symbol, e.getMessage());
-            throw new StockDataException("Alpha Vantage API error for " + symbol, e);
+            throw new MarketDataException("Alpha Vantage API error for " + symbol, e);
         }
     }
 
@@ -140,12 +140,12 @@ public class AlphaVantageClient implements StockDataProvider {
         
         // Check for errors
         if (root.has("Error Message")) {
-            throw new StockDataException("Alpha Vantage error: " + root.get("Error Message").asText());
+            throw new MarketDataException("Alpha Vantage error: " + root.get("Error Message").asText());
         }
         
         if (root.has("Note")) {
             // Rate limit message
-            throw new StockDataException("Alpha Vantage rate limit: " + root.get("Note").asText());
+            throw new MarketDataException("Alpha Vantage rate limit: " + root.get("Note").asText());
         }
 
         JsonNode timeSeries = root.get("Time Series (Daily)");

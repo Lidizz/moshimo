@@ -7,7 +7,7 @@
 /**
  * Asset type enum - categorizes tradeable assets.
  */
-export type AssetType = 'STOCK' | 'ETF' | 'INDEX';
+export type AssetType = 'STOCK' | 'ETF' | 'INDEX' | 'CRYPTO';
 
 export interface HealthResponse {
   status: string;
@@ -15,7 +15,7 @@ export interface HealthResponse {
   database: {
     connected: boolean;
     version: string;
-    totalStocks: number;
+    totalAssets: number;
     totalPriceRecords: number;
   };
   application: {
@@ -25,7 +25,7 @@ export interface HealthResponse {
   };
 }
 
-export interface Stock {
+export interface Asset {
   id: number;
   symbol: string;
   name: string;

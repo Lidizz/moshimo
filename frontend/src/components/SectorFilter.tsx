@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { stockApi } from '../services/api/stockApi';
+import { assetApi } from '../services/api/assetApi';
 import './SectorFilter.css';
 
 interface SectorFilterProps {
@@ -29,7 +29,7 @@ export function SectorFilter({
     const fetchSectors = async () => {
       try {
         setLoading(true);
-        const data = await stockApi.getSectors();
+        const data = await assetApi.getSectors();
         setSectors(data);
         setError(null);
       } catch (err) {
