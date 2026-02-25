@@ -49,6 +49,7 @@ public class TwelveDataClient implements MarketDataProvider {
     
     // Rate limiting: 8 requests per minute - batch strategy
     // Make 8 requests as fast as possible, then wait for next minute
+    private final Object rateLimiterLock = new Object();
     private long currentMinuteStart = 0;
     private int requestsInCurrentMinute = 0;
     private static final int MAX_REQUESTS_PER_MINUTE = 8;
@@ -289,47 +290,34 @@ public class TwelveDataClient implements MarketDataProvider {
         }
     }
 
-    /**
-     * Smart rate limiting: Batch 8 requests per minute, then wait.
-     * 
-     * Strategy:
-     * 1. Make up to 8 requests as fast as possible (API calls are quick ~1-2s each)
-     * 2. When we hit 8 requests in current minute, wait until next minute starts
-     * 3. Reset counter and continue
-     * 
-     * This is MUCH faster than spacing requests 7-8 seconds apart.
-     * Example: 8 requests take ~15 seconds, then wait 45s = 1 minute per 8 requests
-     * vs old: 8 requests * 8s = 64 seconds per 8 requests
-     */
+    /** Rate limit: batch up to 8 requests per minute, then wait until next minute boundary. */
     private void enforceRateLimit() throws InterruptedException {
-        long now = System.currentTimeMillis();
-        long currentMinute = now / 60000; // Minute boundary (0, 1, 2, ...)
-        
-        // Reset counter if we've moved to a new minute
-        if (currentMinute != currentMinuteStart) {
-            currentMinuteStart = currentMinute;
-            requestsInCurrentMinute = 0;
-            log.info("✓ Rate limit: New minute started, counter reset");
-        }
-        
-        // Check if we've hit the per-minute limit
-        if (requestsInCurrentMinute >= MAX_REQUESTS_PER_MINUTE) {
-            long nextMinuteStart = (currentMinuteStart + 1) * 60000;
-            long waitTime = nextMinuteStart - now + 500; // +500ms buffer
-            log.warn("⏸ Rate limit: Hit {}/{} requests, waiting {}s for next minute...", 
-                requestsInCurrentMinute, MAX_REQUESTS_PER_MINUTE, waitTime / 1000);
-            Thread.sleep(waitTime);
+        synchronized (rateLimiterLock) {
+            long now = System.currentTimeMillis();
+            long currentMinute = now / 60000;
             
-            // Reset for new minute
-            currentMinuteStart = System.currentTimeMillis() / 60000;
-            requestsInCurrentMinute = 0;
-            log.info("✓ Rate limit: New minute started, resuming...");
+            if (currentMinute != currentMinuteStart) {
+                currentMinuteStart = currentMinute;
+                requestsInCurrentMinute = 0;
+                log.info("Rate limit: New minute started, counter reset");
+            }
+            
+            if (requestsInCurrentMinute >= MAX_REQUESTS_PER_MINUTE) {
+                long nextMinuteStart = (currentMinuteStart + 1) * 60000;
+                long waitTime = nextMinuteStart - now + 500;
+                log.warn("Rate limit: Hit {}/{} requests, waiting {}s for next minute...", 
+                    requestsInCurrentMinute, MAX_REQUESTS_PER_MINUTE, waitTime / 1000);
+                Thread.sleep(waitTime);
+                
+                currentMinuteStart = System.currentTimeMillis() / 60000;
+                requestsInCurrentMinute = 0;
+                log.info("Rate limit: New minute started, resuming...");
+            }
+            
+            requestsInCurrentMinute++;
+            log.debug("Request {}/{} in current minute", 
+                requestsInCurrentMinute, MAX_REQUESTS_PER_MINUTE);
         }
-        
-        // Increment counter (no delay between requests!)
-        requestsInCurrentMinute++;
-        log.debug("⚡ Request {}/{} in current minute", 
-            requestsInCurrentMinute, MAX_REQUESTS_PER_MINUTE);
     }
 
     /**
