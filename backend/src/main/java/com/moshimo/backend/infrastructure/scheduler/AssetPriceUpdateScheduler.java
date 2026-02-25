@@ -14,7 +14,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.HashSet;
 
 /**
  * Scheduled service to update asset prices monthly on the first day of each month.
@@ -78,10 +81,14 @@ public class AssetPriceUpdateScheduler {
                     continue;
                 }
                 
-                // Save new prices (skip duplicates)
-                int savedCount = 0;
+                // Batch-fetch existing dates to skip duplicates without per-record queries
+                Set<LocalDate> existingDates = new HashSet<>(
+                    assetPriceRepository.findDatesByAssetIdAndDateBetween(
+                        asset.getId(), startDate, endDate));
+                
+                List<AssetPrice> newPrices = new ArrayList<>();
                 for (HistoricalPrice price : prices) {
-                    if (!assetPriceRepository.existsByAssetIdAndDate(asset.getId(), price.date())) {
+                    if (!existingDates.contains(price.date())) {
                         AssetPrice assetPrice = new AssetPrice();
                         assetPrice.setAsset(asset);
                         assetPrice.setDate(price.date());
@@ -91,16 +98,18 @@ public class AssetPriceUpdateScheduler {
                         assetPrice.setClose(price.close());
                         assetPrice.setVolume(price.volume());
                         assetPrice.setAdjustedClose(price.adjustedClose());
-                        
-                        assetPriceRepository.save(assetPrice);
-                        savedCount++;
+                        newPrices.add(assetPrice);
                     }
                 }
                 
-                updatedPrices += savedCount;
+                if (!newPrices.isEmpty()) {
+                    assetPriceRepository.saveAll(newPrices);
+                }
+                
+                updatedPrices += newPrices.size();
                 successCount++;
                 
-                log.debug("Updated {} with {} new price records", asset.getSymbol(), savedCount);
+                log.debug("Updated {} with {} new price records", asset.getSymbol(), newPrices.size());
                 
                 // Rate limiting: small delay between stocks to avoid hitting API limits
                 Thread.sleep(100);

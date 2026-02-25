@@ -165,6 +165,19 @@ public interface AssetPriceRepository extends JpaRepository<AssetPrice, Long> {
     );
 
     /**
+     * Find all dates that already have price data for a given asset within a range.
+     * Used by the scheduler to skip duplicates without per-record queries.
+     */
+    @Query("SELECT ap.date FROM AssetPrice ap " +
+           "WHERE ap.asset.id = :assetId " +
+           "AND ap.date BETWEEN :startDate AND :endDate")
+    List<LocalDate> findDatesByAssetIdAndDateBetween(
+        @Param("assetId") Long assetId,
+        @Param("startDate") LocalDate startDate,
+        @Param("endDate") LocalDate endDate
+    );
+
+    /**
      * Batch-fetch prices for multiple assets within a date range.
      * CRITICAL OPTIMIZATION: Replaces N individual queries with single batch query.
      * 
