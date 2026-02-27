@@ -14,17 +14,25 @@ interface BeforeInstallPromptEvent extends Event {
   userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>;
 }
 
+const DISMISS_KEY = 'pwa-prompt-dismissed-at';
+const DISMISS_DURATION_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
+
 export function PWAPrompt() {
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [showPrompt, setShowPrompt] = useState(false);
 
   useEffect(() => {
-    // Check if user has already dismissed or installed
-    const hasSeenPrompt = localStorage.getItem('pwa-prompt-dismissed');
+    // Check if user has already installed the PWA
     const isInstalled = window.matchMedia('(display-mode: standalone)').matches;
+    if (isInstalled) return;
 
-    if (hasSeenPrompt || isInstalled) {
-      return;
+    // Check if dismiss is still within the 7-day cooldown
+    const dismissedAt = localStorage.getItem(DISMISS_KEY);
+    if (dismissedAt) {
+      const elapsed = Date.now() - Number(dismissedAt);
+      if (elapsed < DISMISS_DURATION_MS) return;
+      // Cooldown expired — remove stale key so we can show again
+      localStorage.removeItem(DISMISS_KEY);
     }
 
     // Listen for the beforeinstallprompt event
@@ -58,18 +66,14 @@ export function PWAPrompt() {
     setDeferredPrompt(null);
     setShowPrompt(false);
 
-    // Mark as seen
-    localStorage.setItem('pwa-prompt-dismissed', 'true');
+    // Mark as seen (permanent for installs)
+    localStorage.setItem(DISMISS_KEY, '0');
   };
 
   const handleDismiss = () => {
     setShowPrompt(false);
-    localStorage.setItem('pwa-prompt-dismissed', 'true');
-    
-    // Allow showing again after 7 days
-    setTimeout(() => {
-      localStorage.removeItem('pwa-prompt-dismissed');
-    }, 7 * 24 * 60 * 60 * 1000); // 7 days
+    // Store timestamp — prompt will reappear after DISMISS_DURATION_MS
+    localStorage.setItem(DISMISS_KEY, String(Date.now()));
   };
 
   if (!showPrompt) return null;
