@@ -66,11 +66,19 @@ jobs:
       - name: Install dependencies
         run: npm ci
       
-      - name: Run tests
-        run: npm run test
+      - name: Run tests with coverage
+        run: npm run test:coverage
+      
+      - name: Upload coverage report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-coverage
+          path: frontend/coverage/
+          retention-days: 14
       
       - name: Build
         run: npm run build
       
       - name: Verify build
-        run: echo "✅ Frontend build and tests successful"
+        run: echo "✅ Frontend build, tests, and coverage successful"
