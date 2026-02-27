@@ -118,7 +118,7 @@ export function PortfolioChart({
       width: chartContainerRef.current.clientWidth,
       height: 400,
       crosshair: {
-        mode: 1, // Normal crosshair mode
+        mode: 0, // Normal (free) — crosshair follows mouse smoothly
         vertLine: {
           width: 1,
           color: themeColors.textSecondary,
@@ -262,6 +262,9 @@ export function PortfolioChart({
     chart.timeScale().fitContent();
 
     // Subscribe to crosshair move for tooltip
+    // Track last known values so the tooltip stays stable between data gaps
+    const lastKnownValues = new Map<string, number>();
+
     chart.subscribeCrosshairMove((param) => {
       if (
         param.point === undefined ||
@@ -269,12 +272,6 @@ export function PortfolioChart({
         param.point.x < 0 ||
         param.point.y < 0
       ) {
-        setTooltipData({ visible: false, entries: [], date: '', x: 0, y: 0 });
-        return;
-      }
-
-      const activeSeries = viewMode === 'combined' ? seriesRef.current : null;
-      if (!activeSeries && viewMode === 'combined') {
         setTooltipData({ visible: false, entries: [], date: '', x: 0, y: 0 });
         return;
       }
@@ -289,24 +286,36 @@ export function PortfolioChart({
 
       let entries: Array<{ symbol: string; value: string; color: string }> = [];
 
-      if (viewMode === 'combined' && activeSeries) {
-        const data = param.seriesData.get(activeSeries);
-        const price = (data as any)?.value ?? 0;
-        entries = [{ symbol: 'Portfolio', value: formatUSD(price), color: themeColors.accent }];
+      if (viewMode === 'combined' && seriesRef.current) {
+        const data = param.seriesData.get(seriesRef.current);
+        const price = (data as any)?.value;
+        if (price != null) {
+          lastKnownValues.set('Portfolio', price);
+          entries = [{ symbol: 'Portfolio', value: formatUSD(price), color: themeColors.accent }];
+        } else {
+          const last = lastKnownValues.get('Portfolio');
+          if (last != null) {
+            entries = [{ symbol: 'Portfolio', value: formatUSD(last), color: themeColors.accent }];
+          }
+        }
       } else if (viewMode === 'individual') {
-        // Collect values from ALL holding series at the crosshair
+        // Show ALL holdings — use last known value when no data at this point
         const symbols = [...holdingSeriesRefs.current.keys()];
         symbols.forEach((symbol, index) => {
           const series = holdingSeriesRefs.current.get(symbol);
           if (!series) return;
           const data = param.seriesData.get(series);
           const price = (data as any)?.value;
+          const color = holdingColors[index % holdingColors.length];
+
           if (price != null) {
-            entries.push({
-              symbol,
-              value: formatUSD(price),
-              color: holdingColors[index % holdingColors.length],
-            });
+            lastKnownValues.set(symbol, price);
+            entries.push({ symbol, value: formatUSD(price), color });
+          } else {
+            const last = lastKnownValues.get(symbol);
+            if (last != null) {
+              entries.push({ symbol, value: formatUSD(last), color });
+            }
           }
         });
       }
