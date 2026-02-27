@@ -8,3 +8,15 @@ createRoot(document.getElementById('root')!).render(
     <App />
   </StrictMode>,
 )
+
+// Register service worker for PWA — runs once at app startup regardless of route
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker
+    .register('/service-worker.js')
+    .then(() => {
+      // SW registered successfully
+    })
+    .catch(() => {
+      // SW registration failed — not critical, app works without it
+    });
+}

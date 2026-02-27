@@ -32,20 +32,6 @@ function SimulatorPage() {
   // Toast notification
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
 
-  // Register service worker for PWA
-  useEffect(() => {
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker
-        .register('/service-worker.js')
-        .then(() => {
-          // SW registered successfully
-        })
-        .catch(() => {
-          // SW registration failed — not critical, app works without it
-        });
-    }
-  }, []);
-
   useEffect(() => {
     const fetchData = async () => {
       try {
