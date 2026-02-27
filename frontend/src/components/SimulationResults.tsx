@@ -1,5 +1,6 @@
 import { PortfolioChart } from './PortfolioChart';
 import { PortfolioHeader } from './PortfolioHeader';
+import { AllocationChart } from './AllocationChart';
 import { useCountUp } from '../hooks/useCountUp';
 import type { SimulationResponse, InvestmentItem } from '../types/api.types';
 import './SimulationResults.css';
@@ -127,6 +128,11 @@ export function SimulationResults({ results, investments }: SimulationResultsPro
         holdings={results.holdings}
         holdingsTimelines={results.holdingsTimelines}
       />
+
+      {/* Allocation Donut Chart */}
+      {results.holdings.length > 1 && (
+        <AllocationChart holdings={results.holdings} />
+      )}
 
       {/* Holdings Table */}
       <div className="holdings-table">
