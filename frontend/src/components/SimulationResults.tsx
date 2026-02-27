@@ -1,5 +1,7 @@
 import { PortfolioChart } from './PortfolioChart';
 import { PortfolioHeader } from './PortfolioHeader';
+import { AllocationChart } from './AllocationChart';
+import { useCountUp } from '../hooks/useCountUp';
 import type { SimulationResponse, InvestmentItem } from '../types/api.types';
 import './SimulationResults.css';
 
@@ -45,6 +47,13 @@ export function SimulationResults({ results, investments }: SimulationResultsPro
     }).format(value);
   };
 
+  // Animate metric values from 0 to target on render
+  const animatedTotalInvested = useCountUp(results.totalInvested);
+  const animatedCurrentValue = useCountUp(results.currentValue);
+  const animatedAbsoluteGain = useCountUp(results.absoluteGain);
+  const animatedPercentReturn = useCountUp(results.percentReturn);
+  const animatedCagr = useCountUp(results.cagr);
+
   const isProfit = results.absoluteGain >= 0;
 
   return (
@@ -53,36 +62,50 @@ export function SimulationResults({ results, investments }: SimulationResultsPro
       <div className="simulation-results__metrics">
         <div className="metric-card">
           <div className="metric-card__label">Total Invested</div>
-          <div className="metric-card__value">{formatCurrency(results.totalInvested)}</div>
+          <div className="metric-card__value">{formatCurrency(animatedTotalInvested)}</div>
         </div>
 
         <div className="metric-card">
           <div className="metric-card__label">Current Value</div>
           <div className="metric-card__value metric-card__value--highlight">
-            {formatCurrency(results.currentValue)}
+            {formatCurrency(animatedCurrentValue)}
           </div>
         </div>
 
         <div className={`metric-card metric-card--${isProfit ? 'gain' : 'loss'}`}>
           <div className="metric-card__label">Absolute Gain</div>
           <div className="metric-card__value">
-            {formatCurrency(results.absoluteGain)}
+            {formatCurrency(animatedAbsoluteGain)}
           </div>
         </div>
 
         <div className={`metric-card metric-card--${isProfit ? 'gain' : 'loss'}`}>
           <div className="metric-card__label">Percent Return</div>
           <div className="metric-card__value">
-            {formatPercent(results.percentReturn)}
+            {formatPercent(animatedPercentReturn)}
           </div>
         </div>
 
         <div className="metric-card metric-card--cagr">
           <div className="metric-card__label">CAGR</div>
           <div className="metric-card__value">
-            {formatPercent(results.cagr)}
+            {formatPercent(animatedCagr)}
           </div>
           <div className="metric-card__hint">Compound Annual Growth Rate</div>
+        </div>
+      </div>
+
+      {/* Mobile sticky summary — visible only on small screens */}
+      <div className="simulation-results__mobile-summary">
+        <div className="mobile-summary__item">
+          <span className="mobile-summary__label">Value</span>
+          <span className="mobile-summary__value">{formatCurrency(results.currentValue)}</span>
+        </div>
+        <div className="mobile-summary__item">
+          <span className={`mobile-summary__label ${isProfit ? 'text-green' : 'text-red'}`}>Return</span>
+          <span className={`mobile-summary__value ${isProfit ? 'text-green' : 'text-red'}`}>
+            {formatPercent(results.percentReturn)}
+          </span>
         </div>
       </div>
 
@@ -105,6 +128,11 @@ export function SimulationResults({ results, investments }: SimulationResultsPro
         holdings={results.holdings}
         holdingsTimelines={results.holdingsTimelines}
       />
+
+      {/* Allocation Donut Chart */}
+      {results.holdings.length > 1 && (
+        <AllocationChart holdings={results.holdings} />
+      )}
 
       {/* Holdings Table */}
       <div className="holdings-table">
@@ -135,15 +163,15 @@ export function SimulationResults({ results, investments }: SimulationResultsPro
                         <span className="holdings-table__name">{holding.name}</span>
                       </div>
                     </td>
-                    <td className="text-right">{formatCurrency(holding.invested)}</td>
-                    <td className="text-right">{formatShares(holding.shares)}</td>
-                    <td className="text-right">{formatCurrency(holding.purchasePrice)}</td>
-                    <td className="text-right">{formatCurrency(holding.currentPrice)}</td>
-                    <td className="text-right font-semibold">{formatCurrency(holding.currentValue)}</td>
-                    <td className={`text-right font-semibold ${isProfitable ? 'text-green' : 'text-red'}`}>
+                    <td className="text-right" data-label="Invested">{formatCurrency(holding.invested)}</td>
+                    <td className="text-right" data-label="Shares">{formatShares(holding.shares)}</td>
+                    <td className="text-right" data-label="Purchase Price">{formatCurrency(holding.purchasePrice)}</td>
+                    <td className="text-right" data-label="Current Price">{formatCurrency(holding.currentPrice)}</td>
+                    <td className="text-right font-semibold" data-label="Current Value">{formatCurrency(holding.currentValue)}</td>
+                    <td className={`text-right font-semibold ${isProfitable ? 'text-green' : 'text-red'}`} data-label="Gain/Loss">
                       {formatCurrency(holding.absoluteGain)}
                     </td>
-                    <td className={`text-right font-semibold ${isProfitable ? 'text-green' : 'text-red'}`}>
+                    <td className={`text-right font-semibold ${isProfitable ? 'text-green' : 'text-red'}`} data-label="Return %">
                       {formatPercent(holding.percentReturn)}
                     </td>
                   </tr>

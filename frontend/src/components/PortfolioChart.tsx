@@ -65,9 +65,15 @@ export function PortfolioChart({
   const [currentTheme, setCurrentTheme] = useState<'light' | 'dark'>(() => {
     return (document.documentElement.getAttribute('data-theme') as 'light' | 'dark') || 'light';
   });
-  const [tooltipData, setTooltipData] = useState<{visible: boolean; value: string; date: string; x: number; y: number}>({
+  const [tooltipData, setTooltipData] = useState<{
+    visible: boolean;
+    entries: Array<{ symbol: string; value: string; color: string }>;
+    date: string;
+    x: number;
+    y: number;
+  }>({
     visible: false,
-    value: '',
+    entries: [],
     date: '',
     x: 0,
     y: 0,
@@ -263,35 +269,47 @@ export function PortfolioChart({
         param.point.x < 0 ||
         param.point.y < 0
       ) {
-        setTooltipData({ visible: false, value: '', date: '', x: 0, y: 0 });
+        setTooltipData({ visible: false, entries: [], date: '', x: 0, y: 0 });
         return;
       }
 
       const activeSeries = viewMode === 'combined' ? seriesRef.current : null;
       if (!activeSeries && viewMode === 'combined') {
-        setTooltipData({ visible: false, value: '', date: '', x: 0, y: 0 });
+        setTooltipData({ visible: false, entries: [], date: '', x: 0, y: 0 });
         return;
       }
 
-      let price = 0;
+      const formatUSD = (price: number) =>
+        new Intl.NumberFormat('en-US', {
+          style: 'currency',
+          currency: 'USD',
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        }).format(price);
+
+      let entries: Array<{ symbol: string; value: string; color: string }> = [];
+
       if (viewMode === 'combined' && activeSeries) {
         const data = param.seriesData.get(activeSeries);
-        price = (data as any)?.value ?? 0;
+        const price = (data as any)?.value ?? 0;
+        entries = [{ symbol: 'Portfolio', value: formatUSD(price), color: themeColors.accent }];
       } else if (viewMode === 'individual') {
-        // For individual view, show first series value as an example
-        const firstSeries = holdingSeriesRefs.current.values().next().value;
-        if (firstSeries) {
-          const data = param.seriesData.get(firstSeries);
-          price = (data as any)?.value ?? 0;
-        }
+        // Collect values from ALL holding series at the crosshair
+        const symbols = [...holdingSeriesRefs.current.keys()];
+        symbols.forEach((symbol, index) => {
+          const series = holdingSeriesRefs.current.get(symbol);
+          if (!series) return;
+          const data = param.seriesData.get(series);
+          const price = (data as any)?.value;
+          if (price != null) {
+            entries.push({
+              symbol,
+              value: formatUSD(price),
+              color: holdingColors[index % holdingColors.length],
+            });
+          }
+        });
       }
-
-      const formattedValue = new Intl.NumberFormat('en-US', {
-        style: 'currency',
-        currency: 'USD',
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2,
-      }).format(price);
 
       const dateStr = new Date(param.time as string).toLocaleDateString('en-US', {
         year: 'numeric',
@@ -300,8 +318,8 @@ export function PortfolioChart({
       });
 
       setTooltipData({
-        visible: true,
-        value: formattedValue,
+        visible: entries.length > 0,
+        entries,
         date: dateStr,
         x: param.point.x,
         y: param.point.y,
@@ -385,7 +403,9 @@ export function PortfolioChart({
         <div className="portfolio-chart__y-axis-label">
           Portfolio Value (USD)
         </div>
-        <div ref={chartContainerRef} className="portfolio-chart__container" />
+        <div ref={chartContainerRef} className="portfolio-chart__container">
+          <div className="portfolio-chart__watermark">Moshimo</div>
+        </div>
         
         {/* Custom Tooltip */}
         {tooltipData.visible && (
@@ -396,7 +416,16 @@ export function PortfolioChart({
               top: `${tooltipData.y}px`,
             }}
           >
-            <div className="portfolio-chart__tooltip-value">{tooltipData.value}</div>
+            {tooltipData.entries.map((entry) => (
+              <div key={entry.symbol} className="portfolio-chart__tooltip-entry">
+                <span
+                  className="portfolio-chart__tooltip-dot"
+                  style={{ backgroundColor: entry.color }}
+                />
+                <span className="portfolio-chart__tooltip-symbol">{entry.symbol}</span>
+                <span className="portfolio-chart__tooltip-value">{entry.value}</span>
+              </div>
+            ))}
             <div className="portfolio-chart__tooltip-date">{tooltipData.date}</div>
           </div>
         )}

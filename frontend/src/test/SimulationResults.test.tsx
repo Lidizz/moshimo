@@ -119,10 +119,13 @@ describe('SimulationResults', () => {
     it('displays formatted percentage values', () => {
       render(<SimulationResults results={profitResults} investments={investments} />);
 
+      const metrics = document.querySelector('.simulation-results__metrics')!;
+      const metricsEl = within(metrics as HTMLElement);
+
       // Percent Return: +50.00%
-      expect(screen.getByText('+50.00%')).toBeInTheDocument();
+      expect(metricsEl.getByText('+50.00%')).toBeInTheDocument();
       // CAGR: +14.87%
-      expect(screen.getByText('+14.87%')).toBeInTheDocument();
+      expect(metricsEl.getByText('+14.87%')).toBeInTheDocument();
     });
   });
 
@@ -147,10 +150,13 @@ describe('SimulationResults', () => {
     it('renders a row for each holding', () => {
       render(<SimulationResults results={profitResults} investments={investments} />);
 
-      expect(screen.getByText('AAPL')).toBeInTheDocument();
-      expect(screen.getByText('Apple Inc.')).toBeInTheDocument();
-      expect(screen.getByText('MSFT')).toBeInTheDocument();
-      expect(screen.getByText('Microsoft Corporation')).toBeInTheDocument();
+      const table = document.querySelector('.holdings-table')!;
+      const tableEl = within(table as HTMLElement);
+
+      expect(tableEl.getByText('AAPL')).toBeInTheDocument();
+      expect(tableEl.getByText('Apple Inc.')).toBeInTheDocument();
+      expect(tableEl.getByText('MSFT')).toBeInTheDocument();
+      expect(tableEl.getByText('Microsoft Corporation')).toBeInTheDocument();
     });
 
     it('formats share counts with 4 decimal places', () => {
