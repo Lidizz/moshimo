@@ -7,6 +7,7 @@ import './App.css';
 
 const SimulatorPage = React.lazy(() => import('./pages/Simulator/SimulatorPage'));
 const AboutPage = React.lazy(() => import('./pages/About/AboutPage'));
+const NotFoundPage = React.lazy(() => import('./pages/NotFound/NotFoundPage'));
 
 const router = createBrowserRouter([
   {
@@ -30,6 +31,14 @@ const router = createBrowserRouter([
         element: (
           <Suspense fallback={<LoadingSpinner message="Loading..." />}>
             <AboutPage />
+          </Suspense>
+        )
+      },
+      {
+        path: '*',
+        element: (
+          <Suspense fallback={<LoadingSpinner message="Loading..." />}>
+            <NotFoundPage />
           </Suspense>
         )
       }
