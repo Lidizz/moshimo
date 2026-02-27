@@ -1,9 +1,14 @@
+import React, { Suspense } from 'react';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import Layout from './components/Layout/Layout';
 import HomePage from './pages/Home/HomePage';
-import SimulatorPage from './pages/Simulator/SimulatorPage';
-import AboutPage from './pages/About/AboutPage';
+import { LoadingSpinner } from './components/LoadingSpinner';
+import { ErrorBoundary } from './components/ErrorBoundary';
 import './App.css';
+
+const SimulatorPage = React.lazy(() => import('./pages/Simulator/SimulatorPage'));
+const AboutPage = React.lazy(() => import('./pages/About/AboutPage'));
+const NotFoundPage = React.lazy(() => import('./pages/NotFound/NotFoundPage'));
 
 const router = createBrowserRouter([
   {
@@ -16,11 +21,29 @@ const router = createBrowserRouter([
       },
       { 
         path: '/simulator', 
-        element: <SimulatorPage /> 
+        element: (
+          <ErrorBoundary fallbackMessage="The simulator encountered an error. Please try again.">
+            <Suspense fallback={<LoadingSpinner message="Loading simulator..." />}>
+              <SimulatorPage />
+            </Suspense>
+          </ErrorBoundary>
+        )
       },
       { 
         path: '/about', 
-        element: <AboutPage /> 
+        element: (
+          <Suspense fallback={<LoadingSpinner message="Loading..." />}>
+            <AboutPage />
+          </Suspense>
+        )
+      },
+      {
+        path: '*',
+        element: (
+          <Suspense fallback={<LoadingSpinner message="Loading..." />}>
+            <NotFoundPage />
+          </Suspense>
+        )
       }
     ]
   }
