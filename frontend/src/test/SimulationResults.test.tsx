@@ -119,10 +119,13 @@ describe('SimulationResults', () => {
     it('displays formatted percentage values', () => {
       render(<SimulationResults results={profitResults} investments={investments} />);
 
+      const metrics = document.querySelector('.simulation-results__metrics')!;
+      const metricsEl = within(metrics as HTMLElement);
+
       // Percent Return: +50.00%
-      expect(screen.getByText('+50.00%')).toBeInTheDocument();
+      expect(metricsEl.getByText('+50.00%')).toBeInTheDocument();
       // CAGR: +14.87%
-      expect(screen.getByText('+14.87%')).toBeInTheDocument();
+      expect(metricsEl.getByText('+14.87%')).toBeInTheDocument();
     });
   });
 

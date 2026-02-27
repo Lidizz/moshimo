@@ -94,6 +94,20 @@ export function SimulationResults({ results, investments }: SimulationResultsPro
         </div>
       </div>
 
+      {/* Mobile sticky summary — visible only on small screens */}
+      <div className="simulation-results__mobile-summary">
+        <div className="mobile-summary__item">
+          <span className="mobile-summary__label">Value</span>
+          <span className="mobile-summary__value">{formatCurrency(results.currentValue)}</span>
+        </div>
+        <div className="mobile-summary__item">
+          <span className={`mobile-summary__label ${isProfit ? 'text-green' : 'text-red'}`}>Return</span>
+          <span className={`mobile-summary__value ${isProfit ? 'text-green' : 'text-red'}`}>
+            {formatPercent(results.percentReturn)}
+          </span>
+        </div>
+      </div>
+
       {/* Portfolio Header - Shows date range */}
       {investments && investments.length > 0 && (
         <PortfolioHeader
@@ -143,15 +157,15 @@ export function SimulationResults({ results, investments }: SimulationResultsPro
                         <span className="holdings-table__name">{holding.name}</span>
                       </div>
                     </td>
-                    <td className="text-right">{formatCurrency(holding.invested)}</td>
-                    <td className="text-right">{formatShares(holding.shares)}</td>
-                    <td className="text-right">{formatCurrency(holding.purchasePrice)}</td>
-                    <td className="text-right">{formatCurrency(holding.currentPrice)}</td>
-                    <td className="text-right font-semibold">{formatCurrency(holding.currentValue)}</td>
-                    <td className={`text-right font-semibold ${isProfitable ? 'text-green' : 'text-red'}`}>
+                    <td className="text-right" data-label="Invested">{formatCurrency(holding.invested)}</td>
+                    <td className="text-right" data-label="Shares">{formatShares(holding.shares)}</td>
+                    <td className="text-right" data-label="Purchase Price">{formatCurrency(holding.purchasePrice)}</td>
+                    <td className="text-right" data-label="Current Price">{formatCurrency(holding.currentPrice)}</td>
+                    <td className="text-right font-semibold" data-label="Current Value">{formatCurrency(holding.currentValue)}</td>
+                    <td className={`text-right font-semibold ${isProfitable ? 'text-green' : 'text-red'}`} data-label="Gain/Loss">
                       {formatCurrency(holding.absoluteGain)}
                     </td>
-                    <td className={`text-right font-semibold ${isProfitable ? 'text-green' : 'text-red'}`}>
+                    <td className={`text-right font-semibold ${isProfitable ? 'text-green' : 'text-red'}`} data-label="Return %">
                       {formatPercent(holding.percentReturn)}
                     </td>
                   </tr>
