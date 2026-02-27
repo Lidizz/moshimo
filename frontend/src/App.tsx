@@ -1,9 +1,12 @@
+import React, { Suspense } from 'react';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import Layout from './components/Layout/Layout';
 import HomePage from './pages/Home/HomePage';
-import SimulatorPage from './pages/Simulator/SimulatorPage';
-import AboutPage from './pages/About/AboutPage';
+import { LoadingSpinner } from './components/LoadingSpinner';
 import './App.css';
+
+const SimulatorPage = React.lazy(() => import('./pages/Simulator/SimulatorPage'));
+const AboutPage = React.lazy(() => import('./pages/About/AboutPage'));
 
 const router = createBrowserRouter([
   {
@@ -16,11 +19,19 @@ const router = createBrowserRouter([
       },
       { 
         path: '/simulator', 
-        element: <SimulatorPage /> 
+        element: (
+          <Suspense fallback={<LoadingSpinner message="Loading simulator..." />}>
+            <SimulatorPage />
+          </Suspense>
+        )
       },
       { 
         path: '/about', 
-        element: <AboutPage /> 
+        element: (
+          <Suspense fallback={<LoadingSpinner message="Loading..." />}>
+            <AboutPage />
+          </Suspense>
+        )
       }
     ]
   }
