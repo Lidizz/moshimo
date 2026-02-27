@@ -1,5 +1,6 @@
 import { PortfolioChart } from './PortfolioChart';
 import { PortfolioHeader } from './PortfolioHeader';
+import { useCountUp } from '../hooks/useCountUp';
 import type { SimulationResponse, InvestmentItem } from '../types/api.types';
 import './SimulationResults.css';
 
@@ -45,6 +46,13 @@ export function SimulationResults({ results, investments }: SimulationResultsPro
     }).format(value);
   };
 
+  // Animate metric values from 0 to target on render
+  const animatedTotalInvested = useCountUp(results.totalInvested);
+  const animatedCurrentValue = useCountUp(results.currentValue);
+  const animatedAbsoluteGain = useCountUp(results.absoluteGain);
+  const animatedPercentReturn = useCountUp(results.percentReturn);
+  const animatedCagr = useCountUp(results.cagr);
+
   const isProfit = results.absoluteGain >= 0;
 
   return (
@@ -53,34 +61,34 @@ export function SimulationResults({ results, investments }: SimulationResultsPro
       <div className="simulation-results__metrics">
         <div className="metric-card">
           <div className="metric-card__label">Total Invested</div>
-          <div className="metric-card__value">{formatCurrency(results.totalInvested)}</div>
+          <div className="metric-card__value">{formatCurrency(animatedTotalInvested)}</div>
         </div>
 
         <div className="metric-card">
           <div className="metric-card__label">Current Value</div>
           <div className="metric-card__value metric-card__value--highlight">
-            {formatCurrency(results.currentValue)}
+            {formatCurrency(animatedCurrentValue)}
           </div>
         </div>
 
         <div className={`metric-card metric-card--${isProfit ? 'gain' : 'loss'}`}>
           <div className="metric-card__label">Absolute Gain</div>
           <div className="metric-card__value">
-            {formatCurrency(results.absoluteGain)}
+            {formatCurrency(animatedAbsoluteGain)}
           </div>
         </div>
 
         <div className={`metric-card metric-card--${isProfit ? 'gain' : 'loss'}`}>
           <div className="metric-card__label">Percent Return</div>
           <div className="metric-card__value">
-            {formatPercent(results.percentReturn)}
+            {formatPercent(animatedPercentReturn)}
           </div>
         </div>
 
         <div className="metric-card metric-card--cagr">
           <div className="metric-card__label">CAGR</div>
           <div className="metric-card__value">
-            {formatPercent(results.cagr)}
+            {formatPercent(animatedCagr)}
           </div>
           <div className="metric-card__hint">Compound Annual Growth Rate</div>
         </div>
