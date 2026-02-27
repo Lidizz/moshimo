@@ -8,6 +8,7 @@ import { TimeframeSelector } from '../../components/TimeframeSelector';
 import { LoadingSpinner } from '../../components/LoadingSpinner';
 import { Toast } from '../../components/Toast';
 import { PWAPrompt } from '../../components/PWAPrompt';
+import { ErrorBoundary } from '../../components/ErrorBoundary';
 import type { HealthResponse, Asset, SimulationRequest, SimulationResponse } from '../../types/api.types';
 import './SimulatorPage.css';
 
@@ -198,12 +199,14 @@ function SimulatorPage() {
 
       {/* Results */}
       {simulationResults && lastRequest && (
-        <div id="results">
-          <SimulationResults 
-            results={simulationResults} 
-            investments={lastRequest.investments}
-          />
-        </div>
+        <ErrorBoundary fallbackMessage="Could not render simulation results. Try adjusting your inputs.">
+          <div id="results">
+            <SimulationResults 
+              results={simulationResults} 
+              investments={lastRequest.investments}
+            />
+          </div>
+        </ErrorBoundary>
       )}
 
       {/* Debug Info (can be hidden in production) */}

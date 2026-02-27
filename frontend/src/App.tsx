@@ -3,6 +3,7 @@ import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import Layout from './components/Layout/Layout';
 import HomePage from './pages/Home/HomePage';
 import { LoadingSpinner } from './components/LoadingSpinner';
+import { ErrorBoundary } from './components/ErrorBoundary';
 import './App.css';
 
 const SimulatorPage = React.lazy(() => import('./pages/Simulator/SimulatorPage'));
@@ -21,9 +22,11 @@ const router = createBrowserRouter([
       { 
         path: '/simulator', 
         element: (
-          <Suspense fallback={<LoadingSpinner message="Loading simulator..." />}>
-            <SimulatorPage />
-          </Suspense>
+          <ErrorBoundary fallbackMessage="The simulator encountered an error. Please try again.">
+            <Suspense fallback={<LoadingSpinner message="Loading simulator..." />}>
+              <SimulatorPage />
+            </Suspense>
+          </ErrorBoundary>
         )
       },
       { 

@@ -1,0 +1,34 @@
+.error-boundary {
+  max-width: 500px;
+  margin: 2rem auto;
+  padding: 2rem;
+  text-align: center;
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+}
+
+.error-boundary h2 {
+  margin: 0 0 0.5rem;
+  color: var(--text-primary);
+}
+
+.error-boundary p {
+  color: var(--text-secondary);
+  margin: 0 0 1.5rem;
+}
+
+.error-boundary__retry {
+  padding: 0.6rem 1.25rem;
+  background: var(--accent-color);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.error-boundary__retry:hover {
+  opacity: 0.9;
+}
