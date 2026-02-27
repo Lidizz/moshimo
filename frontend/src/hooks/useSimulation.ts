@@ -71,6 +71,8 @@ export function useSimulation(): SimulationHookResult {
       try {
         setIsSimulating(true);
         setSimulationError(null);
+        // Clear stale results so the loading spinner shows immediately
+        setSimulationResults(null);
 
         const results = await portfolioApi.simulate(lastRequest, newTimeframe);
         setSimulationResults(results);
