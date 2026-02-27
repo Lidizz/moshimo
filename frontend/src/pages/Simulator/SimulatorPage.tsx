@@ -1,7 +1,3 @@
-import { useEffect, useState } from 'react';
-import { healthApi } from '../../services/api/healthApi';
-import { assetApi } from '../../services/api/assetApi';
-import { portfolioApi } from '../../services/api/portfolioApi';
 import { InvestmentBuilder } from '../../components/InvestmentBuilder';
 import { SimulationResults } from '../../components/SimulationResults';
 import { TimeframeSelector } from '../../components/TimeframeSelector';
@@ -9,117 +5,23 @@ import { LoadingSpinner } from '../../components/LoadingSpinner';
 import { Toast } from '../../components/Toast';
 import { PWAPrompt } from '../../components/PWAPrompt';
 import { ErrorBoundary } from '../../components/ErrorBoundary';
-import type { HealthResponse, Asset, SimulationRequest, SimulationResponse } from '../../types/api.types';
+import { useHealthCheck } from '../../hooks/useHealthCheck';
+import { useSimulation } from '../../hooks/useSimulation';
 import './SimulatorPage.css';
 
 function SimulatorPage() {
-  const [health, setHealth] = useState<HealthResponse | null>(null);
-  const [assets, setAssets] = useState<Asset[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  
-  // Simulation state
-  const [isSimulating, setIsSimulating] = useState(false);
-  const [simulationResults, setSimulationResults] = useState<SimulationResponse | null>(null);
-  const [simulationError, setSimulationError] = useState<string | null>(null);
-  
-  // Timeframe state for chart sampling
-  const [timeframe, setTimeframe] = useState<string>('ALL');
-  
-  // Store original request for re-simulation when timeframe changes
-  const [lastRequest, setLastRequest] = useState<SimulationRequest | null>(null);
-  
-  // Toast notification
-  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-
-        // Fetch health status and assets in parallel
-        const [healthData, assetsData] = await Promise.all([
-          healthApi.checkHealth(),
-          assetApi.getAllAssets(),
-        ]);
-
-        setHealth(healthData);
-        setAssets(assetsData);
-      } catch (err: any) {
-        setError(err.message || 'Failed to fetch data');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
-  }, []);
-
-  const handleSimulate = async (request: SimulationRequest) => {
-    try {
-      setIsSimulating(true);
-      setSimulationError(null);
-
-      // Store request for timeframe changes
-      setLastRequest(request);
-
-      const results = await portfolioApi.simulate(request, timeframe);
-
-      setSimulationResults(results);
-      
-      // Show success toast
-      setToast({ 
-        message: '🎉 Simulation complete! Check out your results below.', 
-        type: 'success' 
-      });
-
-      // Scroll to results
-      setTimeout(() => {
-        document.getElementById('results')?.scrollIntoView({ 
-          behavior: 'smooth', 
-          block: 'start' 
-        });
-      }, 100);
-
-    } catch (err: any) {
-      setSimulationError(
-        err.response?.data?.message || 
-        err.message || 
-        'Simulation failed. Please check your inputs and try again.'
-      );
-      setSimulationResults(null);
-    } finally {
-      setIsSimulating(false);
-    }
-  };
-
-  /**
-   * Handle timeframe changes - re-run simulation with new sampling.
-   * This teaches students how the same data looks different at different scales.
-   */
-  const handleTimeframeChange = async (newTimeframe: string) => {
-    setTimeframe(newTimeframe);
-    
-    // Re-run simulation with new timeframe if we have a previous request
-    if (lastRequest) {
-      try {
-        setIsSimulating(true);
-        setSimulationError(null);
-        
-        const results = await portfolioApi.simulate(lastRequest, newTimeframe);
-        setSimulationResults(results);
-      } catch (err: any) {
-        setSimulationError(
-          err.response?.data?.message || 
-          err.message || 
-          'Failed to update timeframe'
-        );
-      } finally {
-        setIsSimulating(false);
-      }
-    }
-  };
+  const { health, assets, loading, error } = useHealthCheck();
+  const {
+    isSimulating,
+    simulationResults,
+    simulationError,
+    timeframe,
+    lastRequest,
+    toast,
+    clearToast,
+    handleSimulate,
+    handleTimeframeChange,
+  } = useSimulation();
 
   if (loading) {
     return (
@@ -151,7 +53,7 @@ function SimulatorPage() {
         <Toast 
           message={toast.message} 
           type={toast.type} 
-          onClose={() => setToast(null)}
+          onClose={clearToast}
         />
       )}
 
