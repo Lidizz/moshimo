@@ -43,6 +43,13 @@
   font-family: var(--font-family);
 }
 
+.investment-form__ipo-info {
+  margin-left: 0.375rem;
+  cursor: help;
+  font-size: 0.875rem;
+  vertical-align: middle;
+}
+
 .investment-form__input {
   width: 100%;
   padding: 0.75rem 1rem;

@@ -14,6 +14,15 @@ interface InvestmentFormProps {
 }
 
 /**
+ * Format an ISO date string (YYYY-MM-DD) to a readable label.
+ * e.g. "1986-03-13" → "Mar 13, 1986"
+ */
+function formatIpoDate(dateStr: string): string {
+  const d = new Date(dateStr + 'T00:00:00');
+  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+}
+
+/**
  * Individual Investment Form - One row in the investment builder.
  * 
  * Learning Notes:
@@ -102,6 +111,10 @@ export function InvestmentForm({
                   investment.amountUsd > 0 && 
                   investment.purchaseDate;
 
+  // Resolve selected asset for IPO date tooltip
+  const selectedAsset = assets.find(a => a.symbol === investment.symbol);
+  const ipoDate = selectedAsset?.ipoDate || undefined;
+
   return (
     <div className={`${styles.investmentForm} ${!isValid ? styles.investmentFormInvalid : ''}`}>
       <div className={styles.investmentFormGrid}>
@@ -141,10 +154,21 @@ export function InvestmentForm({
 
         {/* Date Picker */}
         <div className={styles.investmentFormField}>
-          <label className={styles.investmentFormLabel}>Purchase Date</label>
+          <label className={styles.investmentFormLabel}>
+            Purchase Date
+            {ipoDate && (
+              <span
+                className={styles.investmentFormIpoInfo}
+                title={`${selectedAsset!.symbol} available from ${formatIpoDate(ipoDate)}`}
+              >
+                ℹ️
+              </span>
+            )}
+          </label>
           <input
             type="date"
             className={styles.investmentFormInput}
+            min={ipoDate || undefined}
             max={new Date().toISOString().split('T')[0]}
             value={investment.purchaseDate}
             onChange={handleDateChange}
