@@ -4,6 +4,7 @@ import Layout from './components/Layout/Layout';
 import HomePage from './pages/Home/HomePage';
 import { LoadingSpinner } from './components/LoadingSpinner';
 import { ErrorBoundary } from './components/ErrorBoundary';
+import { SimulationProvider } from './context/SimulationContext';
 
 const SimulatorPage = React.lazy(() => import('./pages/Simulator/SimulatorPage'));
 const AboutPage = React.lazy(() => import('./pages/About/AboutPage'));
@@ -49,7 +50,11 @@ const router = createBrowserRouter([
 ]);
 
 function App() {
-  return <RouterProvider router={router} />;
+  return (
+    <SimulationProvider>
+      <RouterProvider router={router} />
+    </SimulationProvider>
+  );
 }
 
 export default App;

@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react';
 import { InvestmentForm } from './InvestmentForm';
+import { useSimulationContext } from '../hooks/useSimulationContext';
 import type { Asset, Investment, SimulationRequest } from '../types/api.types';
 import styles from './InvestmentBuilder.module.css';
 
@@ -16,11 +17,10 @@ interface InvestmentBuilderProps {
  * - Dynamic form arrays: Add/remove items
  * - Form validation: Only enable submit when all investments valid
  * - UUID generation: crypto.randomUUID() for unique keys
+ * - Investments state lives in SimulationContext (survives navigation)
  */
 export function InvestmentBuilder({ assets, onSimulate, isSimulating }: InvestmentBuilderProps) {
-  const [investments, setInvestments] = useState<Investment[]>([
-    createEmptyInvestment(),
-  ]);
+  const { investments, setInvestments } = useSimulationContext();
   const [showValidation, setShowValidation] = useState(false);
 
   // Create a new empty investment

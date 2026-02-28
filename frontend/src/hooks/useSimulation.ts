@@ -1,11 +1,8 @@
 import { useState } from 'react';
 import { portfolioApi } from '../services/api/portfolioApi';
 import type { SimulationRequest, SimulationResponse } from '../types/api.types';
-
-interface ToastState {
-  message: string;
-  type: 'success' | 'error';
-}
+import { useSimulationContext } from './useSimulationContext';
+import type { ToastState } from '../context/SimulationContext';
 
 interface SimulationHookResult {
   isSimulating: boolean;
@@ -22,25 +19,28 @@ interface SimulationHookResult {
 /**
  * Manages the full simulation lifecycle: running a simulation,
  * changing timeframes, and tracking toast / error state.
+ *
+ * Persistent state (results, request, timeframe) is stored in
+ * SimulationContext and survives navigation / page refresh.
+ * Transient state (isSimulating, simulationError) stays local.
  */
 export function useSimulation(): SimulationHookResult {
+  const ctx = useSimulationContext();
+
+  // ── Transient (local) state ─────────────────────────────────────
   const [isSimulating, setIsSimulating] = useState(false);
-  const [simulationResults, setSimulationResults] = useState<SimulationResponse | null>(null);
   const [simulationError, setSimulationError] = useState<string | null>(null);
-  const [timeframe, setTimeframe] = useState<string>('ALL');
-  const [lastRequest, setLastRequest] = useState<SimulationRequest | null>(null);
-  const [toast, setToast] = useState<ToastState | null>(null);
 
   const handleSimulate = async (request: SimulationRequest) => {
     try {
       setIsSimulating(true);
       setSimulationError(null);
-      setLastRequest(request);
+      ctx.setLastRequest(request);
 
-      const results = await portfolioApi.simulate(request, timeframe);
-      setSimulationResults(results);
+      const results = await portfolioApi.simulate(request, ctx.timeframe);
+      ctx.setSimulationResults(results);
 
-      setToast({
+      ctx.setToast({
         message: '🎉 Simulation complete! Check out your results below.',
         type: 'success',
       });
@@ -58,24 +58,24 @@ export function useSimulation(): SimulationHookResult {
           err.message ||
           'Simulation failed. Please check your inputs and try again.',
       );
-      setSimulationResults(null);
+      ctx.setSimulationResults(null);
     } finally {
       setIsSimulating(false);
     }
   };
 
   const handleTimeframeChange = async (newTimeframe: string) => {
-    setTimeframe(newTimeframe);
+    ctx.setTimeframe(newTimeframe);
 
-    if (lastRequest) {
+    if (ctx.lastRequest) {
       try {
         setIsSimulating(true);
         setSimulationError(null);
         // Clear stale results so the loading spinner shows immediately
-        setSimulationResults(null);
+        ctx.setSimulationResults(null);
 
-        const results = await portfolioApi.simulate(lastRequest, newTimeframe);
-        setSimulationResults(results);
+        const results = await portfolioApi.simulate(ctx.lastRequest, newTimeframe);
+        ctx.setSimulationResults(results);
       } catch (err: any) {
         setSimulationError(
           err.response?.data?.message ||
@@ -88,15 +88,15 @@ export function useSimulation(): SimulationHookResult {
     }
   };
 
-  const clearToast = () => setToast(null);
+  const clearToast = () => ctx.setToast(null);
 
   return {
     isSimulating,
-    simulationResults,
+    simulationResults: ctx.simulationResults,
     simulationError,
-    timeframe,
-    lastRequest,
-    toast,
+    timeframe: ctx.timeframe,
+    lastRequest: ctx.lastRequest,
+    toast: ctx.toast,
     clearToast,
     handleSimulate,
     handleTimeframeChange,
