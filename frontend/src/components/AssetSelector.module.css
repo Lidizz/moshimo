@@ -44,21 +44,21 @@
   opacity: 0.5;
 }
 
-.asset-selector__selected {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-}
-
 .asset-selector__symbol {
   font-weight: 700;
   color: var(--text-primary);
   font-size: 1rem;
 }
 
-.asset-selector__name {
-  font-size: 0.875rem;
+.asset-selector__company-label {
+  display: block;
+  font-size: 0.75rem;
   color: var(--text-secondary);
+  margin-top: 0.25rem;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .asset-selector__placeholder {

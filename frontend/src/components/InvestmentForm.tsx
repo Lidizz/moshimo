@@ -10,6 +10,16 @@ interface InvestmentFormProps {
   onRemove: () => void;
   canRemove: boolean;
   showValidation?: boolean;  // Only show errors when true (after simulate attempt)
+  isNew?: boolean;  // Suppress validation on freshly-added rows
+}
+
+/**
+ * Format an ISO date string (YYYY-MM-DD) to a readable label.
+ * e.g. "1986-03-13" → "Mar 13, 1986"
+ */
+function formatIpoDate(dateStr: string): string {
+  const d = new Date(dateStr + 'T00:00:00');
+  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 }
 
 /**
@@ -26,7 +36,8 @@ export function InvestmentForm({
   onUpdate, 
   onRemove, 
   canRemove,
-  showValidation = false
+  showValidation = false,
+  isNew = false
 }: InvestmentFormProps) {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [touched, setTouched] = useState<Record<string, boolean>>({});
@@ -36,8 +47,9 @@ export function InvestmentForm({
     setTouched(prev => ({ ...prev, [field]: true }));
   };
 
-  // Show error only if touched or showValidation is true
+  // Show error only if (touched OR showValidation) AND not a fresh "new" row
   const shouldShowError = (field: string) => {
+    if (isNew) return false;
     return (touched[field] || showValidation) && errors[field];
   };
 
@@ -99,6 +111,10 @@ export function InvestmentForm({
                   investment.amountUsd > 0 && 
                   investment.purchaseDate;
 
+  // Resolve selected asset for IPO date tooltip
+  const selectedAsset = assets.find(a => a.symbol === investment.symbol);
+  const ipoDate = selectedAsset?.ipoDate || undefined;
+
   return (
     <div className={`${styles.investmentForm} ${!isValid ? styles.investmentFormInvalid : ''}`}>
       <div className={styles.investmentFormGrid}>
@@ -138,10 +154,21 @@ export function InvestmentForm({
 
         {/* Date Picker */}
         <div className={styles.investmentFormField}>
-          <label className={styles.investmentFormLabel}>Purchase Date</label>
+          <label className={styles.investmentFormLabel}>
+            Purchase Date
+            {ipoDate && (
+              <span
+                className={styles.investmentFormIpoInfo}
+                title={`${selectedAsset!.symbol} available from ${formatIpoDate(ipoDate)}`}
+              >
+                ℹ️
+              </span>
+            )}
+          </label>
           <input
             type="date"
             className={styles.investmentFormInput}
+            min={ipoDate || undefined}
             max={new Date().toISOString().split('T')[0]}
             value={investment.purchaseDate}
             onChange={handleDateChange}
