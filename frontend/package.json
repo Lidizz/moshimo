@@ -10,7 +10,8 @@
     "preview": "vite preview",
     "test": "vitest",
     "test:ui": "vitest --ui",
-    "test:coverage": "vitest run --coverage"
+    "test:coverage": "vitest run --coverage",
+    "generate-pwa-assets": "pwa-assets-generator -p minimal public/favicon.svg"
   },
   "dependencies": {
     "axios": "^1.13.2",
