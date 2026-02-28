@@ -19,7 +19,7 @@ export default function Logo({ size = 40, className = '' }: LogoProps) {
       viewBox="0 0 40 40"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
-      className={`logo ${className}`}
+      className={className || undefined}
       aria-label="Moshimo Logo"
     >
       {/* Clean "M" with upward-trending right leg */}
