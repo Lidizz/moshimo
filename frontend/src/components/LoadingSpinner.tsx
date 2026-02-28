@@ -1,4 +1,4 @@
-import './LoadingSpinner.css';
+import styles from './LoadingSpinner.module.css';
 
 interface LoadingSpinnerProps {
   message?: string;
@@ -9,13 +9,13 @@ interface LoadingSpinnerProps {
  */
 export function LoadingSpinner({ message = 'Calculating portfolio performance...' }: LoadingSpinnerProps) {
   return (
-    <div className="loading-spinner">
-      <div className="loading-spinner__animation">
-        <div className="loading-spinner__circle"></div>
-        <div className="loading-spinner__circle"></div>
-        <div className="loading-spinner__circle"></div>
+    <div className={styles.loadingSpinner}>
+      <div className={styles.loadingSpinnerAnimation}>
+        <div className={styles.loadingSpinnerCircle}></div>
+        <div className={styles.loadingSpinnerCircle}></div>
+        <div className={styles.loadingSpinnerCircle}></div>
       </div>
-      <p className="loading-spinner__message">{message}</p>
+      <p className={styles.loadingSpinnerMessage}>{message}</p>
     </div>
   );
 }

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { assetApi } from '../services/api/assetApi';
-import './SectorFilter.css';
+import styles from './SectorFilter.module.css';
 
 interface SectorFilterProps {
   selectedSector: string | null;
@@ -48,14 +48,14 @@ export function SectorFilter({
   };
 
   return (
-    <div className="sector-filter">
-      <label className="sector-filter__label" htmlFor="sector-select">
-        <span className="sector-filter__icon" aria-hidden="true">🏢</span>
+    <div className={styles.sectorFilter}>
+      <label className={styles.sectorFilterLabel} htmlFor="sector-select">
+        <span className={styles.sectorFilterIcon} aria-hidden="true">🏢</span>
         Sector
       </label>
       <select
         id="sector-select"
-        className="sector-filter__select"
+        className={styles.sectorFilterSelect}
         value={selectedSector ?? ''}
         onChange={handleChange}
         disabled={disabled || loading}

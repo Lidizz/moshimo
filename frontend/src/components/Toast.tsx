@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import './Toast.css';
+import styles from './Toast.module.css';
 
 interface ToastProps {
   message: string;
@@ -20,10 +20,10 @@ export function Toast({ message, type = 'success', duration = 3000, onClose }: T
   const icon = type === 'success' ? '✅' : type === 'error' ? '❌' : 'ℹ️';
 
   return (
-    <div className={`toast toast--${type}`}>
-      <span className="toast__icon">{icon}</span>
-      <span className="toast__message">{message}</span>
-      <button className="toast__close" onClick={onClose} aria-label="Close">
+    <div className={`${styles.toast} ${styles[`toast--${type}`]}`}>
+      <span className={styles.toastIcon}>{icon}</span>
+      <span className={styles.toastMessage}>{message}</span>
+      <button className={styles.toastClose} onClick={onClose} aria-label="Close">
         ✕
       </button>
     </div>

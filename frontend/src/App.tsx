@@ -4,7 +4,6 @@ import Layout from './components/Layout/Layout';
 import HomePage from './pages/Home/HomePage';
 import { LoadingSpinner } from './components/LoadingSpinner';
 import { ErrorBoundary } from './components/ErrorBoundary';
-import './App.css';
 
 const SimulatorPage = React.lazy(() => import('./pages/Simulator/SimulatorPage'));
 const AboutPage = React.lazy(() => import('./pages/About/AboutPage'));

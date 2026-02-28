@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo } from 'react';
 import type { Asset, AssetType } from '../types/api.types';
 import { AssetTypeFilter } from './AssetTypeFilter';
 import { SectorFilter } from './SectorFilter';
-import './AssetSelector.css';
+import styles from './AssetSelector.module.css';
 
 interface AssetSelectorProps {
   assets: Asset[];
@@ -21,9 +21,9 @@ interface AssetSelectorProps {
  */
 function getAssetTypeBadgeClass(assetType: AssetType): string {
   switch (assetType) {
-    case 'ETF': return 'asset-selector__badge--etf';
-    case 'INDEX': return 'asset-selector__badge--index';
-    default: return 'asset-selector__badge--stock';
+    case 'ETF': return styles.assetSelectorBadgeEtf;
+    case 'INDEX': return styles.assetSelectorBadgeIndex;
+    default: return styles.assetSelectorBadgeStock;
   }
 }
 
@@ -93,31 +93,31 @@ export function AssetSelector({ assets, selectedSymbol, onSelect, disabled = fal
   };
 
   return (
-    <div className="asset-selector" onClick={(e) => e.stopPropagation()}>
-      <label className="asset-selector__label">Select Asset</label>
+    <div className={styles.assetSelector} onClick={(e) => e.stopPropagation()}>
+      <label className={styles.assetSelectorLabel}>Select Asset</label>
       
-      <div className="asset-selector__input-wrapper">
+      <div className={styles.assetSelectorInputWrapper}>
         <button
           type="button"
-          className="asset-selector__trigger"
+          className={styles.assetSelectorTrigger}
           onClick={() => !disabled && setIsOpen(!isOpen)}
           disabled={disabled}
         >
           {selectedAsset ? (
-            <div className="asset-selector__selected">
-              <span className="asset-selector__symbol">{selectedAsset.symbol}</span>
-              <span className="asset-selector__name">{selectedAsset.name}</span>
+            <div className={styles.assetSelectorSelected}>
+              <span className={styles.assetSelectorSymbol}>{selectedAsset.symbol}</span>
+              <span className={styles.assetSelectorName}>{selectedAsset.name}</span>
             </div>
           ) : (
-            <span className="asset-selector__placeholder">Choose an asset...</span>
+            <span className={styles.assetSelectorPlaceholder}>Choose an asset...</span>
           )}
-          <span className="asset-selector__arrow">{isOpen ? '▲' : '▼'}</span>
+          <span className={styles.assetSelectorArrow}>{isOpen ? '▲' : '▼'}</span>
         </button>
 
         {isOpen && (
-          <div className="asset-selector__dropdown">
+          <div className={styles.assetSelectorDropdown}>
             {/* Filter Controls */}
-            <div className="asset-selector__filters">
+            <div className={styles.assetSelectorFilters}>
               <AssetTypeFilter
                 selectedType={selectedAssetType}
                 onTypeChange={setSelectedAssetType}
@@ -129,7 +129,7 @@ export function AssetSelector({ assets, selectedSymbol, onSelect, disabled = fal
               {activeFilterCount > 0 && (
                 <button
                   type="button"
-                  className="asset-selector__clear-filters"
+                  className={styles.assetSelectorClearFilters}
                   onClick={() => {
                     setSelectedAssetType(null);
                     setSelectedSector(null);
@@ -142,39 +142,39 @@ export function AssetSelector({ assets, selectedSymbol, onSelect, disabled = fal
             
             <input
               type="text"
-              className="asset-selector__search"
+              className={styles.assetSelectorSearch}
               placeholder="Search by symbol, name, or sector..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               autoFocus
             />
             
-            <div className="asset-selector__list">
+            <div className={styles.assetSelectorList}>
               {filteredAssets.length > 0 ? (
                 filteredAssets.map((asset) => (
                   <button
                     key={asset.id}
                     type="button"
-                    className={`asset-selector__option ${
-                      asset.symbol === selectedSymbol ? 'asset-selector__option--selected' : ''
+                    className={`${styles.assetSelectorOption} ${
+                      asset.symbol === selectedSymbol ? styles.assetSelectorOptionSelected : ''
                     }`}
                     onClick={() => handleSelect(asset.symbol)}
                   >
-                    <div className="asset-selector__option-header">
-                      <span className="asset-selector__option-symbol">{asset.symbol}</span>
-                      <span className={`asset-selector__badge ${getAssetTypeBadgeClass(asset.assetType)}`}>
+                    <div className={styles.assetSelectorOptionHeader}>
+                      <span className={styles.assetSelectorOptionSymbol}>{asset.symbol}</span>
+                      <span className={`${styles.assetSelectorBadge} ${getAssetTypeBadgeClass(asset.assetType)}`}>
                         {asset.assetType}
                       </span>
-                      <span className="asset-selector__option-exchange">{asset.exchange}</span>
+                      <span className={styles.assetSelectorOptionExchange}>{asset.exchange}</span>
                     </div>
-                    <div className="asset-selector__option-name">{asset.name}</div>
+                    <div className={styles.assetSelectorOptionName}>{asset.name}</div>
                     {asset.sector && (
-                      <div className="asset-selector__option-sector">{asset.sector}</div>
+                      <div className={styles.assetSelectorOptionSector}>{asset.sector}</div>
                     )}
                   </button>
                 ))
               ) : (
-                <div className="asset-selector__empty">
+                <div className={styles.assetSelectorEmpty}>
                   {activeFilterCount > 0 
                     ? 'No assets match your filters' 
                     : 'No assets found'}

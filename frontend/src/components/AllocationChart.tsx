@@ -1,5 +1,5 @@
 import type { HoldingInfo } from '../types/api.types';
-import './AllocationChart.css';
+import styles from './AllocationChart.module.css';
 
 interface AllocationChartProps {
   holdings: HoldingInfo[];
@@ -68,12 +68,12 @@ export function AllocationChart({ holdings }: AllocationChartProps) {
     `${(fraction * 100).toFixed(1)}%`;
 
   return (
-    <div className="allocation-chart">
-      <h3 className="allocation-chart__title">Portfolio Allocation</h3>
-      <div className="allocation-chart__content">
+    <div className={styles.allocationChart}>
+      <h3 className={styles.allocationChartTitle}>Portfolio Allocation</h3>
+      <div className={styles.allocationChartContent}>
         {/* SVG Donut */}
-        <div className="allocation-chart__donut">
-          <svg viewBox={`0 0 ${size} ${size}`} className="allocation-chart__svg">
+        <div className={styles.allocationChartDonut}>
+          <svg viewBox={`0 0 ${size} ${size}`} className={styles.allocationChartSvg}>
             {segments.map((seg) => (
               <circle
                 key={seg.holding.symbol}
@@ -95,7 +95,7 @@ export function AllocationChart({ holdings }: AllocationChartProps) {
               y={cy - 8}
               textAnchor="middle"
               dominantBaseline="central"
-              className="allocation-chart__center-label"
+              className={styles.allocationChartCenterLabel}
             >
               Total
             </text>
@@ -104,7 +104,7 @@ export function AllocationChart({ holdings }: AllocationChartProps) {
               y={cy + 14}
               textAnchor="middle"
               dominantBaseline="central"
-              className="allocation-chart__center-value"
+              className={styles.allocationChartCenterValue}
             >
               {formatCurrency(totalValue)}
             </text>
@@ -112,16 +112,16 @@ export function AllocationChart({ holdings }: AllocationChartProps) {
         </div>
 
         {/* Legend */}
-        <div className="allocation-chart__legend">
+        <div className={styles.allocationChartLegend}>
           {segments.map((seg) => (
-            <div key={seg.holding.symbol} className="allocation-chart__legend-item">
+            <div key={seg.holding.symbol} className={styles.allocationChartLegendItem}>
               <span
-                className="allocation-chart__legend-dot"
+                className={styles.allocationChartLegendDot}
                 style={{ backgroundColor: seg.color }}
               />
-              <span className="allocation-chart__legend-symbol">{seg.holding.symbol}</span>
-              <span className="allocation-chart__legend-pct">{formatPercent(seg.fraction)}</span>
-              <span className="allocation-chart__legend-value">
+              <span className={styles.allocationChartLegendSymbol}>{seg.holding.symbol}</span>
+              <span className={styles.allocationChartLegendPct}>{formatPercent(seg.fraction)}</span>
+              <span className={styles.allocationChartLegendValue}>
                 {formatCurrency(seg.holding.currentValue)}
               </span>
             </div>

@@ -92,8 +92,8 @@ describe('SimulationResults', () => {
     it('renders all 5 metric cards for profitable results', () => {
       render(<SimulationResults results={profitResults} investments={investments} />);
 
-      const metrics = document.querySelector('.simulation-results__metrics')!;
-      const metricsEl = within(metrics as HTMLElement);
+      const metrics = screen.getByTestId('metrics-grid');
+      const metricsEl = within(metrics);
 
       expect(metricsEl.getByText('Total Invested')).toBeInTheDocument();
       expect(metricsEl.getByText('Current Value')).toBeInTheDocument();
@@ -105,8 +105,8 @@ describe('SimulationResults', () => {
     it('displays formatted currency values', () => {
       render(<SimulationResults results={profitResults} investments={investments} />);
 
-      const metrics = document.querySelector('.simulation-results__metrics')!;
-      const metricsEl = within(metrics as HTMLElement);
+      const metrics = screen.getByTestId('metrics-grid');
+      const metricsEl = within(metrics);
 
       // Total Invested: $10,000.00
       expect(metricsEl.getByText('$10,000.00')).toBeInTheDocument();
@@ -119,8 +119,8 @@ describe('SimulationResults', () => {
     it('displays formatted percentage values', () => {
       render(<SimulationResults results={profitResults} investments={investments} />);
 
-      const metrics = document.querySelector('.simulation-results__metrics')!;
-      const metricsEl = within(metrics as HTMLElement);
+      const metrics = screen.getByTestId('metrics-grid');
+      const metricsEl = within(metrics);
 
       // Percent Return: +50.00%
       expect(metricsEl.getByText('+50.00%')).toBeInTheDocument();
@@ -133,8 +133,8 @@ describe('SimulationResults', () => {
     it('renders holdings table with correct headers', () => {
       render(<SimulationResults results={profitResults} investments={investments} />);
 
-      const table = document.querySelector('.holdings-table')!;
-      const tableEl = within(table as HTMLElement);
+      const table = screen.getByTestId('holdings-table');
+      const tableEl = within(table);
 
       expect(tableEl.getByText('Holdings Breakdown')).toBeInTheDocument();
       expect(tableEl.getByText('Asset')).toBeInTheDocument();
@@ -150,8 +150,8 @@ describe('SimulationResults', () => {
     it('renders a row for each holding', () => {
       render(<SimulationResults results={profitResults} investments={investments} />);
 
-      const table = document.querySelector('.holdings-table')!;
-      const tableEl = within(table as HTMLElement);
+      const table = screen.getByTestId('holdings-table');
+      const tableEl = within(table);
 
       expect(tableEl.getByText('AAPL')).toBeInTheDocument();
       expect(tableEl.getByText('Apple Inc.')).toBeInTheDocument();

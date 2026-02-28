@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { AssetSelector } from './AssetSelector';
 import type { Asset, Investment } from '../types/api.types';
-import './InvestmentForm.css';
+import styles from './InvestmentForm.module.css';
 
 interface InvestmentFormProps {
   investment: Investment;
@@ -100,10 +100,10 @@ export function InvestmentForm({
                   investment.purchaseDate;
 
   return (
-    <div className={`investment-form ${!isValid ? 'investment-form--invalid' : ''}`}>
-      <div className="investment-form__grid">
+    <div className={`${styles.investmentForm} ${!isValid ? styles.investmentFormInvalid : ''}`}>
+      <div className={styles.investmentFormGrid}>
         {/* Asset Selector */}
-        <div className="investment-form__field">
+        <div className={styles.investmentFormField}>
           <AssetSelector
             assets={assets}
             selectedSymbol={investment.symbol}
@@ -112,17 +112,17 @@ export function InvestmentForm({
               setTouched(prev => ({ ...prev, symbol: true }));
             }}
           />
-          <span className="investment-form__error-slot">
+          <span className={styles.investmentFormErrorSlot}>
             {shouldShowError('symbol') && errors.symbol}
           </span>
         </div>
 
         {/* Amount Input */}
-        <div className="investment-form__field">
-          <label className="investment-form__label">Amount (USD)</label>
+        <div className={styles.investmentFormField}>
+          <label className={styles.investmentFormLabel}>Amount (USD)</label>
           <input
             type="number"
-            className="investment-form__input"
+            className={styles.investmentFormInput}
             placeholder="1000"
             min="0.01"
             max="1000000"
@@ -131,33 +131,33 @@ export function InvestmentForm({
             onChange={handleAmountChange}
             onBlur={() => handleBlur('amountUsd')}
           />
-          <span className="investment-form__error-slot">
+          <span className={styles.investmentFormErrorSlot}>
             {shouldShowError('amountUsd') && errors.amountUsd}
           </span>
         </div>
 
         {/* Date Picker */}
-        <div className="investment-form__field">
-          <label className="investment-form__label">Purchase Date</label>
+        <div className={styles.investmentFormField}>
+          <label className={styles.investmentFormLabel}>Purchase Date</label>
           <input
             type="date"
-            className="investment-form__input"
+            className={styles.investmentFormInput}
             max={new Date().toISOString().split('T')[0]}
             value={investment.purchaseDate}
             onChange={handleDateChange}
             onBlur={() => handleBlur('purchaseDate')}
           />
-          <span className="investment-form__error-slot">
+          <span className={styles.investmentFormErrorSlot}>
             {shouldShowError('purchaseDate') && errors.purchaseDate}
           </span>
         </div>
 
         {/* Remove Button */}
-        <div className="investment-form__actions">
+        <div className={styles.investmentFormActions}>
           {canRemove && (
             <button
               type="button"
-              className="investment-form__remove"
+              className={styles.investmentFormRemove}
               onClick={onRemove}
               title="Remove investment"
             >
@@ -169,7 +169,7 @@ export function InvestmentForm({
 
       {/* Validation Status Indicator */}
       {isValid && (
-        <div className="investment-form__valid-indicator">✓ Valid</div>
+        <div className={styles.investmentFormValidIndicator}>✓ Valid</div>
       )}
     </div>
   );

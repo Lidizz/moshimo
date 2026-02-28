@@ -1,5 +1,5 @@
 import type { HoldingInfo, InvestmentItem } from '../types/api.types';
-import './PortfolioHeader.css';
+import styles from './PortfolioHeader.module.css';
 
 interface PortfolioHeaderProps {
   holdings: HoldingInfo[];
@@ -41,21 +41,21 @@ export function PortfolioHeader({ holdings, investments, endDate }: PortfolioHea
   });
 
   return (
-    <div className="portfolio-header">
-      <div className="portfolio-header__main">
-        <span className="portfolio-header__icon">📊</span>
-        <span className="portfolio-header__text">
+    <div className={styles.portfolioHeader}>
+      <div className={styles.portfolioHeaderMain}>
+        <span className={styles.portfolioHeaderIcon}>📊</span>
+        <span className={styles.portfolioHeaderText}>
           <strong>Portfolio Performance:</strong> {formatDate(earliestDate)} → {formatDate(latestDate)}
         </span>
-        <span className="portfolio-header__duration">
+        <span className={styles.portfolioHeaderDuration}>
           ({yearsDiff.toFixed(1)} years)
         </span>
       </div>
       
-      <div className="portfolio-header__assets">
+      <div className={styles.portfolioHeaderAssets}>
         <strong>Data Coverage:</strong>
         {assetInfo.map((asset, idx) => (
-          <span key={asset.symbol} className="portfolio-header__asset">
+          <span key={asset.symbol} className={styles.portfolioHeaderAsset}>
             {idx > 0 && ' • '}
             {asset.symbol} ({asset.name})
           </span>
