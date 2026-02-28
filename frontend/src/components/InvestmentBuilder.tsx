@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react';
 import { InvestmentForm } from './InvestmentForm';
 import type { Asset, Investment, SimulationRequest } from '../types/api.types';
-import './InvestmentBuilder.css';
+import styles from './InvestmentBuilder.module.css';
 
 interface InvestmentBuilderProps {
   assets: Asset[];
@@ -87,15 +87,15 @@ export function InvestmentBuilder({ assets, onSimulate, isSimulating }: Investme
   };
 
   return (
-    <div className="investment-builder">
-      <div className="investment-builder__header">
-        <h2 className="investment-builder__title">Build Your Portfolio</h2>
-        <p className="investment-builder__subtitle">
+    <div className={styles.investmentBuilder}>
+      <div className={styles.investmentBuilderHeader}>
+        <h2 className={styles.investmentBuilderTitle}>Build Your Portfolio</h2>
+        <p className={styles.investmentBuilderSubtitle}>
           Add up to 10 investments to simulate "what if" scenarios
         </p>
       </div>
 
-      <div className="investment-builder__forms">
+      <div className={styles.investmentBuilderForms}>
         {investments.map((investment, index) => (
           <InvestmentForm
             key={investment.id}
@@ -109,23 +109,23 @@ export function InvestmentBuilder({ assets, onSimulate, isSimulating }: Investme
         ))}
       </div>
 
-      <div className="investment-builder__actions">
+      <div className={styles.investmentBuilderActions}>
         <button
           type="button"
-          className="investment-builder__add-btn"
+          className={styles.investmentBuilderAddBtn}
           onClick={handleAddInvestment}
           disabled={investments.length >= 10}
         >
           + Add Another Investment
         </button>
 
-        <div className="investment-builder__summary">
-          <span className="investment-builder__summary-text">
+        <div className={styles.investmentBuilderSummary}>
+          <span className={styles.investmentBuilderSummaryText}>
             {validInvestments.length} of {investments.length} investments valid
           </span>
           <button
             type="button"
-            className="investment-builder__simulate-btn"
+            className={styles.investmentBuilderSimulateBtn}
             onClick={handleSimulate}
             disabled={!canSimulate}
           >

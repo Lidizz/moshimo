@@ -1,5 +1,5 @@
 import type { AssetType } from '../types/api.types';
-import './AssetTypeFilter.css';
+import styles from './AssetTypeFilter.module.css';
 
 interface AssetTypeFilterProps {
   selectedType: AssetType | null;
@@ -28,20 +28,20 @@ export function AssetTypeFilter({
   ];
 
   return (
-    <div className="asset-type-filter" role="group" aria-label="Filter by asset type">
+    <div className={styles.assetTypeFilter} role="group" aria-label="Filter by asset type">
       {types.map(({ value, label, icon }) => (
         <button
           key={label}
           type="button"
-          className={`asset-type-filter__btn ${
-            selectedType === value ? 'asset-type-filter__btn--active' : ''
+          className={`${styles.assetTypeFilterBtn} ${
+            selectedType === value ? styles.assetTypeFilterBtnActive : ''
           }`}
           onClick={() => onTypeChange(value)}
           disabled={disabled}
           aria-pressed={selectedType === value}
         >
-          <span className="asset-type-filter__icon" aria-hidden="true">{icon}</span>
-          <span className="asset-type-filter__label">{label}</span>
+          <span className={styles.assetTypeFilterIcon} aria-hidden="true">{icon}</span>
+          <span className={styles.assetTypeFilterLabel}>{label}</span>
         </button>
       ))}
     </div>
