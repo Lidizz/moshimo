@@ -10,6 +10,7 @@ interface InvestmentFormProps {
   onRemove: () => void;
   canRemove: boolean;
   showValidation?: boolean;  // Only show errors when true (after simulate attempt)
+  isNew?: boolean;  // Suppress validation on freshly-added rows
 }
 
 /**
@@ -26,7 +27,8 @@ export function InvestmentForm({
   onUpdate, 
   onRemove, 
   canRemove,
-  showValidation = false
+  showValidation = false,
+  isNew = false
 }: InvestmentFormProps) {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [touched, setTouched] = useState<Record<string, boolean>>({});
@@ -36,8 +38,9 @@ export function InvestmentForm({
     setTouched(prev => ({ ...prev, [field]: true }));
   };
 
-  // Show error only if touched or showValidation is true
+  // Show error only if (touched OR showValidation) AND not a fresh "new" row
   const shouldShowError = (field: string) => {
+    if (isNew) return false;
     return (touched[field] || showValidation) && errors[field];
   };
 

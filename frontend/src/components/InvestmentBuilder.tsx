@@ -22,6 +22,7 @@ interface InvestmentBuilderProps {
 export function InvestmentBuilder({ assets, onSimulate, isSimulating }: InvestmentBuilderProps) {
   const { investments, setInvestments } = useSimulationContext();
   const [showValidation, setShowValidation] = useState(false);
+  const [newInvestmentIds, setNewInvestmentIds] = useState<Set<string>>(new Set());
 
   // Create a new empty investment
   function createEmptyInvestment(): Investment {
@@ -36,15 +37,26 @@ export function InvestmentBuilder({ assets, onSimulate, isSimulating }: Investme
   // Add new investment row
   const handleAddInvestment = () => {
     if (investments.length < 10) {
-      setInvestments([...investments, createEmptyInvestment()]);
+      const newInv = createEmptyInvestment();
+      setInvestments([...investments, newInv]);
+      setNewInvestmentIds((prev) => new Set(prev).add(newInv.id));
     }
   };
 
-  // Update an investment
+  // Update an investment (also marks it as no longer "new")
   const handleUpdateInvestment = (index: number, updated: Investment) => {
     const newInvestments = [...investments];
     newInvestments[index] = updated;
     setInvestments(newInvestments);
+
+    // Once a field is interacted with, stop suppressing validation
+    if (newInvestmentIds.has(updated.id)) {
+      setNewInvestmentIds((prev) => {
+        const next = new Set(prev);
+        next.delete(updated.id);
+        return next;
+      });
+    }
   };
 
   // Remove an investment
@@ -70,8 +82,9 @@ export function InvestmentBuilder({ assets, onSimulate, isSimulating }: Investme
 
   // Handle simulation
   const handleSimulate = () => {
-    // Always show validation when user clicks simulate
+    // Reveal all validation errors (including on "new" rows)
     setShowValidation(true);
+    setNewInvestmentIds(new Set());
     
     if (!canSimulate) return;
 
@@ -105,6 +118,7 @@ export function InvestmentBuilder({ assets, onSimulate, isSimulating }: Investme
             onRemove={() => handleRemoveInvestment(index)}
             canRemove={investments.length > 1}
             showValidation={showValidation}
+            isNew={newInvestmentIds.has(investment.id)}
           />
         ))}
       </div>
