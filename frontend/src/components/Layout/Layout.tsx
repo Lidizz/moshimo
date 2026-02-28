@@ -2,7 +2,7 @@ import { Outlet, Link, useLocation } from 'react-router-dom';
 import { Home, LineChart, Info } from 'lucide-react';
 import { ThemeToggle } from '../ThemeToggle';
 import Logo from '../Logo';
-import './Layout.css';
+import styles from './Layout.module.css';
 
 export default function Layout() {
   const location = useLocation();
@@ -10,42 +10,42 @@ export default function Layout() {
   const isActive = (path: string) => location.pathname === path;
   
   return (
-    <div className="layout">
-      <header className="header">
-        <div className="header__container">
-          <div className="header__brand">
+    <div className={styles.layout}>
+      <header className={styles.header}>
+        <div className={styles.headerContainer}>
+          <div className={styles.headerBrand}>
             <Logo size={32} />
-            <h1 className="header__logo">Moshimo</h1>
+            <h1 className={styles.headerLogo}>Moshimo</h1>
           </div>
-          <nav className="nav">
+          <nav className={styles.nav}>
             <Link 
               to="/" 
-              className={`nav__link ${isActive('/') ? 'nav__link--active' : ''}`}
+              className={`${styles.navLink} ${isActive('/') ? styles.navLinkActive : ''}`}
             >
               <Home size={20} strokeWidth={2} />
               <span>Home</span>
             </Link>
             <Link 
               to="/simulator" 
-              className={`nav__link ${isActive('/simulator') ? 'nav__link--active' : ''}`}
+              className={`${styles.navLink} ${isActive('/simulator') ? styles.navLinkActive : ''}`}
             >
               <LineChart size={20} strokeWidth={2} />
               <span>Simulator</span>
             </Link>
             <Link 
               to="/about" 
-              className={`nav__link ${isActive('/about') ? 'nav__link--active' : ''}`}
+              className={`${styles.navLink} ${isActive('/about') ? styles.navLinkActive : ''}`}
             >
               <Info size={20} strokeWidth={2} />
               <span>About</span>
             </Link>
           </nav>
-          <div className="header__actions">
+          <div className={styles.headerActions}>
             <ThemeToggle />
           </div>
         </div>
       </header>
-      <main className="main">
+      <main className={styles.main}>
         <Outlet />
       </main>
     </div>

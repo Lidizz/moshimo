@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Moon, Sun } from 'lucide-react';
-import './ThemeToggle.css';
+import styles from './ThemeToggle.module.css';
 
 interface ThemeToggleProps {
   onThemeChange?: (theme: 'light' | 'dark') => void;
@@ -42,7 +42,7 @@ export function ThemeToggle({ onThemeChange }: ThemeToggleProps) {
 
   return (
     <button 
-      className="theme-toggle" 
+      className={styles.themeToggle} 
       onClick={toggleTheme}
       aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
       title={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}

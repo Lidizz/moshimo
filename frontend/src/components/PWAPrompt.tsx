@@ -7,7 +7,7 @@
 
 import { useState, useEffect } from 'react';
 import { Smartphone } from 'lucide-react';
-import './PWAPrompt.css';
+import styles from './PWAPrompt.module.css';
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
@@ -79,26 +79,26 @@ export function PWAPrompt() {
   if (!showPrompt) return null;
 
   return (
-    <div className="pwa-prompt">
-      <div className="pwa-prompt__content">
-        <div className="pwa-prompt__icon"><Smartphone size={32} strokeWidth={2} /></div>
-        <div className="pwa-prompt__text">
-          <h3 className="pwa-prompt__title">Install Moshimo</h3>
-          <p className="pwa-prompt__description">
+    <div className={styles.pwaPrompt}>
+      <div className={styles.pwaPromptContent}>
+        <div className={styles.pwaPromptIcon}><Smartphone size={32} strokeWidth={2} /></div>
+        <div className={styles.pwaPromptText}>
+          <h3 className={styles.pwaPromptTitle}>Install Moshimo</h3>
+          <p className={styles.pwaPromptDescription}>
             Get instant access to your portfolio simulator with our app. 
             Works offline and feels like a native app!
           </p>
         </div>
-        <div className="pwa-prompt__actions">
+        <div className={styles.pwaPromptActions}>
           <button
             onClick={handleInstall}
-            className="pwa-prompt__button pwa-prompt__button--primary"
+            className={`${styles.pwaPromptButton} ${styles.pwaPromptButtonPrimary}`}
           >
             Install
           </button>
           <button
             onClick={handleDismiss}
-            className="pwa-prompt__button pwa-prompt__button--secondary"
+            className={`${styles.pwaPromptButton} ${styles.pwaPromptButtonSecondary}`}
           >
             Not Now
           </button>
