@@ -104,15 +104,17 @@ export function AssetSelector({ assets, selectedSymbol, onSelect, disabled = fal
           disabled={disabled}
         >
           {selectedAsset ? (
-            <div className={styles.assetSelectorSelected}>
-              <span className={styles.assetSelectorSymbol}>{selectedAsset.symbol}</span>
-              <span className={styles.assetSelectorName}>{selectedAsset.name}</span>
-            </div>
+            <span className={styles.assetSelectorSymbol}>{selectedAsset.symbol}</span>
           ) : (
             <span className={styles.assetSelectorPlaceholder}>Choose an asset...</span>
           )}
           <span className={styles.assetSelectorArrow}>{isOpen ? '▲' : '▼'}</span>
         </button>
+
+        {/* Company name below trigger — keeps trigger compact */}
+        {selectedAsset && (
+          <span className={styles.assetSelectorCompanyLabel}>{selectedAsset.name}</span>
+        )}
 
         {isOpen && (
           <div className={styles.assetSelectorDropdown}>
