@@ -1,18 +1,17 @@
-<svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <!-- Clean "M" with upward-trending right leg -->
+<svg width="512" height="512" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="40" height="40" rx="8" fill="#f0f4f0"/>
   <path
     d="M 8 32 L 8 12 L 20 24 L 32 12 L 32 24 C 32 24, 32 8, 36 6"
     stroke="#10b981"
-    strokeWidth="3.5"
+    stroke-width="3.5"
     stroke-linecap="round"
     stroke-linejoin="round"
     fill="none"
   />
-  <!-- Small upward arrow accent -->
   <path
     d="M 33 9 L 36 6 L 36 10"
     stroke="#10b981"
-    strokeWidth="2.5"
+    stroke-width="2.5"
     stroke-linecap="round"
     stroke-linejoin="round"
     fill="none"
