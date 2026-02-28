@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, useMemo } from 'react';
 import { createChart, type IChartApi, type ISeriesApi, type LineData, AreaSeries, LineSeries } from 'lightweight-charts';
 import type { TimelinePoint, HoldingInfo } from '../types/api.types';
-import './PortfolioChart.css';
+import styles from './PortfolioChart.module.css';
 
 /**
  * Helper function to read CSS variable value
@@ -378,11 +378,11 @@ export function PortfolioChart({
   const legendSymbols = holdingsTimelines ? Object.keys(holdingsTimelines) : [];
 
   return (
-    <div className="portfolio-chart">
-      <div className="portfolio-chart__header">
-        <div className="portfolio-chart__header-left">
-          <h3 className="portfolio-chart__title">Portfolio Value Over Time</h3>
-          <p className="portfolio-chart__subtitle">
+    <div className={styles.portfolioChart}>
+      <div className={styles.portfolioChartHeader}>
+        <div className={styles.portfolioChartHeaderLeft}>
+          <h3 className={styles.portfolioChartTitle}>Portfolio Value Over Time</h3>
+          <p className={styles.portfolioChartSubtitle}>
             {viewMode === 'combined' 
               ? 'Track your total investment growth from purchase to present'
               : 'Compare individual holding performance over time'
@@ -390,15 +390,15 @@ export function PortfolioChart({
           </p>
         </div>
         {hasMultipleHoldings && (
-          <div className="portfolio-chart__view-toggle">
+          <div className={styles.portfolioChartViewToggle}>
             <button
-              className={`portfolio-chart__view-btn ${viewMode === 'combined' ? 'portfolio-chart__view-btn--active' : ''}`}
+              className={`${styles.portfolioChartViewBtn} ${viewMode === 'combined' ? styles.portfolioChartViewBtnActive : ''}`}
               onClick={() => setViewMode('combined')}
             >
               Combined
             </button>
             <button
-              className={`portfolio-chart__view-btn ${viewMode === 'individual' ? 'portfolio-chart__view-btn--active' : ''}`}
+              className={`${styles.portfolioChartViewBtn} ${viewMode === 'individual' ? styles.portfolioChartViewBtnActive : ''}`}
               onClick={() => hasIndividualData && setViewMode('individual')}
               disabled={!hasIndividualData}
               title={!hasIndividualData ? 'Individual view loading...' : 'View each asset separately'}
@@ -408,49 +408,49 @@ export function PortfolioChart({
           </div>
         )}
       </div>
-      <div className="portfolio-chart__chart-wrapper">
-        <div className="portfolio-chart__y-axis-label">
+      <div className={styles.portfolioChartChartWrapper}>
+        <div className={styles.portfolioChartYAxisLabel}>
           Portfolio Value (USD)
         </div>
-        <div ref={chartContainerRef} className="portfolio-chart__container">
-          <div className="portfolio-chart__watermark">Moshimo</div>
+        <div ref={chartContainerRef} className={styles.portfolioChartContainer}>
+          <div className={styles.portfolioChartWatermark}>Moshimo</div>
         </div>
         
         {/* Custom Tooltip */}
         {tooltipData.visible && (
           <div 
-            className="portfolio-chart__tooltip"
+            className={styles.portfolioChartTooltip}
             style={{
               left: `${tooltipData.x}px`,
               top: `${tooltipData.y}px`,
             }}
           >
             {tooltipData.entries.map((entry) => (
-              <div key={entry.symbol} className="portfolio-chart__tooltip-entry">
+              <div key={entry.symbol} className={styles.portfolioChartTooltipEntry}>
                 <span
-                  className="portfolio-chart__tooltip-dot"
+                  className={styles.portfolioChartTooltipDot}
                   style={{ backgroundColor: entry.color }}
                 />
-                <span className="portfolio-chart__tooltip-symbol">{entry.symbol}</span>
-                <span className="portfolio-chart__tooltip-value">{entry.value}</span>
+                <span className={styles.portfolioChartTooltipSymbol}>{entry.symbol}</span>
+                <span className={styles.portfolioChartTooltipValue}>{entry.value}</span>
               </div>
             ))}
-            <div className="portfolio-chart__tooltip-date">{tooltipData.date}</div>
+            <div className={styles.portfolioChartTooltipDate}>{tooltipData.date}</div>
           </div>
         )}
         
-        <div className="portfolio-chart__x-axis-label">
+        <div className={styles.portfolioChartXAxisLabel}>
           Date / Time
         </div>
       </div>
       
       {/* Legend for individual view */}
       {viewMode === 'individual' && legendSymbols.length > 0 && (
-        <div className="portfolio-chart__legend">
+        <div className={styles.portfolioChartLegend}>
           {legendSymbols.map((symbol, index) => (
-            <div key={symbol} className="portfolio-chart__legend-item">
+            <div key={symbol} className={styles.portfolioChartLegendItem}>
               <span 
-                className="portfolio-chart__legend-color" 
+                className={styles.portfolioChartLegendColor} 
                 style={{ backgroundColor: holdingColors[index % holdingColors.length] }}
               />
               <span>{symbol}</span>

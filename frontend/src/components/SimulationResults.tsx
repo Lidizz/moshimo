@@ -3,7 +3,7 @@ import { PortfolioHeader } from './PortfolioHeader';
 import { AllocationChart } from './AllocationChart';
 import { useCountUp } from '../hooks/useCountUp';
 import type { SimulationResponse, InvestmentItem } from '../types/api.types';
-import './SimulationResults.css';
+import styles from './SimulationResults.module.css';
 
 interface SimulationResultsProps {
   results: SimulationResponse;
@@ -57,53 +57,53 @@ export function SimulationResults({ results, investments }: SimulationResultsPro
   const isProfit = results.absoluteGain >= 0;
 
   return (
-    <div className="simulation-results">
+    <div className={styles.simulationResults}>
       {/* Key Metrics Cards */}
-      <div className="simulation-results__metrics">
-        <div className="metric-card">
-          <div className="metric-card__label">Total Invested</div>
-          <div className="metric-card__value">{formatCurrency(animatedTotalInvested)}</div>
+      <div className={styles.simulationResultsMetrics} data-testid="metrics-grid">
+        <div className={styles.metricCard}>
+          <div className={styles.metricCardLabel}>Total Invested</div>
+          <div className={styles.metricCardValue}>{formatCurrency(animatedTotalInvested)}</div>
         </div>
 
-        <div className="metric-card">
-          <div className="metric-card__label">Current Value</div>
-          <div className="metric-card__value metric-card__value--highlight">
+        <div className={styles.metricCard}>
+          <div className={styles.metricCardLabel}>Current Value</div>
+          <div className={`${styles.metricCardValue} ${styles.metricCardValueHighlight}`}>
             {formatCurrency(animatedCurrentValue)}
           </div>
         </div>
 
-        <div className={`metric-card metric-card--${isProfit ? 'gain' : 'loss'}`}>
-          <div className="metric-card__label">Absolute Gain</div>
-          <div className="metric-card__value">
+        <div className={`${styles.metricCard} ${isProfit ? styles.metricCardGain : styles.metricCardLoss}`}>
+          <div className={styles.metricCardLabel}>Absolute Gain</div>
+          <div className={styles.metricCardValue}>
             {formatCurrency(animatedAbsoluteGain)}
           </div>
         </div>
 
-        <div className={`metric-card metric-card--${isProfit ? 'gain' : 'loss'}`}>
-          <div className="metric-card__label">Percent Return</div>
-          <div className="metric-card__value">
+        <div className={`${styles.metricCard} ${isProfit ? styles.metricCardGain : styles.metricCardLoss}`}>
+          <div className={styles.metricCardLabel}>Percent Return</div>
+          <div className={styles.metricCardValue}>
             {formatPercent(animatedPercentReturn)}
           </div>
         </div>
 
-        <div className="metric-card metric-card--cagr">
-          <div className="metric-card__label">CAGR</div>
-          <div className="metric-card__value">
+        <div className={`${styles.metricCard} ${styles.metricCardCagr}`}>
+          <div className={styles.metricCardLabel}>CAGR</div>
+          <div className={styles.metricCardValue}>
             {formatPercent(animatedCagr)}
           </div>
-          <div className="metric-card__hint">Compound Annual Growth Rate</div>
+          <div className={styles.metricCardHint}>Compound Annual Growth Rate</div>
         </div>
       </div>
 
       {/* Mobile sticky summary — visible only on small screens */}
-      <div className="simulation-results__mobile-summary">
-        <div className="mobile-summary__item">
-          <span className="mobile-summary__label">Value</span>
-          <span className="mobile-summary__value">{formatCurrency(results.currentValue)}</span>
+      <div className={styles.simulationResultsMobileSummary}>
+        <div className={styles.mobileSummaryItem}>
+          <span className={styles.mobileSummaryLabel}>Value</span>
+          <span className={styles.mobileSummaryValue}>{formatCurrency(results.currentValue)}</span>
         </div>
-        <div className="mobile-summary__item">
-          <span className={`mobile-summary__label ${isProfit ? 'text-green' : 'text-red'}`}>Return</span>
-          <span className={`mobile-summary__value ${isProfit ? 'text-green' : 'text-red'}`}>
+        <div className={styles.mobileSummaryItem}>
+          <span className={`${styles.mobileSummaryLabel} ${isProfit ? styles.textGreen : styles.textRed}`}>Return</span>
+          <span className={`${styles.mobileSummaryValue} ${isProfit ? styles.textGreen : styles.textRed}`}>
             {formatPercent(results.percentReturn)}
           </span>
         </div>
@@ -135,21 +135,21 @@ export function SimulationResults({ results, investments }: SimulationResultsPro
       )}
 
       {/* Holdings Table */}
-      <div className="holdings-table">
-        <h3 className="holdings-table__title">Holdings Breakdown</h3>
+      <div className={styles.holdingsTable} data-testid="holdings-table">
+        <h3 className={styles.holdingsTableTitle}>Holdings Breakdown</h3>
         
-        <div className="holdings-table__container">
-          <table className="holdings-table__table">
+        <div className={styles.holdingsTableContainer}>
+          <table className={styles.holdingsTableTable}>
             <thead>
               <tr>
                 <th>Asset</th>
-                <th className="text-right">Invested</th>
-                <th className="text-right">Shares</th>
-                <th className="text-right">Purchase Price</th>
-                <th className="text-right">Current Price</th>
-                <th className="text-right">Current Value</th>
-                <th className="text-right">Gain/Loss</th>
-                <th className="text-right">Return %</th>
+                <th className={styles.textRight}>Invested</th>
+                <th className={styles.textRight}>Shares</th>
+                <th className={styles.textRight}>Purchase Price</th>
+                <th className={styles.textRight}>Current Price</th>
+                <th className={styles.textRight}>Current Value</th>
+                <th className={styles.textRight}>Gain/Loss</th>
+                <th className={styles.textRight}>Return %</th>
               </tr>
             </thead>
             <tbody>
@@ -158,20 +158,20 @@ export function SimulationResults({ results, investments }: SimulationResultsPro
                 return (
                   <tr key={holding.symbol}>
                     <td>
-                      <div className="holdings-table__asset">
-                        <span className="holdings-table__symbol">{holding.symbol}</span>
-                        <span className="holdings-table__name">{holding.name}</span>
+                      <div className={styles.holdingsTableAsset}>
+                        <span className={styles.holdingsTableSymbol}>{holding.symbol}</span>
+                        <span className={styles.holdingsTableName}>{holding.name}</span>
                       </div>
                     </td>
-                    <td className="text-right" data-label="Invested">{formatCurrency(holding.invested)}</td>
-                    <td className="text-right" data-label="Shares">{formatShares(holding.shares)}</td>
-                    <td className="text-right" data-label="Purchase Price">{formatCurrency(holding.purchasePrice)}</td>
-                    <td className="text-right" data-label="Current Price">{formatCurrency(holding.currentPrice)}</td>
-                    <td className="text-right font-semibold" data-label="Current Value">{formatCurrency(holding.currentValue)}</td>
-                    <td className={`text-right font-semibold ${isProfitable ? 'text-green' : 'text-red'}`} data-label="Gain/Loss">
+                    <td className={styles.textRight} data-label="Invested">{formatCurrency(holding.invested)}</td>
+                    <td className={styles.textRight} data-label="Shares">{formatShares(holding.shares)}</td>
+                    <td className={styles.textRight} data-label="Purchase Price">{formatCurrency(holding.purchasePrice)}</td>
+                    <td className={styles.textRight} data-label="Current Price">{formatCurrency(holding.currentPrice)}</td>
+                    <td className={`${styles.textRight} ${styles.fontSemibold}`} data-label="Current Value">{formatCurrency(holding.currentValue)}</td>
+                    <td className={`${styles.textRight} ${styles.fontSemibold} ${isProfitable ? styles.textGreen : styles.textRed}`} data-label="Gain/Loss">
                       {formatCurrency(holding.absoluteGain)}
                     </td>
-                    <td className={`text-right font-semibold ${isProfitable ? 'text-green' : 'text-red'}`} data-label="Return %">
+                    <td className={`${styles.textRight} ${styles.fontSemibold} ${isProfitable ? styles.textGreen : styles.textRed}`} data-label="Return %">
                       {formatPercent(holding.percentReturn)}
                     </td>
                   </tr>
@@ -183,9 +183,9 @@ export function SimulationResults({ results, investments }: SimulationResultsPro
       </div>
 
       {/* Data Freshness Disclaimer */}
-      <div className="data-disclaimer">
-        <span className="disclaimer-icon">📅</span>
-        <p className="disclaimer-text">
+      <div className={styles.dataDisclaimer}>
+        <span className={styles.disclaimerIcon}>📅</span>
+        <p className={styles.disclaimerText}>
           Historical price data updated monthly on the 1st. 
           Current data as of: <strong>{new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</strong>
         </p>

@@ -1,5 +1,5 @@
 import React from 'react';
-import './TimeframeSelector.css';
+import styles from './TimeframeSelector.module.css';
 
 interface TimeframeSelectorProps {
   selectedTimeframe: string;
@@ -55,13 +55,13 @@ export const TimeframeSelector: React.FC<TimeframeSelectorProps> = ({
   disabled = false,
 }) => {
   return (
-    <div className="timeframe-selector">
-      <span className="timeframe-label">Timeframe:</span>
-      <div className="timeframe-buttons">
+    <div className={styles.timeframeSelector}>
+      <span className={styles.timeframeLabel}>Timeframe:</span>
+      <div className={styles.timeframeButtons}>
         {TIMEFRAMES.map((tf) => (
           <button
             key={tf.code}
-            className={`timeframe-btn ${selectedTimeframe === tf.code ? 'active' : ''}`}
+            className={`${styles.timeframeBtn} ${selectedTimeframe === tf.code ? styles.active : ''}`}
             onClick={() => onTimeframeChange(tf.code)}
             title={tf.tooltip}
             disabled={disabled}
@@ -71,7 +71,7 @@ export const TimeframeSelector: React.FC<TimeframeSelectorProps> = ({
           </button>
         ))}
       </div>
-      <span className="timeframe-hint">
+      <span className={styles.timeframeHint}>
         Sampling across entire investment period
       </span>
     </div>
