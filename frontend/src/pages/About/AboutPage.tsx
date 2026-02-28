@@ -1,17 +1,17 @@
 import { TrendingUp, Briefcase, BarChart3, Zap, Moon, Smartphone, AlertTriangle } from 'lucide-react';
-import './AboutPage.css';
+import styles from './AboutPage.module.css';
 
 export default function AboutPage() {
   return (
-    <div className="about-page">
-      <div className="about-header">
+    <div className={styles.aboutPage}>
+      <div className={styles.aboutHeader}>
         <h1>About Moshimo</h1>
-        <p className="about-tagline">
+        <p className={styles.aboutTagline}>
           もしも - "What if" in Japanese
         </p>
       </div>
       
-      <section className="about-section">
+      <section className={styles.aboutSection}>
         <h2>What is Moshimo?</h2>
         <p>
           Moshimo (もしも - Japanese for "What if") is an educational 
@@ -25,9 +25,9 @@ export default function AboutPage() {
         </p>
       </section>
       
-      <section className="about-section">
+      <section className={styles.aboutSection}>
         <h2>How It Works</h2>
-        <ol className="about-list">
+        <ol className={styles.aboutList}>
           <li>
             <strong>Select Assets:</strong> Choose from stocks, ETFs, or market indexes
           </li>
@@ -43,9 +43,9 @@ export default function AboutPage() {
         </ol>
       </section>
       
-      <section className="about-section">
+      <section className={styles.aboutSection}>
         <h2>Features</h2>
-        <ul className="about-list features-list">
+        <ul className={`${styles.aboutList} ${styles.featuresList}`}>
           <li><TrendingUp size={20} strokeWidth={2} style={{display: 'inline', verticalAlign: 'middle', marginRight: '0.5rem'}} /> Historical data spanning 20+ years</li>
           <li><Briefcase size={20} strokeWidth={2} style={{display: 'inline', verticalAlign: 'middle', marginRight: '0.5rem'}} /> Multi-asset portfolio support</li>
           <li><BarChart3 size={20} strokeWidth={2} style={{display: 'inline', verticalAlign: 'middle', marginRight: '0.5rem'}} /> TradingView-powered charts</li>
@@ -55,10 +55,10 @@ export default function AboutPage() {
         </ul>
       </section>
       
-      <section className="about-section">
+      <section className={styles.aboutSection}>
         <h2>Tech Stack</h2>
-        <div className="tech-grid">
-          <div className="tech-item">
+        <div className={styles.techGrid}>
+          <div className={styles.techItem}>
             <h3>Backend</h3>
             <ul>
               <li>Java 25 LTS</li>
@@ -67,7 +67,7 @@ export default function AboutPage() {
               <li>Flyway Migrations</li>
             </ul>
           </div>
-          <div className="tech-item">
+          <div className={styles.techItem}>
             <h3>Frontend</h3>
             <ul>
               <li>React 19</li>
@@ -76,7 +76,7 @@ export default function AboutPage() {
               <li>React Router v6</li>
             </ul>
           </div>
-          <div className="tech-item">
+          <div className={styles.techItem}>
             <h3>Data</h3>
             <ul>
               <li>TwelveData API</li>
@@ -88,7 +88,7 @@ export default function AboutPage() {
         </div>
       </section>
       
-      <section className="about-section">
+      <section className={styles.aboutSection}>
         <h2>Open Source</h2>
         <p>
           Moshimo is open source and available on GitHub. Contributions, 
@@ -98,13 +98,13 @@ export default function AboutPage() {
           href="https://github.com/Lidizz/moshimo" 
           target="_blank" 
           rel="noopener noreferrer"
-          className="github-link"
+          className={styles.githubLink}
         >
           View on GitHub →
         </a>
       </section>
       
-      <section className="about-section disclaimer">
+      <section className={`${styles.aboutSection} ${styles.disclaimer}`}>
         <h2><AlertTriangle size={24} strokeWidth={2} style={{display: 'inline', verticalAlign: 'middle', marginRight: '0.5rem'}} /> Disclaimer</h2>
         <p>
           <strong>This is an educational tool only.</strong> Past performance 

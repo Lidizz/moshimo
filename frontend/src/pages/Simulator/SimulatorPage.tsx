@@ -7,7 +7,7 @@ import { PWAPrompt } from '../../components/PWAPrompt';
 import { ErrorBoundary } from '../../components/ErrorBoundary';
 import { useHealthCheck } from '../../hooks/useHealthCheck';
 import { useSimulation } from '../../hooks/useSimulation';
-import './SimulatorPage.css';
+import styles from './SimulatorPage.module.css';
 
 function SimulatorPage() {
   const { health, assets, loading, error } = useHealthCheck();
@@ -25,8 +25,8 @@ function SimulatorPage() {
 
   if (loading) {
     return (
-      <div className="simulator-loading">
-        <div className="spinner"></div>
+      <div className={styles.simulatorLoading}>
+        <div className={styles.spinner}></div>
         <h1>Loading Simulator...</h1>
         <p>Connecting to backend and fetching asset data</p>
       </div>
@@ -35,7 +35,7 @@ function SimulatorPage() {
 
   if (error) {
     return (
-      <div className="simulator-error">
+      <div className={styles.simulatorError}>
         <h1>❌ Error</h1>
         <p>{error}</p>
         <button onClick={() => window.location.reload()}>Retry</button>
@@ -44,7 +44,7 @@ function SimulatorPage() {
   }
 
   return (
-    <div className="simulator-page">
+    <div className={styles.simulatorPage}>
       {/* PWA Install Prompt */}
       <PWAPrompt />
 
@@ -66,7 +66,7 @@ function SimulatorPage() {
 
       {/* Simulation Error */}
       {simulationError && (
-        <div className="simulation-error">
+        <div className={styles.simulationError}>
           <strong>Simulation Error:</strong> {simulationError}
         </div>
       )}
@@ -99,7 +99,7 @@ function SimulatorPage() {
 
       {/* Debug Info (can be hidden in production) */}
       {health && (
-        <details className="simulator-debug" style={{ marginTop: '3rem' }}>
+        <details className={styles.simulatorDebug} style={{ marginTop: '3rem' }}>
           <summary>Backend Status</summary>
           <div style={{ background: 'var(--card-bg)', padding: '1rem', borderRadius: '8px', marginTop: '0.5rem', border: '1px solid var(--border-color)' }}>
             <p><strong>Status:</strong> {health.status}</p>
