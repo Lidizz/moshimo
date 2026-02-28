@@ -1,7 +1,15 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { InvestmentBuilder } from '../components/InvestmentBuilder';
+import { SimulationProvider } from '../context/SimulationContext';
 import type { Asset } from '../types/api.types';
+import type { ReactNode } from 'react';
+
+// ── Wrapper that provides required context ─────────────────────────────
+
+function Wrapper({ children }: { children: ReactNode }) {
+  return <SimulationProvider>{children}</SimulationProvider>;
+}
 
 // ── Test fixtures ───────────────────────────────────────────────────────
 
@@ -37,6 +45,7 @@ describe('InvestmentBuilder', () => {
     const onSimulate = vi.fn();
     render(
       <InvestmentBuilder assets={mockAssets} onSimulate={onSimulate} isSimulating={false} />,
+      { wrapper: Wrapper },
     );
 
     expect(screen.getByText('Build Your Portfolio')).toBeInTheDocument();
@@ -49,6 +58,7 @@ describe('InvestmentBuilder', () => {
     const onSimulate = vi.fn();
     render(
       <InvestmentBuilder assets={mockAssets} onSimulate={onSimulate} isSimulating={false} />,
+      { wrapper: Wrapper },
     );
 
     const addBtn = screen.getByText('+ Add Another Investment');
@@ -60,6 +70,7 @@ describe('InvestmentBuilder', () => {
     const onSimulate = vi.fn();
     render(
       <InvestmentBuilder assets={mockAssets} onSimulate={onSimulate} isSimulating={false} />,
+      { wrapper: Wrapper },
     );
 
     fireEvent.click(screen.getByText('+ Add Another Investment'));
@@ -72,6 +83,7 @@ describe('InvestmentBuilder', () => {
     const onSimulate = vi.fn();
     render(
       <InvestmentBuilder assets={mockAssets} onSimulate={onSimulate} isSimulating={false} />,
+      { wrapper: Wrapper },
     );
 
     const simBtn = screen.getByRole('button', { name: /simulate/i });
@@ -82,6 +94,7 @@ describe('InvestmentBuilder', () => {
     const onSimulate = vi.fn();
     render(
       <InvestmentBuilder assets={mockAssets} onSimulate={onSimulate} isSimulating={true} />,
+      { wrapper: Wrapper },
     );
 
     const simBtn = screen.getByRole('button', { name: /simulating/i });
@@ -92,6 +105,7 @@ describe('InvestmentBuilder', () => {
     const onSimulate = vi.fn();
     render(
       <InvestmentBuilder assets={mockAssets} onSimulate={onSimulate} isSimulating={true} />,
+      { wrapper: Wrapper },
     );
 
     expect(screen.getByText(/Simulating\.\.\./i)).toBeInTheDocument();
@@ -101,6 +115,7 @@ describe('InvestmentBuilder', () => {
     const onSimulate = vi.fn();
     render(
       <InvestmentBuilder assets={mockAssets} onSimulate={onSimulate} isSimulating={false} />,
+      { wrapper: Wrapper },
     );
 
     const simBtn = screen.getByRole('button', { name: /simulate/i });

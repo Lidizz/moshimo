@@ -1,5 +1,6 @@
 import { createContext, useState, useCallback } from 'react';
 import type { ReactNode } from 'react';
+import { usePersistedState } from '../hooks/usePersistedState';
 import type {
   Investment,
   SimulationRequest,
@@ -57,14 +58,21 @@ interface SimulationProviderProps {
 }
 
 export function SimulationProvider({ children }: SimulationProviderProps) {
-  const [investments, setInvestments] = useState<Investment[]>([
-    createEmptyInvestment(),
-  ]);
+  // ── Persisted state (survives navigation + page refresh) ────────
+  const [investments, setInvestments] = usePersistedState<Investment[]>(
+    'moshimo:investments',
+    [createEmptyInvestment()],
+  );
   const [simulationResults, setSimulationResults] =
-    useState<SimulationResponse | null>(null);
+    usePersistedState<SimulationResponse | null>('moshimo:results', null);
   const [lastRequest, setLastRequest] =
-    useState<SimulationRequest | null>(null);
-  const [timeframe, setTimeframe] = useState<string>('ALL');
+    usePersistedState<SimulationRequest | null>('moshimo:lastRequest', null);
+  const [timeframe, setTimeframe] = usePersistedState<string>(
+    'moshimo:timeframe',
+    'ALL',
+  );
+
+  // ── Transient state (ephemeral — not persisted) ─────────────────
   const [toast, setToast] = useState<ToastState | null>(null);
 
   const clearResults = useCallback(() => {
