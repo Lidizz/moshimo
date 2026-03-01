@@ -274,6 +274,39 @@
 }
 
 /* Mobile sticky summary bar — hidden on desktop */
+
+/* Results Toolbar (Export button row) */
+.results-toolbar {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 1rem;
+}
+
+.export-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.5rem 1rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.export-button:hover {
+  color: var(--accent);
+  border-color: var(--accent);
+  background: var(--card-bg-hover, var(--card-bg));
+}
+
+.export-button:active {
+  transform: scale(0.97);
+}
+
 .simulation-results__mobile-summary {
   display: none;
 }
