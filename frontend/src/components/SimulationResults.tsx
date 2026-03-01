@@ -1,7 +1,9 @@
+import { Download } from 'lucide-react';
 import { PortfolioChart } from './PortfolioChart';
 import { PortfolioHeader } from './PortfolioHeader';
 import { AllocationChart } from './AllocationChart';
 import { useCountUp } from '../hooks/useCountUp';
+import { generatePortfolioCSV, downloadCSV, buildExportFilename } from '../utils/csvExport';
 import type { SimulationResponse, InvestmentItem } from '../types/api.types';
 import styles from './SimulationResults.module.css';
 
@@ -56,6 +58,11 @@ export function SimulationResults({ results, investments }: SimulationResultsPro
 
   const isProfit = results.absoluteGain >= 0;
 
+  const handleExportCSV = () => {
+    const csv = generatePortfolioCSV(results);
+    downloadCSV(csv, buildExportFilename());
+  };
+
   return (
     <div className={styles.simulationResults}>
       {/* Key Metrics Cards */}
@@ -93,6 +100,19 @@ export function SimulationResults({ results, investments }: SimulationResultsPro
           </div>
           <div className={styles.metricCardHint}>Compound Annual Growth Rate</div>
         </div>
+      </div>
+
+      {/* Export Toolbar */}
+      <div className={styles.resultsToolbar}>
+        <button
+          className={styles.exportButton}
+          onClick={handleExportCSV}
+          title="Export simulation results as CSV"
+          data-testid="export-csv-button"
+        >
+          <Download size={16} />
+          Export CSV
+        </button>
       </div>
 
       {/* Mobile sticky summary — visible only on small screens */}

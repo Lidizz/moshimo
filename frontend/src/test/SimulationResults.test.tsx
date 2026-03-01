@@ -205,4 +205,14 @@ describe('SimulationResults', () => {
       expect(screen.getByText(/Historical price data updated monthly/i)).toBeInTheDocument();
     });
   });
+
+  describe('CSV export', () => {
+    it('renders export CSV button', () => {
+      render(<SimulationResults results={profitResults} investments={investments} />);
+
+      const btn = screen.getByTestId('export-csv-button');
+      expect(btn).toBeInTheDocument();
+      expect(btn).toHaveTextContent('Export CSV');
+    });
+  });
 });
